@@ -192,6 +192,12 @@ class DictationApp:
     def show_test_mode_menu(self):
         """显示测试模式菜单"""
         self.clear_screen()
+        if self.current_test is None:
+            print("錯誤：未選擇測試模組")
+            input("按Enter鍵返回主菜單...")
+            self.show_main_menu()
+            return
+            
         print(f"===== {self.current_test.name} =====\n")
         print("请选择测试模式：")
         print("1. 默认题数模式")
@@ -226,6 +232,12 @@ class DictationApp:
     def run_test(self):
         """运行默认题数测试"""
         self.clear_screen()
+        if self.current_test is None:
+            print("錯誤：未選擇測試模組")
+            input("按Enter鍵返回主菜單...")
+            self.show_main_menu()
+            return
+            
         self.current_test.start()
         
         # 测试完成后返回测试模式菜单
@@ -235,11 +247,23 @@ class DictationApp:
     def run_custom_count_test(self):
         """运行自选题数测试"""
         self.clear_screen()
+        if self.current_test is None:
+            print("錯誤：未選擇測試模組")
+            input("按Enter鍵返回主菜單...")
+            self.show_main_menu()
+            return
+            
         print(f"===== {self.current_test.name} - 自选题数模式 =====\n")
         
         # 确保词汇表已加载
-        if not self.current_test.vocabulary:
-            self.current_test.load_vocabulary()
+        if not hasattr(self.current_test, 'vocabulary') or not self.current_test.vocabulary:
+            if hasattr(self.current_test, 'load_vocabulary'):
+                self.current_test.load_vocabulary()
+            else:
+                print("錯誤：測試模組不支持加載詞彙表")
+                input("按Enter鍵返回主菜單...")
+                self.show_main_menu()
+                return
         
         max_count = len(self.current_test.vocabulary)
         print(f"词汇表中共有 {max_count} 个词汇")
