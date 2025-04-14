@@ -1,4 +1,4 @@
-# AutoDict Vocabulary Testing System 📚
+# VocabMaster Vocabulary Testing System 📚
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10.16](https://img.shields.io/badge/Python-3.10.16-blue.svg)](https://www.python.org/downloads/)
@@ -6,9 +6,9 @@
 
 ## 📖 Project Overview
 
-AutoDict is a command-line tool designed for vocabulary testing and memorization, specifically created for English learners. It offers various testing modes to help users effectively memorize and review English vocabulary. The system supports BEC Advanced vocabulary tests, "Understanding Contemporary China" English-Chinese translation tests, and custom vocabulary tests, meeting the learning needs of different users.
+VocabMaster is a command-line tool designed for vocabulary testing and memorization, specifically created for English learners. It offers various testing modes to help users effectively memorize and review English vocabulary. The system supports BEC Advanced vocabulary tests, "Understanding Contemporary China" English-Chinese translation tests, and custom vocabulary tests, meeting the learning needs of different users.
 
-> 🌟 **Open Source Project**: AutoDict is an open source project and welcomes contributions from everyone!
+> 🌟 **Open Source Project**: VocabMaster is an open source project and welcomes contributions from everyone!
 
 ## ✨ Features
 
@@ -33,8 +33,8 @@ AutoDict is a command-line tool designed for vocabulary testing and memorization
 1. Clone or download this project to your local machine
 
 ```bash
-git clone https://github.com/Icarus603/AutoDict.git
-cd AutoDict
+git clone https://github.com/Icarus603/VocabMaster.git
+cd VocabMaster
 ```
 
 2. Install dependencies
@@ -90,7 +90,7 @@ python run.py
 ## 📁 Project Structure
 
 ```
-AutoDict/
+VocabMaster/
 ├── utils/                   # Core library
 │   ├── __init__.py          # Package initialization file
 │   ├── base.py              # Base test class
@@ -110,7 +110,7 @@ AutoDict/
 
 ## 🤝 Contribution Guidelines
 
-We warmly welcome and appreciate all forms of contributions! As an open source project, AutoDict's growth depends on community support.
+We warmly welcome and appreciate all forms of contributions! As an open source project, VocabMaster's growth depends on community support.
 
 ### How to Contribute
 
@@ -141,7 +141,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 <div align="center">
 
-**AutoDict** ©2025 Developers.
+**VocabMaster** ©2025 Developers.
 
 <sub>Made with ❤️ for the open source community</sub>
 

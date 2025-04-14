@@ -1,4 +1,4 @@
-# AutoDict 词汇测试系统 📚
+# VocabMaster 词汇测试系统 📚
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10.16](https://img.shields.io/badge/Python-3.10.16-blue.svg)](https://www.python.org/downloads/)
@@ -6,9 +6,9 @@
 
 ## 📖 项目简介
 
-AutoDict 是一个用于词汇测试和记忆的命令行工具，专为英语学习者设计。它提供了多种测试模式，帮助用户有效地记忆和复习英语词汇。系统支持 BEC 高级词汇测试、《理解当代中国》英汉互译以及自定义词汇测试，满足不同用户的学习需求。
+VocabMaster 是一个用于词汇测试和记忆的命令行工具，专为英语学习者设计。它提供了多种测试模式，帮助用户有效地记忆和复习英语词汇。系统支持 BEC 高级词汇测试、《理解当代中国》英汉互译以及自定义词汇测试，满足不同用户的学习需求。
 
-> 🌟 **开源项目**：AutoDict 是一个开源项目，欢迎所有人参与贡献！
+> 🌟 **开源项目**：VocabMaster 是一个开源项目，欢迎所有人参与贡献！
 
 ## ✨ 功能特点
 
@@ -33,8 +33,8 @@ AutoDict 是一个用于词汇测试和记忆的命令行工具，专为英语�
 1. 克隆或下载本项目到本地
 
 ```bash
-git clone https://github.com/Icarus603/AutoDict.git
-cd AutoDict
+git clone https://github.com/Icarus603/VocabMaster.git
+cd VocabMaster
 ```
 
 2. 安装依赖包
@@ -90,7 +90,7 @@ python run.py
 ## 📁 项目结构
 
 ```
-AutoDict/
+VocabMaster/
 ├── utils/                   # 核心工具库
 │   ├── __init__.py          # 包初始化文件
 │   ├── base.py              # 基础测试类
@@ -110,7 +110,7 @@ AutoDict/
 
 ## 🤝 贡献指南
 
-我们非常欢迎并感谢所有形式的贡献！作为一个开源项目，AutoDict 的成长离不开社区的支持。
+我们非常欢迎并感谢所有形式的贡献！作为一个开源项目，VocabMaster 的成长离不开社区的支持。
 
 ### 如何贡献
 
@@ -141,7 +141,7 @@ AutoDict/
 
 <div align="center">
 
-**AutoDict** ©2025 开发者。
+**VocabMaster** ©2025 开发者。
 
 <sub>Made with ❤️ for the open source community</sub>
 

@@ -14,7 +14,7 @@ from utils.bec import BECTestModule1, BECTestModule2, BECTestModule3, BECTestMod
 from utils.terms import TermsTestUnit1to5, TermsTestUnit6to10
 
 class DictationApp:
-    """AutoDict主程序"""
+    """VocabMaster主程序"""
     
     def __init__(self):
         self.tests = {
@@ -51,7 +51,7 @@ class DictationApp:
     def show_main_menu(self):
         """显示主菜单"""
         self.clear_screen()
-        print("===== AutoDict =====\n")
+        print("===== VocabMaster =====\n")
         print("请选择测试类型：")
         print("1. BEC高级词汇测试")
         print("2. 《理解当代中国》英汉互译")
@@ -67,7 +67,7 @@ class DictationApp:
         elif choice == "3":
             self.show_diy_menu()
         elif choice == "0":
-            print("\n感谢使用AutoDict，再见!")
+            print("\n感谢使用VocabMaster，再见!")
             sys.exit(0)
         else:
             print("\n无效选项，请重新选择")
