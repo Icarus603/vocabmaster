@@ -193,8 +193,8 @@ class DictationApp:
         """显示测试模式菜单"""
         self.clear_screen()
         if self.current_test is None:
-            print("錯誤：未選擇測試模組")
-            input("按Enter鍵返回主菜單...")
+            print("错误：未选择测试模块")
+            input("按Enter键返回主菜单...")
             self.show_main_menu()
             return
             
@@ -233,8 +233,8 @@ class DictationApp:
         """运行默认题数测试"""
         self.clear_screen()
         if self.current_test is None:
-            print("錯誤：未選擇測試模組")
-            input("按Enter鍵返回主菜單...")
+            print("错误：未选择测试模块")
+            input("按Enter键返回主菜单...")
             self.show_main_menu()
             return
             
@@ -248,8 +248,8 @@ class DictationApp:
         """运行自选题数测试"""
         self.clear_screen()
         if self.current_test is None:
-            print("錯誤：未選擇測試模組")
-            input("按Enter鍵返回主菜單...")
+            print("错误：未选择测试模块")
+            input("按Enter键返回主菜单...")
             self.show_main_menu()
             return
             
@@ -260,8 +260,8 @@ class DictationApp:
             if hasattr(self.current_test, 'load_vocabulary'):
                 self.current_test.load_vocabulary()
             else:
-                print("錯誤：測試模組不支持加載詞彙表")
-                input("按Enter鍵返回主菜單...")
+                print("错误：测试模块不支持加载词汇表")
+                input("按Enter键返回主菜单...")
                 self.show_main_menu()
                 return
         
