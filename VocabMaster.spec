@@ -2,16 +2,17 @@
 
 
 a = Analysis(
-    ['d:\\MyProjects\\VocabMaster\\app.py'],
+    ['D:\\MyProjects\\VocabMaster\\app.py'],
     pathex=[],
     binaries=[],
-    datas=[('d:\\MyProjects\\VocabMaster\\assets', 'assets'), ('d:\\MyProjects\\VocabMaster\\terms_and_expressions', 'terms_and_expressions'), ('d:\\MyProjects\\VocabMaster\\logs', 'logs'), ('d:\\MyProjects\\VocabMaster\\data', 'data')],
+    datas=[('D:\\MyProjects\\VocabMaster\\assets', 'assets'), ('D:\\MyProjects\\VocabMaster\\terms_and_expressions', 'terms_and_expressions'), ('D:\\MyProjects\\VocabMaster\\logs', 'logs'), ('D:\\MyProjects\\VocabMaster\\data', 'data')],
     hiddenimports=['pandas', 'openpyxl', 'PyQt6'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=['matplotlib', 'opencv-python', 'notebook', 'scipy'],
     noarchive=False,
+    optimize=0,
 )
 pyz = PYZ(a.pure)
 
@@ -34,5 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['d:\\MyProjects\\VocabMaster\\assets\\icon.ico'],
+    icon=['D:\\MyProjects\\VocabMaster\\assets\\icon.ico'],
 )

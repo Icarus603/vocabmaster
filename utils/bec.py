@@ -38,8 +38,25 @@ class BECTest(TestBase):
             print(f"第{i}题: {chinese}")
             user_answer = input("请输入英文: ").strip().lower()
             
+            # 检查是否要退出测试
+            if user_answer.lower() == 'q':
+                print("\n测试已中断")
+                return correct_count, self.wrong_answers
+            
             # 检查答案是否正确（包括备选答案）
-            all_possible_answers = [correct_english.lower()] + [alt.lower() for alt in alternatives]
+            # 将正确答案转为小写
+            if correct_english:
+                correct_english_lower = correct_english.lower()
+            else:
+                correct_english_lower = ""
+                
+            # 将所有可能答案（主答案+备选答案）转为小写并去除首尾空格
+            all_possible_answers = [correct_english_lower]
+            for alt in alternatives:
+                if alt:  # 确保备选答案不为空
+                    all_possible_answers.append(alt.lower().strip())
+            
+            # 检查用户答案是否在所有可能答案中
             if user_answer in all_possible_answers:
                 print("✓ 正确!\n")
                 correct_count += 1

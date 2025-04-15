@@ -1,26 +1,26 @@
 # Python版本要求
-# python==3.10.16
+# python>=3.8
 
-# 核心依賴
-pandas==2.2.3
-openpyxl==3.1.2
-xlrd==2.0.1
-numpy==1.26.4
-pyyaml==6.0.1
-python-dateutil==2.8.2
+# 核心依赖
+PyQt6>=6.4.0
+pandas>=1.5.0
+openpyxl>=3.0.0
+xlrd>=2.0.0
+numpy>=1.22.0
+PyQt6-Qt6>=6.4.0
+PyQt6-sip>=13.4.0
 
-# GUI相關依賴
-PyQt6==6.6.1
-PyQt6-sip==13.6.0  # 添加PyQt6的SIP模塊，解決打包後的執行錯誤
-PyQt6-Qt6==6.6.1   # 添加Qt6核心組件
+# 文件处理
+python-dateutil>=2.8.2
+pyyaml>=6.0
 
-# 應用程序打包相關依賴
-pyinstaller==6.3.0
-pillow==10.2.0
+# 打包相关依赖
+pyinstaller>=5.6.0
+pillow>=9.0.0
 
-# 日誌和錯誤處理
-loguru==0.7.2
+# 日志和错误处理
+loguru>=0.6.0
 
-# 測試相關依賴（可選）
-pytest==7.4.3
-pytest-qt==4.2.0
+# 可选依赖：测试
+pytest>=7.0.0
+pytest-qt>=4.0.0

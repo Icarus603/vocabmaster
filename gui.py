@@ -529,6 +529,18 @@ class MainWindow(QMainWindow):
         self.question_count_spinbox.setMaximum(max_count)
         self.question_count_spinbox.setValue(min(10, max_count))
         
+        # 根据测试类型设置测试方向选项
+        if test_type == "bec":
+            # BEC测试只保留中译英模式
+            self.e2c_radio.setVisible(False)
+            self.mixed_radio.setVisible(False)
+            self.c2e_radio.setChecked(True)
+        else:
+            # 其他测试类型显示所有模式
+            self.e2c_radio.setVisible(True)
+            self.mixed_radio.setVisible(True)
+            self.e2c_radio.setChecked(True)
+        
         # 显示测试模式页面
         self.stacked_widget.setCurrentIndex(5)
     
