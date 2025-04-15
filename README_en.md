@@ -21,6 +21,7 @@ VocabMaster is an application designed for vocabulary testing and memorization, 
 - **Custom Vocabulary Lists**: Supports importing custom vocabulary lists in CSV and Excel formats
 - **Clear Test Results**: Displays total questions, correct answers, wrong answers, and accuracy rate
 - **Intuitive Progress Display**: Provides progress bar and real-time score display in GUI mode
+- **Smart File Import**: Automatically detects header rows in custom vocabulary files
 
 ## 🔧 Installation
 
@@ -102,6 +103,8 @@ python app.py --cli
 | **CSV Files**              | First column for English, second column for Chinese |
 | **Excel Files (xls/xlsx)** | First column for English, second column for Chinese |
 
+Note: You can start entering vocabulary directly from the first row. The system will automatically detect if the first row is a header (containing keywords like "English", "Chinese", etc.) and handle it accordingly.
+
 ## 📁 Project Structure
 
 ```
@@ -124,6 +127,8 @@ VocabMaster/
 ├── build_app.py             # Application packaging script
 ├── build/                   # Build directory (auto-generated)
 ├── dist/                    # Distribution directory (auto-generated)
+├── logs/                    # Log directory for error tracking
+├── data/                    # Data directory for application data
 ├── __pycache__/             # Python cache directory (auto-generated)
 ├── LICENSE                  # License file
 ├── README.md                # Project description (Chinese)

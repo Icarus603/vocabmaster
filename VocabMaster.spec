@@ -2,11 +2,11 @@
 
 
 a = Analysis(
-    ['D:\\MyProjects\\VocabMaster\\app.py'],
+    ['d:\\MyProjects\\VocabMaster\\app.py'],
     pathex=[],
     binaries=[],
-    datas=[('D:\\MyProjects\\VocabMaster\\assets', 'assets'), ('D:\\MyProjects\\VocabMaster\\terms_and_expressions', 'terms_and_expressions')],
-    hiddenimports=[],
+    datas=[('d:\\MyProjects\\VocabMaster\\assets', 'assets'), ('d:\\MyProjects\\VocabMaster\\terms_and_expressions', 'terms_and_expressions'), ('d:\\MyProjects\\VocabMaster\\logs', 'logs'), ('d:\\MyProjects\\VocabMaster\\data', 'data')],
+    hiddenimports=['pandas', 'openpyxl', 'PyQt6'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -34,5 +34,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['D:\\MyProjects\\VocabMaster\\assets\\icon.ico'],
+    icon=['d:\\MyProjects\\VocabMaster\\assets\\icon.ico'],
 )

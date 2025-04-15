@@ -71,28 +71,46 @@ class DIYTest(TestBase):
         vocabulary = []
         
         try:
-            # 先尝试读取CSV文件的标题行，确定列名
+            # 读取整个文件内容
+            all_rows = []
             with open(self.file_path, 'r', encoding='utf-8') as file:
                 reader = csv.reader(file)
-                headers = next(reader, None)
+                all_rows = list(reader)
                 
-                # 如果未指定列名，使用第一列作为英文，第二列作为中文
-                if not self.english_column and not self.chinese_column and headers and len(headers) >= 2:
-                    self.english_column = 0
-                    self.chinese_column = 1
+            if not all_rows:
+                print("CSV文件为空")
+                return []
+                
+            # 智能判断第一行是否为标题行
+            is_header = False
+            first_row = all_rows[0]
+            
+            # 如果未指定列索引，默认使用前两列
+            if self.english_column is None and self.chinese_column is None:
+                self.english_column = 0
+                self.chinese_column = 1
+                
+                # 检查第一行是否可能是标题行（不包含实际词汇）
+                if len(first_row) >= 2:
+                    # 以下情况可能是标题行：
+                    # 1. 包含"英文"、"中文"、"English"、"Chinese"等关键词
+                    # 2. 长度明显短于其他行，看起来像列名
+                    possible_header_keywords = ["英文", "中文", "english", "chinese", "word", "meaning", "词汇", "单词"]
+                    first_row_lower = [col.lower() for col in first_row]
                     
-            # 读取数据
-            with open(self.file_path, 'r', encoding='utf-8') as file:
-                reader = csv.reader(file)
-                next(reader, None)  # 跳过标题行
-                
-                for row in reader:
-                    # 修复：确保行有足够的列数
-                    if len(row) > max(self.english_column, self.chinese_column):
-                        english = row[self.english_column].strip()
-                        chinese = row[self.chinese_column].strip()
-                        if english and chinese:  # 确保不是空值
-                            vocabulary.append((english, chinese))
+                    # 检查是否包含常见的标题关键词
+                    if any(keyword in ''.join(first_row_lower) for keyword in possible_header_keywords):
+                        is_header = True
+                        print("检测到第一行可能是标题行，将跳过第一行")
+            
+            # 处理数据行
+            start_index = 1 if is_header else 0
+            for row in all_rows[start_index:]:
+                if len(row) > max(self.english_column, self.chinese_column):
+                    english = row[self.english_column].strip()
+                    chinese = row[self.chinese_column].strip()
+                    if english and chinese:  # 确保不是空值
+                        vocabulary.append((english, chinese))
         except Exception as e:
             print(f"读取CSV文件出错: {e}")
             return []
@@ -104,18 +122,44 @@ class DIYTest(TestBase):
         vocabulary = []
         
         try:
-            df = pd.read_excel(self.file_path)
+            # 使用pandas读取Excel文件
+            df = pd.read_excel(self.file_path, header=None)  # 先不把第一行当作标题
             
-            # 如果未指定列名，使用第一列作为英文，第二列作为中文
-            if not self.english_column and not self.chinese_column and len(df.columns) >= 2:
-                self.english_column = df.columns[0]
-                self.chinese_column = df.columns[1]
+            if df.empty:
+                print("Excel文件为空")
+                return []
             
-            # 读取数据
-            for _, row in df.iterrows():
-                english = str(row[self.english_column]).strip()
-                chinese = str(row[self.chinese_column]).strip()
-                vocabulary.append((english, chinese))
+            # 智能判断第一行是否为标题行
+            is_header = False
+            
+            # 如果未指定列索引，默认使用前两列
+            if self.english_column is None and self.chinese_column is None:
+                self.english_column = 0
+                self.chinese_column = 1
+                
+                # 检查第一行是否可能是标题行
+                if len(df.columns) >= 2:
+                    first_row = df.iloc[0].astype(str).tolist()
+                    # 检查是否包含常见的标题关键词
+                    possible_header_keywords = ["英文", "中文", "english", "chinese", "word", "meaning", "词汇", "单词"]
+                    first_row_text = ''.join([str(x).lower() for x in first_row])
+                    
+                    if any(keyword in first_row_text for keyword in possible_header_keywords):
+                        is_header = True
+                        print("检测到第一行可能是标题行，将跳过第一行")
+            
+            # 处理数据行
+            start_row = 1 if is_header else 0
+            
+            for idx in range(start_row, len(df)):
+                row = df.iloc[idx]
+                if len(row) > max(self.english_column, self.chinese_column):
+                    english = str(row[self.english_column]).strip()
+                    chinese = str(row[self.chinese_column]).strip()
+                    # 跳过NaN或空值
+                    if english and chinese and english.lower() != "nan" and chinese.lower() != "nan":
+                        vocabulary.append((english, chinese))
+                        
         except Exception as e:
             print(f"读取Excel文件出错: {e}")
             return []

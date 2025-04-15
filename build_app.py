@@ -62,6 +62,12 @@ def build_executable():
         print(f"错误: 主程序文件不存在: {app_path}")
         return False
     
+    # 创建目录确保日志文件夹存在
+    logs_dir = os.path.join(base_dir, "logs")
+    data_dir = os.path.join(base_dir, "data")
+    os.makedirs(logs_dir, exist_ok=True)
+    os.makedirs(data_dir, exist_ok=True)
+    
     # 构建命令
     cmd = [
         "pyinstaller",
@@ -74,11 +80,17 @@ def build_executable():
         # 添加必要的数据文件
         "--add-data", f"{assets_path}{os.pathsep}assets",
         "--add-data", f"{terms_path}{os.pathsep}terms_and_expressions",
+        "--add-data", f"{logs_dir}{os.pathsep}logs",
+        "--add-data", f"{data_dir}{os.pathsep}data",
         # 排除不必要的模块以减小文件大小
         "--exclude-module=matplotlib",
         "--exclude-module=opencv-python",
         "--exclude-module=notebook",
         "--exclude-module=scipy",
+        # 指定隐藏导入，确保所有依赖被正确打包
+        "--hidden-import=pandas",
+        "--hidden-import=openpyxl",
+        "--hidden-import=PyQt6",
         # 主程序文件 - 使用绝对路径
         app_path
     ]

@@ -266,9 +266,15 @@ class MainWindow(QMainWindow):
         title.setFont(QFont("Arial", 20, QFont.Weight.Bold))
         
         # 文件格式说明
-        info = QLabel("支持的文件格式: .csv, .xlsx, .xls\n文件格式要求:\n- CSV文件: 第一列为英文，第二列为中文\n- Excel文件: 第一列为英文，第二列为中文")
+        info = QLabel("支持的文件格式: .csv, .xlsx, .xls\n\n文件格式要求:\n- 第一列为英文单词，第二列为中文翻译\n- 不需要添加标题行，可以直接从第一行开始填写词汇\n- 系统会自动识别第一行是否为标题行(包含\"英文\"、\"中文\"等关键词)\n- 每行必须同时包含英文和中文，否则该行将被忽略")
         info.setAlignment(Qt.AlignmentFlag.AlignCenter)
         info.setFont(QFont("Arial", 12))
+        
+        # 示例说明
+        example = QLabel("CSV文件示例:\napple,苹果\nbook,书\n\nExcel文件示例:\n| 英文 | 中文 |\n| apple | 苹果 |\n| book | 书 |")
+        example.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        example.setFont(QFont("Arial", 12))
+        example.setStyleSheet("background-color: #f0f0f0; padding: 10px; border-radius: 5px;")
         
         # 文件路径输入
         file_layout = QHBoxLayout()
@@ -300,7 +306,9 @@ class MainWindow(QMainWindow):
         layout.addWidget(title)
         layout.addSpacing(20)
         layout.addWidget(info)
-        layout.addSpacing(40)
+        layout.addSpacing(20)
+        layout.addWidget(example)
+        layout.addSpacing(30)
         layout.addLayout(file_layout)
         layout.addSpacing(20)
         layout.addWidget(import_btn, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -691,8 +699,20 @@ class MainWindow(QMainWindow):
         if not user_answer:
             return
         
-        # 获取当前词汇
-        english, chinese = self.test_words[self.current_word_index]
+        # 获取当前词汇 - 支持不同的词汇格式
+        word_pair = self.test_words[self.current_word_index]
+        
+        # 获取正确格式的英文和中文
+        if isinstance(word_pair, tuple) and len(word_pair) == 2:
+            english, chinese = word_pair
+        elif isinstance(word_pair, dict):
+            english = word_pair.get("english", "")
+            chinese = word_pair.get("chinese", "")
+        else:
+            # 未知格式，尝试记录日志并使用安全值
+            print(f"错误：未知的词汇格式 - {word_pair}")
+            english = str(word_pair)
+            chinese = ""
         
         # 检查答案是否正确
         is_correct = self.compare_answers(user_answer, self.expected_answer)
@@ -706,16 +726,37 @@ class MainWindow(QMainWindow):
             self.result_label.setText(f"✗ 错误! 正确答案: {self.expected_answer}")
             self.result_label.setStyleSheet("color: red;")
             
-            # 记录错误答案
+            # 记录错误答案 - 确保存储实际单词，而不是变量名
+            question_word = ""
+            answer_word = ""
+            
             if self.e2c_radio.isChecked():
-                self.wrong_answers.append((english, chinese, "英译中", user_answer))
+                question_word = english  # 英文是问题
+                answer_word = chinese    # 中文是答案
+                direction = "英译中"
             elif self.c2e_radio.isChecked():
-                self.wrong_answers.append((english, chinese, "中译英", user_answer))
+                question_word = chinese  # 中文是问题
+                answer_word = english    # 英文是答案
+                direction = "中译英"
             else:  # 混合模式
                 if self.current_word_index % 2 == 0:
-                    self.wrong_answers.append((english, chinese, "英译中", user_answer))
+                    question_word = english  # 英文是问题
+                    answer_word = chinese    # 中文是答案
+                    direction = "英译中"
                 else:
-                    self.wrong_answers.append((english, chinese, "中译英", user_answer))
+                    question_word = chinese  # 中文是问题
+                    answer_word = english    # 英文是答案
+                    direction = "中译英"
+                    
+            # 存储完整的错题信息
+            self.wrong_answers.append({
+                "english": english,
+                "chinese": chinese,
+                "direction": direction,
+                "user_answer": user_answer,
+                "question_word": question_word,
+                "answer_word": answer_word
+            })
         
         # 切换到下一题或显示结果
         self.current_word_index += 1
@@ -766,19 +807,41 @@ class MainWindow(QMainWindow):
         # 更新错误题目列表
         if self.wrong_answers:
             self.wrong_answers_text.clear()
-            for i, (english, chinese, direction, user_answer) in enumerate(self.wrong_answers, 1):
-                if direction == "英译中":
-                    question = english
-                    answer = chinese
-                else:  # 中译英
-                    question = chinese
-                    answer = english
+            for i, wrong_item in enumerate(self.wrong_answers, 1):
+                # 使用新的错题格式
+                if isinstance(wrong_item, dict) and "question_word" in wrong_item and "answer_word" in wrong_item:
+                    # 新格式: 使用专门存储的问题词和答案词
+                    question = wrong_item["question_word"]
+                    answer = wrong_item["answer_word"]
+                    user_answer = wrong_item["user_answer"]
+                elif isinstance(wrong_item, tuple) and len(wrong_item) >= 4:
+                    # 兼容旧格式: (english, chinese, direction, user_answer)
+                    english, chinese, direction, user_answer = wrong_item
+                    if direction == "英译中":
+                        question = english
+                        answer = chinese
+                    else:
+                        question = chinese
+                        answer = english
+                else:
+                    # 未知格式，尽量提取可用信息
+                    print(f"错误：未知的错题格式 - {wrong_item}")
+                    if hasattr(wrong_item, "get"):
+                        question = wrong_item.get("question", "未知问题")
+                        answer = wrong_item.get("answer", "未知答案")
+                        user_answer = wrong_item.get("user_answer", "未知回答")
+                    else:
+                        question = str(wrong_item)
+                        answer = "未知答案"
+                        user_answer = "未知回答"
                 
+                # 添加错题到显示区域
                 self.wrong_answers_text.append(
                     f"{i}. {question}\n"
                     f"您的答案: {user_answer}\n"
                     f"正确答案: {answer}\n"
                 )
+            
             self.review_btn.setEnabled(True)
         else:
             self.wrong_answers_text.setText("恭喜！没有错误题目。")
@@ -793,7 +856,27 @@ class MainWindow(QMainWindow):
             return
         
         # 初始化测试状态
-        self.test_words = [(english, chinese) for english, chinese, _, _ in self.wrong_answers]
+        new_test_words = []
+        
+        # 将错题转换为测试所需的格式
+        for wrong_item in self.wrong_answers:
+            if isinstance(wrong_item, dict) and "english" in wrong_item and "chinese" in wrong_item:
+                # 新格式
+                new_test_words.append((wrong_item["english"], wrong_item["chinese"]))
+            elif isinstance(wrong_item, tuple) and len(wrong_item) >= 2:
+                # 旧格式
+                english, chinese = wrong_item[0], wrong_item[1]
+                new_test_words.append((english, chinese))
+            else:
+                # 未知格式，尝试安全处理
+                print(f"警告：跳过未知格式的错题 - {wrong_item}")
+                continue
+        
+        if not new_test_words:
+            QMessageBox.warning(self, "警告", "无法处理错题格式")
+            return
+            
+        self.test_words = new_test_words
         self.current_word_index = 0
         self.correct_count = 0
         self.wrong_answers = []
@@ -817,15 +900,46 @@ class MainWindow(QMainWindow):
 
 def main():
     """主函数"""
-    app = QApplication(sys.argv)
+    import logging
+    logger = logging.getLogger("VocabMaster.GUI")
     
-    # 设置应用程序样式
-    app.setStyle('Fusion')
-    
-    window = MainWindow()
-    window.show()
-    
-    sys.exit(app.exec())
+    try:
+        logger.info("初始化GUI界面")
+        app = QApplication(sys.argv)
+        
+        # 设置应用程序样式
+        app.setStyle('Fusion')
+        
+        # 确保数据目录存在
+        data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+        os.makedirs(data_dir, exist_ok=True)
+        
+        # 捕获GUI中的未处理异常
+        def handle_qt_exception(exctype, value, traceback_obj):
+            # 调用全局异常处理器
+            if sys.excepthook != sys.__excepthook__:
+                sys.excepthook(exctype, value, traceback_obj)
+            else:
+                # 如果没有全局处理器，也要确保能显示错误
+                logger.error("GUI异常", exc_info=(exctype, value, traceback_obj))
+        
+        sys._excepthook = sys.excepthook
+        sys.excepthook = handle_qt_exception
+        
+        logger.info("启动主窗口")
+        window = MainWindow()
+        window.show()
+        
+        return app.exec()
+    except Exception as e:
+        logger.exception("GUI初始化失败")
+        # 尝试显示一个基本的错误对话框
+        try:
+            from PyQt6.QtWidgets import QMessageBox
+            QMessageBox.critical(None, "启动错误", f"程序启动失败: {str(e)}")
+        except:
+            print(f"程序启动失败: {str(e)}")
+        return 1
 
 if __name__ == "__main__":
     main()
