@@ -649,7 +649,20 @@ class MainWindow(QMainWindow):
         self.answer_input.clear()
         
         # 获取当前词汇
-        english, chinese = self.test_words[self.current_word_index]
+        word_pair = self.test_words[self.current_word_index]
+        
+        # 根据词汇格式获取英文和中文
+        if isinstance(word_pair, tuple) and len(word_pair) == 2:
+            english, chinese = word_pair
+        elif isinstance(word_pair, dict):
+            english = word_pair.get("english", "")
+            chinese = word_pair.get("chinese", "")
+        else:
+            # 非预期格式，记录错误并跳过
+            print(f"错误：未知的词汇格式 - {word_pair}")
+            self.current_word_index += 1
+            self.show_next_question()
+            return
         
         # 根据测试方向设置问题
         if self.e2c_radio.isChecked():
