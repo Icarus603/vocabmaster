@@ -1,3 +1,16 @@
+# Python版本要求
+# python==3.10.16
+
+# 核心依赖
 pandas==2.2.3
 openpyxl==3.1.2
 xlrd==2.0.1
+
+# GUI相关依赖
+PyQt6==6.6.1
+PyQt6-sip==13.6.0  # 添加PyQt6的SIP模块，解决打包后的执行错误
+PyQt6-Qt6==6.6.1   # 添加Qt6核心组件
+
+# 应用程序打包相关依赖
+pyinstaller==6.3.0
+pillow==10.2.0

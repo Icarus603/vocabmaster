@@ -84,13 +84,15 @@ class DIYTest(TestBase):
             # 读取数据
             with open(self.file_path, 'r', encoding='utf-8') as file:
                 reader = csv.reader(file)
-                headers = next(reader, None)  # 跳过标题行
+                next(reader, None)  # 跳过标题行
                 
                 for row in reader:
+                    # 修复：确保行有足够的列数
                     if len(row) > max(self.english_column, self.chinese_column):
                         english = row[self.english_column].strip()
                         chinese = row[self.chinese_column].strip()
-                        vocabulary.append((english, chinese))
+                        if english and chinese:  # 确保不是空值
+                            vocabulary.append((english, chinese))
         except Exception as e:
             print(f"读取CSV文件出错: {e}")
             return []

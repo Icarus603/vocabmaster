@@ -74,8 +74,17 @@ class BECTestModule1(BECTest):
     
     def load_vocabulary(self):
         """加载模块1的词汇表"""
-        from bec_higher_cufe import vocab_module_1
-        self.vocabulary = vocab_module_1
+        if not self.vocabulary:
+            try:
+                # 尝试直接导入
+                import bec_higher_cufe
+                self.vocabulary = bec_higher_cufe.vocab_module_1
+            except ImportError as e:
+                print(f"导入词汇表出错: {e}")
+                # 提供一个基本的词汇表，防止程序崩溃
+                self.vocabulary = [
+                    {"chinese": "词汇加载失败", "english": "Vocabulary loading failed"}
+                ]
         return self.vocabulary
 
 
@@ -87,8 +96,17 @@ class BECTestModule2(BECTest):
     
     def load_vocabulary(self):
         """加载模块2的词汇表"""
-        from bec_higher_cufe import vocab_module_2
-        self.vocabulary = vocab_module_2
+        if not self.vocabulary:
+            try:
+                # 尝试直接导入
+                import bec_higher_cufe
+                self.vocabulary = bec_higher_cufe.vocab_module_2
+            except ImportError as e:
+                print(f"导入词汇表出错: {e}")
+                # 提供一个基本的词汇表，防止程序崩溃
+                self.vocabulary = [
+                    {"chinese": "词汇加载失败", "english": "Vocabulary loading failed"}
+                ]
         return self.vocabulary
 
 
@@ -100,8 +118,17 @@ class BECTestModule3(BECTest):
     
     def load_vocabulary(self):
         """加载模块3的词汇表"""
-        from bec_higher_cufe import vocab_module_3
-        self.vocabulary = vocab_module_3
+        if not self.vocabulary:
+            try:
+                # 尝试直接导入
+                import bec_higher_cufe
+                self.vocabulary = bec_higher_cufe.vocab_module_3
+            except ImportError as e:
+                print(f"导入词汇表出错: {e}")
+                # 提供一个基本的词汇表，防止程序崩溃
+                self.vocabulary = [
+                    {"chinese": "词汇加载失败", "english": "Vocabulary loading failed"}
+                ]
         return self.vocabulary
 
 
@@ -113,6 +140,15 @@ class BECTestModule4(BECTest):
     
     def load_vocabulary(self):
         """加载模块4的词汇表"""
-        from bec_higher_cufe import vocab_module_4
-        self.vocabulary = vocab_module_4
+        if not self.vocabulary:
+            try:
+                # 尝试直接导入
+                import bec_higher_cufe
+                self.vocabulary = bec_higher_cufe.vocab_module_4
+            except ImportError as e:
+                print(f"导入词汇表出错: {e}")
+                # 提供一个基本的词汇表，防止程序崩溃
+                self.vocabulary = [
+                    {"chinese": "词汇加载失败", "english": "Vocabulary loading failed"}
+                ]
         return self.vocabulary

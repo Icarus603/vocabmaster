@@ -78,7 +78,12 @@ class TestBase:
         print(f"总题数: {total_count}")
         print(f"正确数: {correct_count}")
         print(f"错误数: {total_count - correct_count}")
-        print(f"正确率: {correct_count / total_count * 100:.1f}%\n")
+        
+        # 防止除零错误
+        if total_count > 0:
+            print(f"正确率: {correct_count / total_count * 100:.1f}%\n")
+        else:
+            print(f"正确率: 0.0%\n")
         
         if self.wrong_answers:
             print("===== 错误题目 =====\n")
@@ -99,8 +104,11 @@ class TestBase:
         correct_count, _ = self.run_test(self.wrong_answers)
         
         print(f"\n复习结果: {correct_count}/{len(self.wrong_answers)}")
-        if len(self.wrong_answers) > 0:  # Add check to prevent division by zero
+        # 修复：确保除数不为零
+        if len(self.wrong_answers) > 0:
             print(f"正确率: {correct_count / len(self.wrong_answers) * 100:.1f}%")
+        else:
+            print("正确率: 0.0%")
     
     def start(self, custom_count=None):
         """开始测试"""
