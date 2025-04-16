@@ -1,0 +1,19 @@
+2025-04-16 00:14:50,973 - VocabMaster - INFO - 启动VocabMaster
+2025-04-16 00:14:50,973 - VocabMaster - INFO - 使用GUI模式
+2025-04-16 00:14:50,979 - VocabMaster - ERROR - 程序运行出错
+Traceback (most recent call last):
+  File "D:\MyProjects\VocabMaster\app.py", line 74, in main
+    from gui import main
+  File "D:\MyProjects\VocabMaster\gui.py", line 3, in <module>
+    from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+ModuleNotFoundError: No module named 'PyQt6'
+2025-04-16 00:14:50,980 - VocabMaster - ERROR - 未捕获的异常:
+Traceback (most recent call last):
+  File "D:\MyProjects\VocabMaster\app.py", line 81, in <module>
+    main()
+  File "D:\MyProjects\VocabMaster\app.py", line 74, in main
+    from gui import main
+  File "D:\MyProjects\VocabMaster\gui.py", line 3, in <module>
+    from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+ModuleNotFoundError: No module named 'PyQt6'
+

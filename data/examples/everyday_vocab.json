@@ -1,0 +1,62 @@
+[
+  {
+    "english": ["good morning", "morning"],
+    "chinese": ["早上好", "早安"]
+  },
+  {
+    "english": ["thank you", "thanks", "appreciate it"],
+    "chinese": ["谢谢", "感谢", "多谢"]
+  },
+  {
+    "english": ["excuse me", "pardon me", "sorry to interrupt"],
+    "chinese": ["打扰一下", "劳驾", "不好意思"]
+  },
+  {
+    "english": ["delicious", "tasty", "yummy"],
+    "chinese": ["好吃", "美味", "可口"]
+  },
+  {
+    "english": ["busy", "occupied", "swamped"],
+    "chinese": ["忙", "忙碌", "繁忙"]
+  },
+  {
+    "english": ["tired", "exhausted", "sleepy"],
+    "chinese": ["累", "疲惫", "困"]
+  },
+  {
+    "english": ["weekend", "Saturday and Sunday"],
+    "chinese": ["周末", "双休日"]
+  },
+  {
+    "english": ["holiday", "vacation", "time off"],
+    "chinese": ["假期", "休假", "度假"]
+  },
+  {
+    "english": ["convenient", "handy", "user-friendly"],
+    "chinese": ["方便", "便利", "便捷"]
+  },
+  {
+    "english": ["comfortable", "cozy", "relaxing"],
+    "chinese": ["舒适", "舒服", "惬意"]
+  },
+  {
+    "english": ["interesting", "fascinating", "intriguing"],
+    "chinese": ["有趣", "有意思", "引人入胜"]
+  },
+  {
+    "english": ["difficult", "hard", "challenging"],
+    "chinese": ["困难", "难", "有挑战性"]
+  },
+  {
+    "english": ["happy", "glad", "joyful"],
+    "chinese": ["开心", "高兴", "快乐"]
+  },
+  {
+    "english": ["surprised", "amazed", "astonished"],
+    "chinese": ["惊讶", "吃惊", "震惊"]
+  },
+  {
+    "english": ["angry", "mad", "furious"],
+    "chinese": ["生气", "愤怒", "恼火"]
+  }
+]

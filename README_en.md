@@ -10,6 +10,14 @@ VocabMaster is an application designed for vocabulary testing and memorization, 
 
 > 🌟 **Open Source Project**: VocabMaster is an open source project and welcomes contributions from everyone!
 
+## 🆕 Latest Updates
+
+**April 16, 2025 Update**:
+
+- Fixed an index out of range error in the wrong answers review functionality
+- Optimized exception handling mechanism to resolve potential recursion issues
+- Improved program stability and user experience
+
 ## ✨ Features
 
 - **Multiple Test Types**: Supports BEC Advanced vocabulary, professional terminology, and custom vocabulary tests
@@ -18,10 +26,10 @@ VocabMaster is an application designed for vocabulary testing and memorization, 
 - **Random Questions**: Randomizes vocabulary order in each test to ensure comprehensive review
 - **Immediate Feedback**: Provides instant right/wrong feedback during testing
 - **Wrong Answer Review**: Option to review incorrect answers after the test to reinforce memory
-- **Custom Vocabulary Lists**: Supports importing custom vocabulary lists in CSV and Excel formats
+- **Custom Vocabulary Lists**: Supports importing custom vocabulary lists in JSON format
 - **Clear Test Results**: Displays total questions, correct answers, wrong answers, and accuracy rate
 - **Intuitive Progress Display**: Provides progress bar and real-time score display in GUI mode
-- **Smart File Import**: Automatically detects header rows in custom vocabulary files
+- **Smart File Import**: Automatically detects various expression formats in vocabulary files
 
 ## 🔧 Installation
 
@@ -98,12 +106,37 @@ python app.py --cli
 
 ### DIY Vocabulary List Format Requirements
 
-| Format                     | Requirements                                        |
-| -------------------------- | --------------------------------------------------- |
-| **CSV Files**              | First column for English, second column for Chinese |
-| **Excel Files (xls/xlsx)** | First column for English, second column for Chinese |
+VocabMaster only supports vocabulary lists in JSON format with the following requirements:
 
-Note: You can start entering vocabulary directly from the first row. The system will automatically detect if the first row is a header (containing keywords like "English", "Chinese", etc.) and handle it accordingly.
+```json
+[
+  {
+    "english": "go public",
+    "chinese": "上市",
+    "alternatives": ["be listed on the Stock Exchange"]
+  },
+  {
+    "english": ["investment", "capital investment"],
+    "chinese": ["投资", "资本投入"]
+  }
+]
+```
+
+Format Details:
+
+1. Must be a JSON array (starting with `[` and ending with `]`)
+2. Each vocabulary entry must contain `english` and `chinese` fields
+3. These fields can be either strings or string arrays:
+   - If string: represents a single expression
+   - If array: can represent multiple Chinese expressions corresponding to multiple English expressions, all will be recognized
+4. An optional `alternatives` field can provide additional alternative English answers
+
+Important Notes:
+
+- In Chinese-to-English mode, any English expression (main or alternative) will be accepted as correct
+- In English-to-Chinese mode, any listed Chinese expression will also be accepted as correct
+- Multiple Chinese expressions will be displayed connected with `/` symbols, but you can input any one of them
+- CSV and Excel formats are no longer supported
 
 ## 📁 Project Structure
 
@@ -172,6 +205,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 **VocabMaster** ©2025 Developers.
 
-<sub>Last updated: April 15, 2025</sub>
+<sub>Last updated: April 16, 2025</sub>
 
 </div>

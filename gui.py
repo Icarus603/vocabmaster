@@ -3,7 +3,7 @@ import os
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                            QLabel, QPushButton, QStackedWidget, QComboBox, QLineEdit, 
                            QFileDialog, QMessageBox, QTextEdit, QSpinBox, QProgressBar,
-                           QRadioButton, QButtonGroup, QGroupBox)
+                           QRadioButton, QButtonGroup, QGroupBox, QDialog, QScrollArea)
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QFont, QIcon, QPixmap
 from utils import BECTest, TermsTest, DIYTest
@@ -259,42 +259,64 @@ class MainWindow(QMainWindow):
         """设置导入词汇表页面"""
         page = QWidget()
         layout = QVBoxLayout(page)
+        page.setStyleSheet("background-color: #2d2d2d; color: #e0e0e0;")  # 深色背景，浅色文字
         
         # 标题
         title = QLabel("导入词汇表")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        title.setStyleSheet("color: #ffffff;")  # 白色标题
         
         # 文件格式说明
-        info = QLabel("支持的文件格式: .csv, .xlsx, .xls\n\n文件格式要求:\n- 第一列为英文单词，第二列为中文翻译\n- 不需要添加标题行，可以直接从第一行开始填写词汇\n- 系统会自动识别第一行是否为标题行(包含\"英文\"、\"中文\"等关键词)\n- 每行必须同时包含英文和中文，否则该行将被忽略")
+        info = QLabel("支持的文件格式: 仅支持.json格式\n\n"
+                    "JSON格式要求:\n"
+                    "1. 必须是一个JSON数组(列表)\n"
+                    "2. 每个词条必须包含\"english\"和\"chinese\"字段\n"
+                    "3. 这两个字段可以是字符串或字符串数组\n"
+                    "4. 如果是数组，支持多个中文对应多个英文\n"
+                    "5. 可选：使用\"alternatives\"字段提供更多备选英文答案\n\n"
+                    "注意: 在中译英模式中，用户输入任何一个英文表达（主表达或备选答案）都会被视为正确\n"
+                    "      在英译中模式中，用户输入任何一个中文表达也会被视为正确")
         info.setAlignment(Qt.AlignmentFlag.AlignCenter)
         info.setFont(QFont("Arial", 12))
+        info.setStyleSheet("color: #e0e0e0;")  # 浅灰色文字
         
-        # 示例说明
-        example = QLabel("CSV文件示例:\napple,苹果\nbook,书\n\nExcel文件示例:\n| 英文 | 中文 |\n| apple | 苹果 |\n| book | 书 |")
-        example.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        example.setFont(QFont("Arial", 12))
-        example.setStyleSheet("background-color: #f0f0f0; padding: 10px; border-radius: 5px;")
+        # 查看示例按钮
+        view_examples_btn = QPushButton("查看JSON格式详细示例")
+        view_examples_btn.setMinimumSize(300, 40)
+        view_examples_btn.setFont(QFont("Arial", 12))
+        view_examples_btn.setStyleSheet("background-color: #404040; color: #8cf26e;")
+        view_examples_btn.clicked.connect(self.show_json_examples)
         
-        # 文件路径输入
+        # 简化的示例
+        simple_example = QLabel("JSON示例: [{\"english\": \"go public\", \"chinese\": \"上市\"}]")
+        simple_example.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        simple_example.setFont(QFont("Consolas", 11))
+        simple_example.setStyleSheet("color: #8cf26e;")
+        
+        # 文件路径输入 - 使用深色输入框
         file_layout = QHBoxLayout()
         self.file_path_input = QLineEdit()
-        self.file_path_input.setPlaceholderText("请选择词汇表文件...")
+        self.file_path_input.setPlaceholderText("请选择JSON词汇表文件...")
         self.file_path_input.setMinimumHeight(30)
+        self.file_path_input.setStyleSheet("background-color: #3a3a3a; color: #ffffff; border: 1px solid #555555; padding: 5px;")
         browse_btn = QPushButton("浏览...")
         browse_btn.setMinimumSize(100, 30)
+        browse_btn.setStyleSheet("background-color: #4a4a4a; color: white;")
         file_layout.addWidget(self.file_path_input)
         file_layout.addWidget(browse_btn)
         
-        # 导入按钮
+        # 导入按钮 - 使用醒目色彩
         import_btn = QPushButton("导入词汇表")
         import_btn.setMinimumSize(300, 50)
         import_btn.setFont(QFont("Arial", 12))
+        import_btn.setStyleSheet("background-color: #007acc; color: white;")
         
         # 返回按钮
         back_btn = QPushButton("返回")
         back_btn.setMinimumSize(300, 50)
         back_btn.setFont(QFont("Arial", 12))
+        back_btn.setStyleSheet("background-color: #4a4a4a; color: white;")
         
         # 连接按钮点击事件
         browse_btn.clicked.connect(self.browse_vocabulary_file)
@@ -306,9 +328,11 @@ class MainWindow(QMainWindow):
         layout.addWidget(title)
         layout.addSpacing(20)
         layout.addWidget(info)
+        layout.addSpacing(10)
+        layout.addWidget(view_examples_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addSpacing(10)
+        layout.addWidget(simple_example)
         layout.addSpacing(20)
-        layout.addWidget(example)
-        layout.addSpacing(30)
         layout.addLayout(file_layout)
         layout.addSpacing(20)
         layout.addWidget(import_btn, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -547,7 +571,7 @@ class MainWindow(QMainWindow):
     def browse_vocabulary_file(self):
         """浏览词汇表文件"""
         file_path, _ = QFileDialog.getOpenFileName(
-            self, "选择词汇表文件", "", "词汇表文件 (*.csv *.xlsx *.xls)"
+            self, "选择词汇表文件", "", "词汇表文件 (*.json)"
         )
         if file_path:
             self.file_path_input.setText(file_path)
@@ -674,9 +698,16 @@ class MainWindow(QMainWindow):
         # 根据词汇格式获取英文和中文
         if isinstance(word_pair, tuple) and len(word_pair) == 2:
             english, chinese = word_pair
+            alternatives = []
+            chinese_list = [chinese]
+            english_list = [english]
         elif isinstance(word_pair, dict):
             english = word_pair.get("english", "")
             chinese = word_pair.get("chinese", "")
+            # 获取所有可能的表达方式
+            alternatives = word_pair.get("alternatives", [])
+            chinese_list = word_pair.get("chinese_list", [chinese])
+            english_list = word_pair.get("english_list", [english])
         else:
             # 非预期格式，记录错误并跳过
             print(f"错误：未知的词汇格式 - {word_pair}")
@@ -688,16 +719,24 @@ class MainWindow(QMainWindow):
         if self.e2c_radio.isChecked():
             self.question_label.setText(english)
             self.expected_answer = chinese
+            self.expected_alternatives = []  # 英译中没有备选答案
+            self.expected_chinese_list = chinese_list  # 保存所有中文表达
         elif self.c2e_radio.isChecked():
             self.question_label.setText(chinese)
             self.expected_answer = english
+            self.expected_alternatives = alternatives  # 存储备选答案
+            self.expected_english_list = english_list  # 保存所有英文表达
         else:  # 混合模式
             if self.current_word_index % 2 == 0:
                 self.question_label.setText(english)
                 self.expected_answer = chinese
+                self.expected_alternatives = []
+                self.expected_chinese_list = chinese_list
             else:
                 self.question_label.setText(chinese)
                 self.expected_answer = english
+                self.expected_alternatives = alternatives
+                self.expected_english_list = english_list
         
         # 更新进度
         self.progress_bar.setValue(self.current_word_index)
@@ -798,8 +837,26 @@ class MainWindow(QMainWindow):
         if "/" in expected_answer or "," in expected_answer:
             options = expected_answer.replace(",", "/").split("/")
             options = [opt.strip() for opt in options]
-            return user_answer in options
+            if user_answer in options:
+                return True
         
+        # 检查英文备选答案列表
+        if hasattr(self, 'expected_alternatives') and self.expected_alternatives:
+            # 将所有备选答案转为小写并去除首尾空格
+            alt_options = [alt.lower().strip() for alt in self.expected_alternatives if alt]
+            if user_answer in alt_options:
+                return True
+            
+        # 检查中文备选答案列表（对应英译中模式）
+        current_word = self.test_words[self.current_word_index]
+        if isinstance(current_word, dict) and self.e2c_radio.isChecked():
+            chinese_list = current_word.get("chinese_list", [])
+            if chinese_list and len(chinese_list) > 1:  # 有多个中文表达
+                # 将所有中文表达转为小写并去除首尾空格
+                chinese_options = [c.lower().strip() for c in chinese_list if c]
+                if user_answer in chinese_options:
+                    return True
+                
         return False
     
     def show_results(self):
@@ -875,20 +932,11 @@ class MainWindow(QMainWindow):
             if isinstance(wrong_item, dict) and "english" in wrong_item and "chinese" in wrong_item:
                 # 新格式
                 new_test_words.append((wrong_item["english"], wrong_item["chinese"]))
-            elif isinstance(wrong_item, tuple) and len(wrong_item) >= 2:
-                # 旧格式
-                english, chinese = wrong_item[0], wrong_item[1]
-                new_test_words.append((english, chinese))
-            else:
-                # 未知格式，尝试安全处理
-                print(f"警告：跳过未知格式的错题 - {wrong_item}")
-                continue
         
-        if not new_test_words:
-            QMessageBox.warning(self, "警告", "无法处理错题格式")
-            return
-            
-        self.test_words = new_test_words
+        # 更新当前词汇列表为错题列表
+        self.test_words = new_test_words  # 这里是关键修复
+        
+        # 初始化测试状态
         self.current_word_index = 0
         self.correct_count = 0
         self.wrong_answers = []
@@ -909,6 +957,153 @@ class MainWindow(QMainWindow):
         
         # 设置焦点到答案输入框
         self.answer_input.setFocus()
+    
+    def show_json_examples(self):
+        """显示JSON格式详细示例窗口"""
+        examples_dialog = QDialog(self)
+        examples_dialog.setWindowTitle("JSON词汇表格式示例")
+        examples_dialog.setMinimumSize(700, 600)
+        examples_dialog.setStyleSheet("background-color: #2d2d2d; color: #e0e0e0;")
+        
+        # 创建滚动区域内容容器
+        scroll_content = QWidget()
+        scroll_layout = QVBoxLayout(scroll_content)
+        scroll_layout.setSpacing(15)
+        scroll_layout.setContentsMargins(20, 20, 20, 20)
+        
+        # 主布局
+        layout = QVBoxLayout(examples_dialog)
+        
+        # 标题
+        title = QLabel("JSON词汇表格式示例 - 三种常用模式")
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title.setFont(QFont("Arial", 18, QFont.Weight.Bold))
+        title.setStyleSheet("color: #ffffff; margin-bottom: 10px;")
+        
+        # 示例1：简单模式
+        example1_title = QLabel("1. 简单模式：单个英文对应单个中文")
+        example1_title.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        example1_title.setStyleSheet("color: #8cf26e; margin-top: 20px;")
+        
+        example1_code = QLabel()
+        example1_code.setFont(QFont("Consolas", 12))
+        example1_code.setStyleSheet("background-color: #3a3a3a; color: #f8f8f8; padding: 10px; border-radius: 5px;")
+        example1_code.setText(
+            '{\n'
+            '  "english": "go public",\n'
+            '  "chinese": "上市",\n'
+            '  "alternatives": ["be listed on the Stock Exchange"]\n'
+            '}'
+        )
+        example1_code.setTextFormat(Qt.TextFormat.PlainText)
+        example1_code.setWordWrap(True)
+        
+        example1_note = QLabel("备选英文答案通过'alternatives'数组提供，用户输入任一答案均正确")
+        example1_note.setStyleSheet("color: #cccccc; font-style: italic;")
+        
+        # 示例2：一对多模式
+        example2_title = QLabel("2. 一对多模式：多个英文对应一个中文")
+        example2_title.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        example2_title.setStyleSheet("color: #8cf26e; margin-top: 20px;")
+        
+        example2_code = QLabel()
+        example2_code.setFont(QFont("Consolas", 12))
+        example2_code.setStyleSheet("background-color: #3a3a3a; color: #f8f8f8; padding: 10px; border-radius: 5px;")
+        example2_code.setText(
+            '{\n'
+            '  "english": ["investment", "capital investment"],\n'
+            '  "chinese": "投资"\n'
+            '}'
+        )
+        example2_code.setTextFormat(Qt.TextFormat.PlainText)
+        example2_code.setWordWrap(True)
+        
+        example2_note = QLabel("当'english'为数组时，第一个元素作为主要表达，其余作为备选答案")
+        example2_note.setStyleSheet("color: #cccccc; font-style: italic;")
+        
+        # 示例3：多对多模式
+        example3_title = QLabel("3. 多对多模式：多个英文对应多个中文")
+        example3_title.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        example3_title.setStyleSheet("color: #8cf26e; margin-top: 20px;")
+        
+        example3_code = QLabel()
+        example3_code.setFont(QFont("Consolas", 12))
+        example3_code.setStyleSheet("background-color: #3a3a3a; color: #f8f8f8; padding: 10px; border-radius: 5px;")
+        example3_code.setText(
+            '{\n'
+            '  "english": ["work from home", "remote work", "teleworking"],\n'
+            '  "chinese": ["远程工作", "在家办公", "远程办公"]\n'
+            '}'
+        )
+        example3_code.setTextFormat(Qt.TextFormat.PlainText)
+        example3_code.setWordWrap(True)
+        
+        example3_note = QLabel("'english'和'chinese'都可以是数组，在中译英模式下输入任一英文表达均正确，英译中模式下输入任一中文表达均正确")
+        example3_note.setStyleSheet("color: #cccccc; font-style: italic;")
+        
+        # 完整示例
+        full_example_title = QLabel("完整词汇表示例")
+        full_example_title.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        full_example_title.setStyleSheet("color: #ffffff; margin-top: 20px;")
+        
+        full_example = QLabel()
+        full_example.setFont(QFont("Consolas", 12))
+        full_example.setStyleSheet("background-color: #3a3a3a; color: #f8f8f8; padding: 10px; border-radius: 5px;")
+        full_example.setText(
+            '[\n'
+            '  {\n'
+            '    "english": "go public",\n'
+            '    "chinese": "上市",\n'
+            '    "alternatives": ["be listed on the Stock Exchange"]\n'
+            '  },\n'
+            '  {\n'
+            '    "english": ["investment", "capital investment"],\n'
+            '    "chinese": "投资"\n'
+            '  },\n'
+            '  {\n'
+            '    "english": ["work from home", "remote work", "teleworking"],\n'
+            '    "chinese": ["远程工作", "在家办公", "远程办公"]\n'
+            '  }\n'
+            ']'
+        )
+        full_example.setTextFormat(Qt.TextFormat.PlainText)
+        full_example.setWordWrap(True)
+        
+        # 关闭按钮
+        close_btn = QPushButton("关闭")
+        close_btn.setFont(QFont("Arial", 12))
+        close_btn.setStyleSheet("background-color: #4a4a4a; color: white; padding: 8px 16px;")
+        close_btn.setMinimumHeight(40)
+        close_btn.clicked.connect(examples_dialog.accept)
+        
+        # 添加所有部件到滚动区域布局
+        scroll_layout.addWidget(title)
+        scroll_layout.addWidget(example1_title)
+        scroll_layout.addWidget(example1_code)
+        scroll_layout.addWidget(example1_note)
+        scroll_layout.addWidget(example2_title)
+        scroll_layout.addWidget(example2_code)
+        scroll_layout.addWidget(example2_note)
+        scroll_layout.addWidget(example3_title)
+        scroll_layout.addWidget(example3_code)
+        scroll_layout.addWidget(example3_note)
+        scroll_layout.addWidget(full_example_title)
+        scroll_layout.addWidget(full_example)
+        scroll_layout.addWidget(close_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+        
+        # 创建滚动区域
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(scroll_content)
+        scroll.setFrameShape(QScrollArea.Shape.NoFrame)  # 移除边框
+        scroll.setStyleSheet("background-color: transparent;")  # 透明背景
+        
+        # 将滚动区域添加到主布局
+        layout.addWidget(scroll)
+        layout.setContentsMargins(0, 0, 0, 0)  # 移除主布局边距
+        
+        # 显示对话框
+        examples_dialog.exec()
 
 def main():
     """主函数"""
@@ -928,13 +1123,26 @@ def main():
         
         # 捕获GUI中的未处理异常
         def handle_qt_exception(exctype, value, traceback_obj):
-            # 调用全局异常处理器
-            if sys.excepthook != sys.__excepthook__:
-                sys.excepthook(exctype, value, traceback_obj)
-            else:
-                # 如果没有全局处理器，也要确保能显示错误
-                logger.error("GUI异常", exc_info=(exctype, value, traceback_obj))
-        
+            # 确保不会递归调用自身
+            if exctype is RecursionError:
+                # 如果已经发生递归错误，则直接使用默认的异常处理
+                sys.__excepthook__(exctype, value, traceback_obj)
+                return
+                
+            # 记录错误到日志
+            logger.error("GUI异常", exc_info=(exctype, value, traceback_obj))
+            
+            # 显示错误对话框
+            try:
+                from PyQt6.QtWidgets import QMessageBox
+                QMessageBox.critical(None, "程序错误", 
+                                    f"程序遇到了一个错误，需要关闭。\n\n"
+                                    f"错误信息: {str(value)}")
+            except:
+                # 如果无法显示Qt对话框，尝试使用标准错误输出
+                print(f"程序错误: {str(value)}", file=sys.stderr)
+                
+        # 保存原始异常处理器并设置新的
         sys._excepthook = sys.excepthook
         sys.excepthook = handle_qt_exception
         
