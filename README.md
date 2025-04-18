@@ -33,30 +33,47 @@ VocabMaster 是一个用于词汇测试和记忆的应用程序，专为英语�
 
 ## 🔧 安装方法
 
-### 方法一：直接下载可执行文件（推荐）
+### 方法一：直接使用项目中的可执行文件（推荐）
 
-1. 从[发布页面](https://github.com/Icarus603/VocabMaster/releases)下载最新的 VocabMaster.exe 文件
-2. 下载后直接双击运行，无需安装
-
-### 方法二：从源码安装
-
-#### 系统要求
-
-- Python 3.10.16
-- 支持 Windows、macOS 和 Linux 系统
-
-#### 安装步骤
+项目的`dist`文件夹中已经包含打包好的可执行文件：
 
 1. 克隆或下载本项目到本地
+2. 进入`dist`文件夹
+3. 直接双击运行`VocabMaster.exe`文件，无需安装
+
+注意：由于可执行文件较大，我们没有将其上传到 GitHub Release，但它已经包含在项目源码中。
+
+### 方法二：配置 Conda 环境运行
+
+通过配置 conda 环境，您可以获得准确的 Python 3.10.16 版本和所有依赖项，确保应用程序在所有平台上稳定运行。
+
+#### 前提条件
+
+- 安装 [Anaconda](https://www.anaconda.com/products/distribution) 或 [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
+- Git（可选，用于克隆仓库）
+
+#### 详细配置步骤
+
+1. **克隆或下载项目**
 
 ```bash
 git clone https://github.com/Icarus603/VocabMaster.git
 cd VocabMaster
 ```
 
-2. 安装依赖包
+2. **创建 conda 环境并激活**
 
 ```bash
+# 创建名为VocabMaster的环境，指定Python版本为3.10.16
+conda create -n VocabMaster python=3.10.16 -y
+# 激活环境
+conda activate VocabMaster
+```
+
+3. **安装项目依赖**
+
+```bash
+# 安装依赖包
 pip install -r requirements.txt
 ```
 
@@ -65,6 +82,35 @@ pip install -r requirements.txt
 ```bash
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
+
+4. **验证安装**
+
+```bash
+# 检查Python版本是否正确
+python --version  # 应显示Python 3.10.16
+```
+
+5. **运行应用程序**
+
+```bash
+# 使用GUI模式运行
+python app.py
+
+# 或使用命令行模式运行
+python app.py --cli
+```
+
+6. **使用完毕后，退出环境**
+
+```bash
+conda deactivate
+```
+
+#### 环境管理提示
+
+- 每次使用前需要激活环境：`conda activate VocabMaster`
+- 如需更新依赖：`pip install -r requirements.txt --upgrade`
+- 如需删除环境：`conda env remove -n VocabMaster`
 
 ## 🚀 使用方法
 

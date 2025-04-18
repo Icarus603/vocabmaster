@@ -33,30 +33,47 @@ VocabMaster is an application designed for vocabulary testing and memorization, 
 
 ## 🔧 Installation
 
-### Method 1: Download Executable File (Recommended)
+### Method 1: Use the Executable File in the Project (Recommended)
 
-1. Download the latest VocabMaster.exe file from the [releases page](https://github.com/Icarus603/VocabMaster/releases)
-2. Double-click to run after downloading, no installation required
-
-### Method 2: Install from Source Code
-
-#### System Requirements
-
-- Python 3.10.16
-- Compatible with Windows, macOS, and Linux systems
-
-#### Installation Steps
+The `dist` folder in the project already contains a pre-packaged executable file:
 
 1. Clone or download this project to your local machine
+2. Navigate to the `dist` folder
+3. Simply double-click the `VocabMaster.exe` file to run it, no installation required
+
+Note: Due to the large size of the executable file, we haven't uploaded it to GitHub Release, but it's included in the project source code.
+
+### Method 2: Configure a Conda Environment
+
+By setting up a conda environment, you can get the exact Python 3.10.16 version and all dependencies, ensuring the application runs stably on all platforms.
+
+#### Prerequisites
+
+- Install [Anaconda](https://www.anaconda.com/products/distribution) or [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
+- Git (optional, for cloning the repository)
+
+#### Detailed Setup Steps
+
+1. **Clone or download the project**
 
 ```bash
 git clone https://github.com/Icarus603/VocabMaster.git
 cd VocabMaster
 ```
 
-2. Install dependencies
+2. **Create and activate the conda environment**
 
 ```bash
+# Create an environment named VocabMaster with Python 3.10.16
+conda create -n VocabMaster python=3.10.16 -y
+# Activate the environment
+conda activate VocabMaster
+```
+
+3. **Install project dependencies**
+
+```bash
+# Install dependency packages
 pip install -r requirements.txt
 ```
 
@@ -65,6 +82,35 @@ If you encounter network issues, you can use a mirror:
 ```bash
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
+
+4. **Verify installation**
+
+```bash
+# Check if Python version is correct
+python --version  # Should display Python 3.10.16
+```
+
+5. **Run the application**
+
+```bash
+# Run in GUI mode
+python app.py
+
+# Or run in command line mode
+python app.py --cli
+```
+
+6. **Exit the environment when finished**
+
+```bash
+conda deactivate
+```
+
+#### Environment Management Tips
+
+- Activate the environment before each use: `conda activate VocabMaster`
+- To update dependencies: `pip install -r requirements.txt --upgrade`
+- To remove the environment: `conda env remove -n VocabMaster`
 
 ## 🚀 Usage
 
