@@ -3,7 +3,7 @@
 
 """
 VocabMaster 打包脚本
-用于将 VocabMaster 项目打包成独立的 .exe 可执行文件
+用于将 VocabMaster 项目打包成独立的可执行文件，支持Windows、macOS和Linux平台
 """
 
 import os
@@ -40,22 +40,36 @@ def clean_previous_build():
         os.chdir(original_dir)
 
 def build_executable():
-    """构建可执行文件"""
+    """构建可执行文件，支持跨平台"""
     print("开始构建可执行文件...")
     
     # 获取当前目录的绝对路径
     base_dir = os.path.abspath(os.path.dirname(__file__))
     
     # 项目相关路径
-    icon_path = os.path.join(base_dir, "assets", "icon.ico")
     app_path = os.path.join(base_dir, "app.py")
     assets_path = os.path.join(base_dir, "assets")
     terms_path = os.path.join(base_dir, "terms_and_expressions")
     
-    # 确保 assets 目录和图标文件存在
+    # 根据操作系统选择合适的图标文件
+    current_os = platform.system().lower()
+    if current_os == "windows":
+        icon_path = os.path.join(base_dir, "assets", "icon.ico")
+    elif current_os == "darwin":  # macOS
+        icon_path = os.path.join(base_dir, "assets", "icon.icns")
+    else:  # Linux
+        icon_path = os.path.join(base_dir, "assets", "icon.png")
+    
+    # 确保图标文件存在
     if not os.path.exists(icon_path):
         print(f"警告: 图标文件不存在: {icon_path}")
-        icon_path = ""  # 如果图标不存在，使用空字符串让 PyInstaller 使用默认图标
+        # 如果特定平台的图标不存在，尝试使用PNG图标作为备选
+        fallback_icon = os.path.join(base_dir, "assets", "icon.png")
+        if os.path.exists(fallback_icon):
+            icon_path = fallback_icon
+            print(f"使用备选图标: {icon_path}")
+        else:
+            icon_path = ""  # 如果图标不存在，使用空字符串让 PyInstaller 使用默认图标
     
     # 确保主程序文件存在
     if not os.path.exists(app_path):
@@ -91,9 +105,24 @@ def build_executable():
         "--hidden-import=pandas",
         "--hidden-import=openpyxl",
         "--hidden-import=PyQt6",
-        # 主程序文件 - 使用绝对路径
-        app_path
     ]
+    
+    # 根据操作系统添加特定配置
+    system = platform.system().lower()
+    if system == "darwin":  # macOS
+        cmd.extend([
+            "--target-architecture=x86_64",  # 支持Intel芯片
+            "--target-architecture=arm64",   # 支持Apple Silicon
+            "--osx-bundle-identifier=com.vocabmaster.app",
+        ])
+    elif system == "linux":
+        # Linux特定配置
+        cmd.extend([
+            "--runtime-tmpdir=/tmp",
+        ])
+    
+    # 添加主程序文件路径
+    cmd.append(app_path)
     
     # 过滤掉空项
     cmd = [item for item in cmd if item]
@@ -129,10 +158,20 @@ def copy_additional_files():
     # 如果使用 --onefile 选项，则不需要此步骤
     pass
 
+def get_executable_name():
+    """根据操作系统返回可执行文件名称"""
+    system = platform.system().lower()
+    if system == "windows":
+        return "VocabMaster.exe"
+    elif system == "darwin":  # macOS
+        return "VocabMaster"
+    else:  # Linux
+        return "VocabMaster"
+
 def main():
     """主函数"""
     print("=" * 50)
-    print("VocabMaster 打包脚本")
+    print("VocabMaster 跨平台打包脚本")
     print("=" * 50)
     
     # 获取当前目录的绝对路径
@@ -146,6 +185,11 @@ def main():
         print("错误: 未安装 PyInstaller! 请先运行: pip install pyinstaller")
         return
     
+    # 显示当前操作系统信息
+    system = platform.system()
+    release = platform.release()
+    print(f"当前操作系统: {system} {release}")
+    
     # 清理之前的构建文件
     clean_previous_build()
     
@@ -155,7 +199,8 @@ def main():
         copy_additional_files()
         
         # 获取打包后文件的路径
-        exe_path = os.path.join(base_dir, "dist", "VocabMaster.exe")
+        exe_name = get_executable_name()
+        exe_path = os.path.join(base_dir, "dist", exe_name)
         if os.path.exists(exe_path):
             exe_size = os.path.getsize(exe_path) / (1024 * 1024)  # 转换为 MB
             print(f"生成的可执行文件大小: {exe_size:.2f} MB")
@@ -164,7 +209,15 @@ def main():
             print("警告: 未找到生成的可执行文件!")
         
         print("\n构建完成! 可执行文件已生成在 dist 目录下。")
-        print(f"运行方式: 双击 {os.path.join(base_dir, 'dist', 'VocabMaster.exe')} 即可启动程序。")
+        
+        # 根据操作系统显示不同的运行提示
+        system = platform.system().lower()
+        if system == "windows":
+            print(f"运行方式: 双击 {os.path.join('dist', exe_name)} 即可启动程序。")
+        elif system == "darwin":  # macOS
+            print(f"运行方式: 在终端中执行 chmod +x {os.path.join('dist', exe_name)} 赋予执行权限后，双击或执行 ./{os.path.join('dist', exe_name)} 启动程序。")
+        else:  # Linux
+            print(f"运行方式: 在终端中执行 chmod +x {os.path.join('dist', exe_name)} 赋予执行权限后，执行 ./{os.path.join('dist', exe_name)} 启动程序。")
     else:
         print("\n构建失败! 请检查错误信息。")
 

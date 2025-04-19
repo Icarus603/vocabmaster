@@ -33,17 +33,31 @@ VocabMaster is an application designed for vocabulary testing and memorization, 
 
 ## 🔧 Installation
 
-### Method 1: Use the Executable File in the Project (Recommended)
+### Method 1: Get Pre-compiled Executable Files (Recommended)
 
-The `dist` folder in the project already contains a pre-packaged executable file:
+#### Windows
 
-1. Clone or download this project to your local machine
-2. Navigate to the `dist` folder
-3. Simply double-click the `VocabMaster.exe` file to run it, no installation required
+The `dist` folder in the project might contain a locally packaged `VocabMaster.exe` file. You can also download the latest version from the GitHub Actions artifacts.
 
-Note: Due to the large size of the executable file, we haven't uploaded it to GitHub Release, but it's included in the project source code.
+1. Clone or download this project to your local machine (if using the local file).
+2. Navigate to the `dist` folder (if using the local file).
+3. Simply double-click the `VocabMaster.exe` file to run it, no installation required.
 
-### Method 2: Configure a Conda Environment
+#### macOS and Linux
+
+The latest macOS and Linux executables are automatically built via GitHub Actions.
+
+1. Visit the GitHub repository page for this project.
+2. Click on the "Actions" tab.
+3. Find the latest run record for the "Build VocabMaster Cross-Platform" workflow.
+4. In the "Artifacts" section of that run record, download the build artifact named `VocabMaster-macOS` or `VocabMaster-Linux`.
+5. Unzip the downloaded file to get the executable named `VocabMaster`.
+6. **macOS**: In the terminal, run `chmod +x VocabMaster` to grant execution permissions, then double-click the file or run `./VocabMaster` in the terminal.
+7. **Linux**: In the terminal, run `chmod +x VocabMaster` to grant execution permissions, then run `./VocabMaster`.
+
+Note: We no longer include the macOS and Linux executables directly in the `dist` folder within the project source code. Please obtain the latest versions via GitHub Actions.
+
+### Method 2: Configure a Conda Environment to Run
 
 By setting up a conda environment, you can get the exact Python 3.10.16 version and all dependencies, ensuring the application runs stably on all platforms.
 

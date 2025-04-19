@@ -1,0 +1,54 @@
+# .github/workflows/build.yml
+name: Build VocabMaster Cross-Platform
+
+on:
+  push:
+    branches: [main] # 当代码推送到 main 分支时触发
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  build-linux:
+    name: Build for Linux
+    runs-on: ubuntu-latest # 使用最新的 Ubuntu 运行器
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4 # 检出代码
+
+      - name: Set up Python
+        uses: actions/setup-python@v5 # 设置 Python 环境
+        with:
+          python-version: "3.10" # 指定 Python 版本 (根据您的 __pycache__ 推断)
+
+      - name: Run Linux build script
+        run: |
+          chmod +x build_cross_platform.sh # 确保脚本有执行权限
+          bash build_cross_platform.sh # 运行构建脚本
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4 # 上传构建产物
+        with:
+          name: VocabMaster-Linux # 产物名称
+          path: dist/VocabMaster # 要上传的文件路径
+
+  build-macos:
+    name: Build for macOS
+    runs-on: macos-latest # 使用最新的 macOS 运行器
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Run macOS build script
+        run: |
+          chmod +x build_cross_platform.sh
+          bash build_cross_platform.sh
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VocabMaster-macOS
+          path: dist/VocabMaster

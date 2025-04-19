@@ -1,0 +1,43 @@
+# 排除不需要的文件和目录，优化Docker构建
+
+# 构建和缓存文件
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
+# 版本控制
+.git/
+.gitignore
+
+# 日志和数据文件
+logs/
+*.log
+
+# 开发环境文件
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE配置
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 打包文件
+*.spec
+
+# 其他不需要的文件
+Dockerfile
+.dockerignore

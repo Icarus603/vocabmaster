@@ -33,15 +33,29 @@ VocabMaster 是一个用于词汇测试和记忆的应用程序，专为英语�
 
 ## 🔧 安装方法
 
-### 方法一：直接使用项目中的可执行文件（推荐）
+### 方法一：获取预编译的可执行文件（推荐）
 
-项目的`dist`文件夹中已经包含打包好的可执行文件：
+#### Windows
 
-1. 克隆或下载本项目到本地
-2. 进入`dist`文件夹
-3. 直接双击运行`VocabMaster.exe`文件，无需安装
+项目的`dist`文件夹中可能包含本地打包好的 `VocabMaster.exe` 文件。您也可以从 GitHub Actions 的构建产物中下载最新版本。
 
-注意：由于可执行文件较大，我们没有将其上传到 GitHub Release，但它已经包含在项目源码中。
+1. 克隆或下载本项目到本地 (如果使用本地文件)。
+2. 进入`dist`文件夹 (如果使用本地文件)。
+3. 直接双击运行`VocabMaster.exe`文件，无需安装。
+
+#### macOS 和 Linux
+
+最新的 macOS 和 Linux 可执行文件通过 GitHub Actions 自动构建。
+
+1. 访问本项目的 GitHub 仓库页面。
+2. 点击 "Actions" 选项卡。
+3. 找到最新的 "Build VocabMaster Cross-Platform" 工作流程运行记录。
+4. 在该运行记录的 "Artifacts" 部分，下载名为 `VocabMaster-macOS` 或 `VocabMaster-Linux` 的构建产物。
+5. 解压下载的文件，得到名为 `VocabMaster` 的可执行文件。
+6. **macOS**: 在终端中执行 `chmod +x VocabMaster` 赋予执行权限，然后双击或在终端中执行 `./VocabMaster`。
+7. **Linux**: 在终端中执行 `chmod +x VocabMaster` 赋予执行权限，然后执行 `./VocabMaster`。
+
+注意：我们不再将 macOS 和 Linux 的可执行文件直接包含在项目源码的 `dist` 目录中。请通过 GitHub Actions 获取最新版本。
 
 ### 方法二：配置 Conda 环境运行
 
