@@ -12,6 +12,12 @@ VocabMaster is an application designed for vocabulary testing and memorization, 
 
 ## 🆕 Latest Updates
 
+**April 22, 2025 Update (v1.1)**:
+
+- Added a "Next Question" button for easier navigation during tests
+- Implemented keyboard shortcuts to enhance user experience
+- Improved overall interface responsiveness
+
 **April 16, 2025 Update**:
 
 - Fixed an index out of range error in the wrong answers review functionality
@@ -30,6 +36,7 @@ VocabMaster is an application designed for vocabulary testing and memorization, 
 - **Clear Test Results**: Displays total questions, correct answers, wrong answers, and accuracy rate
 - **Intuitive Progress Display**: Provides progress bar and real-time score display in GUI mode
 - **Smart File Import**: Automatically detects various expression formats in vocabulary files
+- **Convenient Navigation**: Features a "Next Question" button and keyboard shortcuts for efficient testing
 
 ## 🔧 Installation
 
