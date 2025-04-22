@@ -1,0 +1,19 @@
+2025-04-22 13:34:28,219 - VocabMaster - INFO - 启动VocabMaster
+2025-04-22 13:34:28,219 - VocabMaster - INFO - 使用GUI模式
+2025-04-22 13:34:28,994 - VocabMaster.GUI - INFO - 初始化GUI界面
+2025-04-22 13:34:29,053 - VocabMaster.GUI - INFO - 启动主窗口
+2025-04-22 13:34:49,041 - VocabMaster.GUI - ERROR - GUI异常
+Traceback (most recent call last):
+  File "D:\MyProjects\VocabMaster\gui.py", line 763, in check_answer
+    word_pair = self.test_words[self.current_word_index]
+IndexError: list index out of range
+2025-04-22 13:34:51,658 - VocabMaster.GUI - ERROR - GUI异常
+Traceback (most recent call last):
+  File "D:\MyProjects\VocabMaster\gui.py", line 763, in check_answer
+    word_pair = self.test_words[self.current_word_index]
+IndexError: list index out of range
+2025-04-22 13:35:04,194 - VocabMaster.GUI - ERROR - GUI异常
+Traceback (most recent call last):
+  File "D:\MyProjects\VocabMaster\gui.py", line 763, in check_answer
+    word_pair = self.test_words[self.current_word_index]
+IndexError: list index out of range

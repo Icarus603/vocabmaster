@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QH
                            QFileDialog, QMessageBox, QTextEdit, QSpinBox, QProgressBar,
                            QRadioButton, QButtonGroup, QGroupBox, QDialog, QScrollArea)
 from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QFont, QIcon, QPixmap
+from PyQt6.QtGui import QFont, QIcon, QPixmap, QShortcut, QKeySequence
 from utils import BECTest, TermsTest, DIYTest
 from utils.bec import BECTestModule1, BECTestModule2, BECTestModule3, BECTestModule4
 from utils.terms import TermsTestUnit1to5, TermsTestUnit6to10
@@ -455,6 +455,17 @@ class MainWindow(QMainWindow):
         self.submit_btn.setMinimumSize(200, 50)
         self.submit_btn.setFont(QFont("Arial", 12))
         
+        # 下一题按钮
+        self.next_btn = QPushButton("下一题")
+        self.next_btn.setMinimumSize(200, 50)
+        self.next_btn.setFont(QFont("Arial", 12))
+        self.next_btn.setVisible(False)  # 初始时隐藏
+        self.next_btn.setStyleSheet("background-color: #4CAF50; color: white;")  # 绿色按钮
+        
+        # 为提交答案和下一题按钮添加Enter键快捷键
+        self.enter_shortcut = QShortcut(QKeySequence(Qt.Key.Key_Return), page)
+        self.enter_shortcut.activated.connect(self.on_enter_key_pressed)
+        
         # 结果信息
         self.result_label = QLabel("")
         self.result_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -463,6 +474,7 @@ class MainWindow(QMainWindow):
         # 连接事件
         self.answer_input.returnPressed.connect(self.check_answer)
         self.submit_btn.clicked.connect(self.check_answer)
+        self.next_btn.clicked.connect(self.proceed_to_next_question)
         
         # 添加部件到布局
         layout.addLayout(info_layout)
@@ -473,6 +485,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.answer_input)
         layout.addSpacing(20)
         layout.addWidget(self.submit_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.next_btn, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addSpacing(20)
         layout.addWidget(self.result_label)
         layout.addStretch()
@@ -706,8 +719,8 @@ class MainWindow(QMainWindow):
             chinese = word_pair.get("chinese", "")
             # 获取所有可能的表达方式
             alternatives = word_pair.get("alternatives", [])
-            chinese_list = word_pair.get("chinese_list", [chinese])
-            english_list = word_pair.get("english_list", [english])
+            chinese_list = [chinese]
+            english_list = [english]
         else:
             # 非预期格式，记录错误并跳过
             print(f"错误：未知的词汇格式 - {word_pair}")
@@ -812,16 +825,39 @@ class MainWindow(QMainWindow):
         # 切换到下一题或显示结果
         self.current_word_index += 1
         
-        # 使用计时器替代sleep，避免界面卡顿
-        from PyQt6.QtCore import QTimer
-        QTimer.singleShot(800, self.proceed_to_next_question)
+        # 显示下一题按钮，隐藏提交按钮
+        self.submit_btn.setVisible(False)
+        self.next_btn.setVisible(True)
+        
+        # 如果已经是最后一题，修改下一题按钮文本为"查看结果"
+        if self.current_word_index >= len(self.test_words):
+            self.next_btn.setText("查看结果")
+        else:
+            self.next_btn.setText("下一题")
+            
+        # 禁用答案输入框，防止重复提交
+        self.answer_input.setReadOnly(True)
+        
+        # 关键修复：将焦点转移到下一题按钮，确保Enter键可以触发它
+        self.next_btn.setFocus()
     
     def proceed_to_next_question(self):
         """处理下一题或显示结果"""
+        # 重置UI状态为下一题做准备
+        self.answer_input.setReadOnly(False)  # 重新启用输入框
+        self.submit_btn.setVisible(True)      # 显示提交按钮
+        self.next_btn.setVisible(False)       # 隐藏下一题按钮
+        self.answer_input.clear()             # 清空答案输入框
+        self.result_label.setText("")         # 清空结果标签
+        
+        # 检查是否还有下一题
         if self.current_word_index < len(self.test_words):
             self.show_next_question()
         else:
             self.show_results()
+        
+        # 设置焦点到答案输入框
+        self.answer_input.setFocus()
     
     def compare_answers(self, user_answer, expected_answer):
         """比较答案是否正确，支持部分匹配和忽略大小写"""
@@ -1104,6 +1140,15 @@ class MainWindow(QMainWindow):
         
         # 显示对话框
         examples_dialog.exec()
+    
+    def on_enter_key_pressed(self):
+        """处理Enter键按下事件，根据当前界面状态决定触发提交答案或下一题"""
+        # 如果下一题按钮可见，则触发下一题
+        if self.next_btn.isVisible():
+            self.proceed_to_next_question()
+        # 否则触发提交答案
+        else:
+            self.check_answer()
 
 def main():
     """主函数"""
