@@ -32,10 +32,10 @@ VocabMaster is an application designed for vocabulary testing and memorization, 
 - **Random Questions**: Randomizes vocabulary order in each test to ensure comprehensive review
 - **Immediate Feedback**: Provides instant right/wrong feedback during testing
 - **Wrong Answer Review**: Option to review incorrect answers after the test to reinforce memory
-- **Custom Vocabulary Lists**: Supports importing custom vocabulary lists in JSON format
+- **Custom Vocabulary Lists**: Supports importing custom vocabulary lists in JSON format (CSV format is no longer supported)
 - **Clear Test Results**: Displays total questions, correct answers, wrong answers, and accuracy rate
 - **Intuitive Progress Display**: Provides progress bar and real-time score display in GUI mode
-- **Smart File Import**: Automatically detects various expression formats in vocabulary files
+- **Smart File Import**: Automatically detects various expression formats in JSON vocabulary files
 - **Convenient Navigation**: Features a "Next Question" button and keyboard shortcuts for efficient testing
 
 ## 🔧 Installation
@@ -219,9 +219,9 @@ VocabMaster/
 │   ├── diy.py               # DIY test implementation
 │   └── terms.py             # "Understanding Contemporary China" translation implementation
 ├── terms_and_expressions/   # "Understanding Contemporary China" translation vocabulary
-│   ├── terms_and_expressions_1.csv  # Part 1 vocabulary
-│   └── terms_and_expressions_2.csv  # Part 2 vocabulary
-├── bec_higher_cufe.py       # BEC advanced vocabulary data
+│   ├── terms_and_expressions_1.json  # Part 1 vocabulary
+│   └── terms_and_expressions_2.json  # Part 2 vocabulary
+├── bec_higher_cufe.json     # BEC advanced vocabulary data (JSON format)
 ├── assets/                  # Icons and resource files
 │   └── icon.ico             # Application icon
 ├── build_app.py             # Application packaging script
@@ -229,6 +229,8 @@ VocabMaster/
 ├── dist/                    # Distribution directory (auto-generated)
 ├── logs/                    # Log directory for error tracking
 ├── data/                    # Data directory for application data
+│   └── examples/            # Example data
+│       └── everyday_vocab.json  # Everyday vocabulary example
 ├── __pycache__/             # Python cache directory (auto-generated)
 ├── LICENSE                  # License file
 ├── README.md                # Project description (Chinese)

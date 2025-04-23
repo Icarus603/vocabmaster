@@ -32,10 +32,10 @@ VocabMaster 是一个用于词汇测试和记忆的应用程序，专为英语�
 - **随机出题**：每次测试都会随机打乱词汇顺序，确保全面复习
 - **即时反馈**：测试过程中提供即时正误反馈
 - **错题复习**：测试结束后可以选择复习错题，强化记忆
-- **自定义词汇表**：支持导入 JSON 格式的自定义词汇表
+- **自定义词汇表**：支持导入 JSON 格式的自定义词汇表（不再支持CSV格式）
 - **清晰的测试结果**：显示测试总题数、正确数、错误数和正确率
 - **直观的进度显示**：在 GUI 模式下提供进度条和得分实时显示
-- **智能文件导入**：自动识别词汇表文件中的多种表达方式
+- **智能文件导入**：自动识别JSON词汇表文件中的多种表达方式
 - **便捷导航**：提供"下一题"按钮和键盘快捷键，使测试过程更高效
 
 ## 🔧 安装方法
@@ -219,9 +219,9 @@ VocabMaster/
 │   ├── diy.py               # DIY测试实现
 │   └── terms.py             # 《理解当代中国》英汉互译实现
 ├── terms_and_expressions/   # 《理解当代中国》英汉互译
-│   ├── terms_and_expressions_1.csv  # 第一部分词汇
-│   └── terms_and_expressions_2.csv  # 第二部分词汇
-├── bec_higher_cufe.py       # BEC高级词汇数据
+│   ├── terms_and_expressions_1.json  # 第一部分词汇
+│   └── terms_and_expressions_2.json  # 第二部分词汇
+├── bec_higher_cufe.json     # BEC高级词汇数据（JSON格式）
 ├── assets/                  # 图标和资源文件
 │   └── icon.ico             # 应用图标
 ├── build_app.py             # 应用打包脚本
@@ -229,6 +229,8 @@ VocabMaster/
 ├── dist/                    # 分发目录（自动生成）
 ├── logs/                    # 日志目录（用于错误跟踪）
 ├── data/                    # 数据目录（用于应用数据）
+│   └── examples/            # 示例数据
+│       └── everyday_vocab.json  # 日常词汇示例
 ├── __pycache__/             # Python缓存目录（自动生成）
 ├── LICENSE                  # 许可证文件
 ├── README.md                # 项目说明（中文）

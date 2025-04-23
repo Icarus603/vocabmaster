@@ -1,0 +1,727 @@
+[
+  {
+    "english": ["one country, two systems"],
+    "chinese": "一国两制",
+    "unit": 6
+  },
+  {
+    "english": ["1992 Consensus"],
+    "chinese": "九二共识",
+    "unit": 6
+  },
+  {
+    "english": ["agricultural modernization"],
+    "chinese": "农业现代化",
+    "unit": 6
+  },
+  {
+    "english": ["Chinese Dream of national rejuvenation"],
+    "chinese": "中华民族伟大复兴的中国梦",
+    "unit": 6
+  },
+  {
+    "english": ["civil-military integration", "national military-civilian integration strategy"],
+    "chinese": "军民融合",
+    "unit": 6
+  },
+  {
+    "english": ["common prosperity"],
+    "chinese": "共同富裕",
+    "unit": 6
+  },
+  {
+    "english": ["confidence in the path, theory, system and culture of socialism with Chinese characteristics", "Four-Sphere Confidence"],
+    "chinese": "道路自信、理论自信、制度自信、文化自信",
+    "unit": 6
+  },
+  {
+    "english": ["democratic centralism"],
+    "chinese": "民主集中制",
+    "unit": 6
+  },
+  {
+    "english": ["Deng Xiaoping Theory"],
+    "chinese": "邓小平理论",
+    "unit": 6
+  },
+  {
+    "english": ["dialectical materialism"],
+    "chinese": "辩证唯物主义",
+    "unit": 6
+  },
+  {
+    "english": ["Five-Sphere Integrated Plan"],
+    "chinese": "五位一体",
+    "unit": 6
+  },
+  {
+    "english": ["Four-Pronged Comprehensive Strategy"],
+    "chinese": "四个全面",
+    "unit": 6
+  },
+  {
+    "english": ["global community of shared future", "community with a shared future for mankind"],
+    "chinese": "人类命运共同体",
+    "unit": 6
+  },
+  {
+    "english": ["governance capacity"],
+    "chinese": "治理能力",
+    "unit": 6
+  },
+  {
+    "english": ["governance system"],
+    "chinese": "治理体系",
+    "unit": 6
+  },
+  {
+    "english": ["harmony with diversity"],
+    "chinese": "和而不同",
+    "unit": 6
+  },
+  {
+    "english": ["historical materialism"],
+    "chinese": "历史唯物主义",
+    "unit": 6
+  },
+  {
+    "english": ["lucid waters and lush mountains are invaluable assets"],
+    "chinese": "绿水青山就是金山银山",
+    "unit": 6
+  },
+  {
+    "english": ["Mao Zedong Thought"],
+    "chinese": "毛泽东思想",
+    "unit": 6
+  },
+  {
+    "english": ["Marxism-Leninism"],
+    "chinese": "马克思列宁主义",
+    "unit": 6
+  },
+  {
+    "english": ["national reunification"],
+    "chinese": "祖国统一",
+    "unit": 6
+  },
+  {
+    "english": ["new industrialization"],
+    "chinese": "新兴工业化",
+    "unit": 6
+  },
+  {
+    "english": ["people-centered philosophy of development"],
+    "chinese": "以人民为中心的发展理念",
+    "unit": 6
+  },
+  {
+    "english": ["political ecosystem"],
+    "chinese": "政治生态",
+    "unit": 6
+  },
+  {
+    "english": ["poverty alleviation"],
+    "chinese": "脱贫",
+    "unit": 6
+  },
+  {
+    "english": ["reform and opening up"],
+    "chinese": "改革开放",
+    "unit": 6
+  },
+  {
+    "english": ["resource allocation"],
+    "chinese": "资源配置",
+    "unit": 6
+  },
+  {
+    "english": ["rule of law"],
+    "chinese": "法治",
+    "unit": 6
+  },
+  {
+    "english": ["socialist distribution system"],
+    "chinese": "社会主义分配制度",
+    "unit": 6
+  },
+  {
+    "english": ["socialist modernization"],
+    "chinese": "社会主义现代化",
+    "unit": 6
+  },
+  {
+    "english": ["special administrative regions"],
+    "chinese": "特别行政区",
+    "unit": 6
+  },
+  {
+    "english": ["sustainable development"],
+    "chinese": "可持续发展",
+    "unit": 6
+  },
+  {
+    "english": ["the 'key few'"],
+    "chinese": "关键少数",
+    "unit": 6
+  },
+  {
+    "english": ["the building of a moderately prosperous society in all respects"],
+    "chinese": "全面建成小康社会",
+    "unit": 6
+  },
+  {
+    "english": ["the core socialist values"],
+    "chinese": "社会主义核心价值体系",
+    "unit": 6
+  },
+  {
+    "english": ["the judicial system"],
+    "chinese": "司法体制",
+    "unit": 6
+  },
+  {
+    "english": ["the Party's mass line"],
+    "chinese": "党的群众路线",
+    "unit": 6
+  },
+  {
+    "english": ["the Scientific Outlook on Development"],
+    "chinese": "科学发展观",
+    "unit": 6
+  },
+  {
+    "english": ["the system of political consultation"],
+    "chinese": "政治协商制度",
+    "unit": 6
+  },
+  {
+    "english": ["the Theory of Three Represents"],
+    "chinese": "三个代表重要思想",
+    "unit": 6
+  },
+  {
+    "english": ["the united front"],
+    "chinese": "统一战线",
+    "unit": 6
+  },
+  {
+    "english": ["theoretical innovations"],
+    "chinese": "理论创新",
+    "unit": 6
+  },
+  {
+    "english": ["Thought on Socialism with Chinese Characteristics for a New Era"],
+    "chinese": "新时代中国特色社会主义思想",
+    "unit": 6
+  },
+  {
+    "english": ["Three Guidelines for Ethical Behavior and Three Basic Rules of Conduct"],
+    "chinese": "三严三实",
+    "unit": 6
+  },
+  {
+    "english": ["Two Centenary Goals"],
+    "chinese": "两个一百年目标",
+    "unit": 6
+  },
+  {
+    "english": ["urbanization"],
+    "chinese": "城镇化",
+    "unit": 6
+  },
+  {
+    "english": ["well-rounded human development"],
+    "chinese": "人的全面发展",
+    "unit": 6
+  },
+  {
+    "english": ["zero tolerance"],
+    "chinese": "零容忍",
+    "unit": 6
+  },
+  {
+    "english": ["China's various ethnic groups"],
+    "chinese": "全国各族人民",
+    "unit": 7
+  },
+  {
+    "english": ["ideals and beliefs"],
+    "chinese": "理想信念",
+    "unit": 7
+  },
+  {
+    "english": ["the spirit of the Long March"],
+    "chinese": "长征精神",
+    "unit": 7
+  },
+  {
+    "english": ["various ethnicities"],
+    "chinese": "各民族",
+    "unit": 7
+  },
+  {
+    "english": ["various political parties"],
+    "chinese": "各党派",
+    "unit": 7
+  },
+  {
+    "english": ["various social groups"],
+    "chinese": "各阶层",
+    "unit": 7
+  },
+  {
+    "english": ["Buddhism"],
+    "chinese": "佛教",
+    "unit": 8
+  },
+  {
+    "english": ["China's Four Great Inventions-papermaking, gunpowder, printing and the compass"],
+    "chinese": "中国的四大发明",
+    "unit": 8
+  },
+  {
+    "english": ["Christianity"],
+    "chinese": "基督教",
+    "unit": 8
+  },
+  {
+    "english": ["Confucianism"],
+    "chinese": "儒家（文化）",
+    "unit": 8
+  },
+  {
+    "english": ["ethnic groups"],
+    "chinese": "民族",
+    "unit": 8
+  },
+  {
+    "english": ["European Renaissance"],
+    "chinese": "欧洲文艺复兴",
+    "unit": 8
+  },
+  {
+    "english": ["exchanges and mutual learning among civilizations"],
+    "chinese": "文明交流互鉴",
+    "unit": 8
+  },
+  {
+    "english": ["Islam"],
+    "chinese": "伊斯兰教",
+    "unit": 8
+  },
+  {
+    "english": ["Taoism"],
+    "chinese": "道家、道教",
+    "unit": 8
+  },
+  {
+    "english": ["the Han Dynasty"],
+    "chinese": "汉代",
+    "unit": 8
+  },
+  {
+    "english": ["the Ming Dynasty"],
+    "chinese": "明代",
+    "unit": 8
+  },
+  {
+    "english": ["the Spring and Autumn Period"],
+    "chinese": "春秋时代",
+    "unit": 8
+  },
+  {
+    "english": ["the Tang Dynasty"],
+    "chinese": "唐代",
+    "unit": 8
+  },
+  {
+    "english": ["the terracotta warriors and horses of the Qin Dynasty"],
+    "chinese": "秦俑",
+    "unit": 8
+  },
+  {
+    "english": ["the Western Han Dynasty"],
+    "chinese": "西汉",
+    "unit": 8
+  },
+  {
+    "english": ["UNESCO"],
+    "chinese": "联合国教科文组织",
+    "unit": 8
+  },
+  {
+    "english": ["World Cultural Heritage Sites"],
+    "chinese": "世界文化遗产",
+    "unit": 8
+  },
+  {
+    "english": ["World Intangible Cultural Heritage Sites"],
+    "chinese": "世界非物质文化遗产",
+    "unit": 8
+  },
+  {
+    "english": ["BRICS countries"],
+    "chinese": "金砖国家",
+    "unit": 9
+  },
+  {
+    "english": ["climate governance"],
+    "chinese": "气候治理",
+    "unit": 9
+  },
+  {
+    "english": ["Cold War"],
+    "chinese": "冷战",
+    "unit": 9
+  },
+  {
+    "english": ["core interests"],
+    "chinese": "核心利益",
+    "unit": 9
+  },
+  {
+    "english": ["deep-seated problems"],
+    "chinese": "深层次问题",
+    "unit": 9
+  },
+  {
+    "english": ["development disparity"],
+    "chinese": "发展失衡",
+    "unit": 9
+  },
+  {
+    "english": ["dialogue and consultation"],
+    "chinese": "对话协商",
+    "unit": 9
+  },
+  {
+    "english": ["digital divide"],
+    "chinese": "数字鸿沟",
+    "unit": 9
+  },
+  {
+    "english": ["equity deficit"],
+    "chinese": "公平赤字",
+    "unit": 9
+  },
+  {
+    "english": ["Five Principles of Peaceful Coexistence"],
+    "chinese": "和平共处五项原则",
+    "unit": 9
+  },
+  {
+    "english": ["foreign investment"],
+    "chinese": "外来投资",
+    "unit": 9
+  },
+  {
+    "english": ["G20 Summit"],
+    "chinese": "G20峰会",
+    "unit": 9
+  },
+  {
+    "english": ["geopolitical conflicts"],
+    "chinese": "地缘冲突",
+    "unit": 9
+  },
+  {
+    "english": ["globalization"],
+    "chinese": "全球化",
+    "unit": 9
+  },
+  {
+    "english": ["governance dilemma"],
+    "chinese": "治理困境",
+    "unit": 9
+  },
+  {
+    "english": ["green and low-carbon development"],
+    "chinese": "绿色低碳",
+    "unit": 9
+  },
+  {
+    "english": ["growth models"],
+    "chinese": "发展方式",
+    "unit": 9
+  },
+  {
+    "english": ["humanitarian assistance"],
+    "chinese": "人道主义援助",
+    "unit": 9
+  },
+  {
+    "english": ["industrial transformation"],
+    "chinese": "产业变革",
+    "unit": 9
+  },
+  {
+    "english": ["international affairs"],
+    "chinese": "国际事务",
+    "unit": 9
+  },
+  {
+    "english": ["justice and equity"],
+    "chinese": "公平公正",
+    "unit": 9
+  },
+  {
+    "english": ["main concerns"],
+    "chinese": "重大关切",
+    "unit": 9
+  },
+  {
+    "english": ["material wealth"],
+    "chinese": "物质财富",
+    "unit": 9
+  },
+  {
+    "english": ["multilateralism"],
+    "chinese": "多边主义",
+    "unit": 9
+  },
+  {
+    "english": ["Nobel laureate"],
+    "chinese": "诺贝尔获奖者",
+    "unit": 9
+  },
+  {
+    "english": ["nondiscriminatory multilateral trading regime"],
+    "chinese": "非歧视性的多边贸易体制",
+    "unit": 9
+  },
+  {
+    "english": ["nuclear weapons"],
+    "chinese": "核武器",
+    "unit": 9
+  },
+  {
+    "english": ["outbound investment"],
+    "chinese": "对外投资",
+    "unit": 9
+  },
+  {
+    "english": ["Pandora's box"],
+    "chinese": "潘多拉盒子",
+    "unit": 9
+  },
+  {
+    "english": ["Paris Agreement"],
+    "chinese": "巴黎协议",
+    "unit": 9
+  },
+  {
+    "english": ["partnership based on dialogue, non-confrontation and non-alliance"],
+    "chinese": "对话、不对抗、不结盟的伙伴关系",
+    "unit": 9
+  },
+  {
+    "english": ["refugee crises"],
+    "chinese": "难民危机",
+    "unit": 9
+  },
+  {
+    "english": ["self-isolation"],
+    "chinese": "画地为牢",
+    "unit": 9
+  },
+  {
+    "english": ["terrorism"],
+    "chinese": "恐怖主义",
+    "unit": 9
+  },
+  {
+    "english": ["the 2030 Agenda for Sustainable Development"],
+    "chinese": "2030年可持续发展议程",
+    "unit": 9
+  },
+  {
+    "english": ["The Art of War"],
+    "chinese": "《孙子兵法》",
+    "unit": 9
+  },
+  {
+    "english": ["the Asian Infrastructure Investment Bank"],
+    "chinese": "亚投行",
+    "unit": 9
+  },
+  {
+    "english": ["the Belt and Road Initiative"],
+    "chinese": "一带一路倡议",
+    "unit": 9
+  },
+  {
+    "english": ["the fundamental norms"],
+    "chinese": "基本准则",
+    "unit": 9
+  },
+  {
+    "english": ["the global macro policy framework"],
+    "chinese": "全球宏观政策框架",
+    "unit": 9
+  },
+  {
+    "english": ["the Millennium Development Goals"],
+    "chinese": "千年发展目标",
+    "unit": 9
+  },
+  {
+    "english": ["the new scientific and technological revolution"],
+    "chinese": "新一轮科技革命",
+    "unit": 9
+  },
+  {
+    "english": ["the Opium War of 1840"],
+    "chinese": "1840年鸦片战争",
+    "unit": 9
+  },
+  {
+    "english": ["the principles of peace, sovereignty, inclusiveness and shared governance"],
+    "chinese": "和平、主权、普惠、共治原则",
+    "unit": 9
+  },
+  {
+    "english": ["the Sword of Damocles"],
+    "chinese": "达摩克利斯之剑",
+    "unit": 9
+  },
+  {
+    "english": ["the Thucydides trap"],
+    "chinese": "修昔底德陷阱",
+    "unit": 9
+  },
+  {
+    "english": ["the UN Charter"],
+    "chinese": "联合国宪章",
+    "unit": 9
+  },
+  {
+    "english": ["trade protectionism"],
+    "chinese": "贸易保护主义",
+    "unit": 9
+  },
+  {
+    "english": ["UNHCR", "Office of the United Nations High Commissioner for Refugees"],
+    "chinese": "联合国难民署",
+    "unit": 9
+  },
+  {
+    "english": ["WHO", "World Health Organization"],
+    "chinese": "世卫组织",
+    "unit": 9
+  },
+  {
+    "english": ["win-win cooperation"],
+    "chinese": "合作共赢",
+    "unit": 9
+  },
+  {
+    "english": ["Taiwan question"],
+    "chinese": "台湾问题",
+    "unit": 10
+  },
+  {
+    "english": ["harmony between humanity and nature"],
+    "chinese": "人与自然和谐共生",
+    "unit": 10
+  },
+  {
+    "english": ["hegemony"],
+    "chinese": "霸权主义",
+    "unit": 10
+  },
+  {
+    "english": ["high-quality development"],
+    "chinese": "高质量发展",
+    "unit": 10
+  },
+  {
+    "english": ["interest group"],
+    "chinese": "利益集团",
+    "unit": 10
+  },
+  {
+    "english": ["Marxism to the Chinese context"],
+    "chinese": "马克思主义中国化",
+    "unit": 10
+  },
+  {
+    "english": ["national defense"],
+    "chinese": "国防",
+    "unit": 10
+  },
+  {
+    "english": ["national sovereignty"],
+    "chinese": "国家主权",
+    "unit": 10
+  },
+  {
+    "english": ["new project of Party building", "Party building for a new era"],
+    "chinese": "党的建设新的伟大工程",
+    "unit": 10
+  },
+  {
+    "english": ["one-China principle"],
+    "chinese": "一个中国原则",
+    "unit": 10
+  },
+  {
+    "english": ["power group"],
+    "chinese": "权势团体",
+    "unit": 10
+  },
+  {
+    "english": ["power politics"],
+    "chinese": "强权政治",
+    "unit": 10
+  },
+  {
+    "english": ["privileged stratum"],
+    "chinese": "特权阶层",
+    "unit": 10
+  },
+  {
+    "english": ["public wellbeing"],
+    "chinese": "民生",
+    "unit": 10
+  },
+  {
+    "english": ["social fairness and justice"],
+    "chinese": "社会公平正义",
+    "unit": 10
+  },
+  {
+    "english": ["territorial integrity"],
+    "chinese": "领土完整",
+    "unit": 10
+  },
+  {
+    "english": ["the armed forces"],
+    "chinese": "军队",
+    "unit": 10
+  },
+  {
+    "english": ["the Four-Sphere Confidence"],
+    "chinese": "四个自信",
+    "unit": 10
+  },
+  {
+    "english": ["the fundamental purpose of wholeheartedly serving the people"],
+    "chinese": "全心全意为人民服务的根本宗旨",
+    "unit": 10
+  },
+  {
+    "english": ["the Party's mass line"],
+    "chinese": "党的群众路线",
+    "unit": 10
+  },
+  {
+    "english": ["whole-process people's democracy"],
+    "chinese": "全过程人民民主",
+    "unit": 10
+  },
+  {
+    "english": ["zero-sum game"],
+    "chinese": "零和博弈",
+    "unit": 10
+  }
+]

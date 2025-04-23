@@ -4,22 +4,54 @@ This module provides the BEC vocabulary test implementation and its module-speci
 """
 
 import os
+import json
 from .base import TestBase
 
 class BECTest(TestBase):
     """BEC高级词汇测试类"""
     
-    def __init__(self, module_name, vocabulary=None):
+    def __init__(self, module_name, module_number=None, vocabulary=None):
         super().__init__(f"BEC高级词汇测试 - {module_name}")
         self.module_name = module_name
+        self.module_number = module_number
         if vocabulary is not None:
             self.vocabulary = vocabulary
     
     def load_vocabulary(self):
         """加载BEC词汇表"""
-        # 这里我们假设词汇已经在初始化时提供，或者将在子类中提供
-        if not self.vocabulary:
-            raise ValueError(f"未找到模块 {self.module_name} 的词汇表")
+        # 如果已经有词汇表，直接返回
+        if self.vocabulary:
+            return self.vocabulary
+            
+        # 否则从JSON文件加载
+        try:
+            # 获取项目根目录路径
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            json_path = os.path.join(project_root, "bec_higher_cufe.json")
+            
+            with open(json_path, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+                
+                # 如果指定了模块编号，只加载该模块的词汇
+                if self.module_number:
+                    for module_data in data:
+                        if module_data["module"] == self.module_number:
+                            self.vocabulary = module_data["vocabulary"]
+                            break
+                    if not self.vocabulary:
+                        raise ValueError(f"未找到模块 {self.module_number} 的词汇表")
+                else:
+                    # 如果没有指定模块编号，加载所有词汇
+                    self.vocabulary = []
+                    for module_data in data:
+                        self.vocabulary.extend(module_data["vocabulary"])
+        except Exception as e:
+            print(f"加载词汇表出错: {e}")
+            # 提供一个基本的词汇表，防止程序崩溃
+            self.vocabulary = [
+                {"chinese": "词汇加载失败", "english": "Vocabulary loading failed"}
+            ]
+            
         return self.vocabulary
     
     def run_test(self, words):
@@ -87,85 +119,25 @@ class BECTestModule1(BECTest):
     """BEC高级词汇测试模块1"""
     
     def __init__(self):
-        super().__init__("模块1")
-    
-    def load_vocabulary(self):
-        """加载模块1的词汇表"""
-        if not self.vocabulary:
-            try:
-                # 尝试直接导入
-                import bec_higher_cufe
-                self.vocabulary = bec_higher_cufe.vocab_module_1
-            except ImportError as e:
-                print(f"导入词汇表出错: {e}")
-                # 提供一个基本的词汇表，防止程序崩溃
-                self.vocabulary = [
-                    {"chinese": "词汇加载失败", "english": "Vocabulary loading failed"}
-                ]
-        return self.vocabulary
+        super().__init__("模块1", module_number=1)
 
 
 class BECTestModule2(BECTest):
     """BEC高级词汇测试模块2"""
     
     def __init__(self):
-        super().__init__("模块2")
-    
-    def load_vocabulary(self):
-        """加载模块2的词汇表"""
-        if not self.vocabulary:
-            try:
-                # 尝试直接导入
-                import bec_higher_cufe
-                self.vocabulary = bec_higher_cufe.vocab_module_2
-            except ImportError as e:
-                print(f"导入词汇表出错: {e}")
-                # 提供一个基本的词汇表，防止程序崩溃
-                self.vocabulary = [
-                    {"chinese": "词汇加载失败", "english": "Vocabulary loading failed"}
-                ]
-        return self.vocabulary
+        super().__init__("模块2", module_number=2)
 
 
 class BECTestModule3(BECTest):
     """BEC高级词汇测试模块3"""
     
     def __init__(self):
-        super().__init__("模块3")
-    
-    def load_vocabulary(self):
-        """加载模块3的词汇表"""
-        if not self.vocabulary:
-            try:
-                # 尝试直接导入
-                import bec_higher_cufe
-                self.vocabulary = bec_higher_cufe.vocab_module_3
-            except ImportError as e:
-                print(f"导入词汇表出错: {e}")
-                # 提供一个基本的词汇表，防止程序崩溃
-                self.vocabulary = [
-                    {"chinese": "词汇加载失败", "english": "Vocabulary loading failed"}
-                ]
-        return self.vocabulary
+        super().__init__("模块3", module_number=3)
 
 
 class BECTestModule4(BECTest):
     """BEC高级词汇测试模块4"""
     
     def __init__(self):
-        super().__init__("模块4")
-    
-    def load_vocabulary(self):
-        """加载模块4的词汇表"""
-        if not self.vocabulary:
-            try:
-                # 尝试直接导入
-                import bec_higher_cufe
-                self.vocabulary = bec_higher_cufe.vocab_module_4
-            except ImportError as e:
-                print(f"导入词汇表出错: {e}")
-                # 提供一个基本的词汇表，防止程序崩溃
-                self.vocabulary = [
-                    {"chinese": "词汇加载失败", "english": "Vocabulary loading failed"}
-                ]
-        return self.vocabulary
+        super().__init__("模块4", module_number=4)

@@ -184,10 +184,9 @@ class DictationApp:
         try:
             self.clear_screen()
             print("===== 导入词汇表 =====\n")
-            print("支持的文件格式: .csv, .xlsx, .xls")
+            print("支持的文件格式: .json")
             print("文件格式要求:")
-            print("- CSV文件: 第一列为英文，第二列为中文")
-            print("- Excel文件: 第一列为英文，第二列为中文\n")
+            print("- JSON文件: 包含英文和中文对应关系的JSON格式文件\n")
             
             file_path = input("请输入文件路径: ").strip()
             

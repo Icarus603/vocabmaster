@@ -1,0 +1,417 @@
+[
+  {
+    "english": ["the May 4th spirit"],
+    "chinese": "五四精神",
+    "unit": 1
+  },
+  {
+    "english": ["China's Youth Day"],
+    "chinese": "五四青年节",
+    "unit": 1
+  },
+  {
+    "english": ["the UN Security Council"],
+    "chinese": "联合国安理会",
+    "unit": 1
+  },
+  {
+    "english": ["the New Era"],
+    "chinese": "新时代",
+    "unit": 1
+  },
+  {
+    "english": ["the CPC", "the Communist Party of China", "the party"],
+    "chinese": "中国共产党",
+    "unit": 1
+  },
+  {
+    "english": ["Chinese socialism", "socialism with Chinese characteristics"],
+    "chinese": "中国特色社会主义",
+    "unit": 1
+  },
+  {
+    "english": ["confidence in the path, theory, system and culture"],
+    "chinese": "四个自信",
+    "unit": 1
+  },
+  {
+    "english": ["national rejuvenation"],
+    "chinese": "民族复兴",
+    "unit": 1
+  },
+  {
+    "english": ["the Two Centenary Goals"],
+    "chinese": "两个一百年奋斗目标",
+    "unit": 1
+  },
+  {
+    "english": ["the spirit of the May 4th Movement"],
+    "chinese": "五四精神",
+    "unit": 1
+  },
+  {
+    "english": ["great ideals"],
+    "chinese": "远大理想",
+    "unit": 1
+  },
+  {
+    "english": ["ideals and beliefs"],
+    "chinese": "理想信念",
+    "unit": 1
+  },
+  {
+    "english": ["reform and opening up"],
+    "chinese": "改革开放",
+    "unit": 1
+  },
+  {
+    "english": ["professional expertise"],
+    "chinese": "专业技能",
+    "unit": 1
+  },
+  {
+    "english": ["attainment in humanities"],
+    "chinese": "人文素养",
+    "unit": 1
+  },
+  {
+    "english": ["moral appreciation"],
+    "chinese": "道德认知",
+    "unit": 1
+  },
+  {
+    "english": ["moral development"],
+    "chinese": "道德养成",
+    "unit": 1
+  },
+  {
+    "english": ["moral practice"],
+    "chinese": "道德实践",
+    "unit": 1
+  },
+  {
+    "english": ["the core socialist values"],
+    "chinese": "社会主义核心价值观",
+    "unit": 1
+  },
+  {
+    "english": ["models of the times"],
+    "chinese": "时代楷模",
+    "unit": 1
+  },
+  {
+    "english": ["recoginze illustrious virtue, follow social ethics, and restrict personal desires."],
+    "chinese": "明大德，守公德、严私德",
+    "unit": 1
+  },
+  {
+    "english": ["worship of money"],
+    "chinese": "拜金主义",
+    "unit": 1
+  },
+  {
+    "english": ["self-indulgence"],
+    "chinese": "享乐主义",
+    "unit": 1
+  },
+  {
+    "english": ["overly self-centered pursuits"],
+    "chinese": "极端个人主义",
+    "unit": 1
+  },
+  {
+    "english": ["historical nihilism"],
+    "chinese": "历史虚无主义",
+    "unit": 1
+  },
+  {
+    "english": ["absolute poverty"],
+    "chinese": "绝对贫困",
+    "unit": 2
+  },
+  {
+    "english": ["the Five-Sphere Integrated Plan"],
+    "chinese": "五位一体总体布局",
+    "unit": 2
+  },
+  {
+    "english": ["the 18th CPC National Congress", "the 18th National Congress of the CPC"],
+    "chinese": "18大",
+    "unit": 2
+  },
+  {
+    "english": ["modern socialist country"],
+    "chinese": "社会主义现代化国家",
+    "unit": 2
+  },
+  {
+    "english": ["prosperous, strong, democratic, culturally advanced, harmonious, and beautiful"],
+    "chinese": "富强、民主、文明、和谐、美丽",
+    "unit": 2
+  },
+  {
+    "english": ["Four-Pronged Comprehensive Strategy"],
+    "chinese": "四个全面战略布局",
+    "unit": 2
+  },
+  {
+    "english": ["socialist market economy"],
+    "chinese": "社会主义市场经济",
+    "unit": 2
+  },
+  {
+    "english": ["the primary stage of socialism"],
+    "chinese": "社会主义初级阶段",
+    "unit": 2
+  },
+  {
+    "english": ["socialist modernization"],
+    "chinese": "社会主义现代化",
+    "unit": 2
+  },
+  {
+    "english": ["capitalism"],
+    "chinese": "资本主义",
+    "unit": 2
+  },
+  {
+    "english": ["the Warring States Period"],
+    "chinese": "战国时期",
+    "unit": 2
+  },
+  {
+    "english": ["productive forces"],
+    "chinese": "生产力",
+    "unit": 2
+  },
+  {
+    "english": ["extensive growth model"],
+    "chinese": "粗放式增长模式",
+    "unit": 2
+  },
+  {
+    "english": ["codes of conduct"],
+    "chinese": "行为准则",
+    "unit": 2
+  },
+  {
+    "english": ["middle income"],
+    "chinese": "中等收入",
+    "unit": 3
+  },
+  {
+    "english": ["per capita income"],
+    "chinese": "人均收入",
+    "unit": 3
+  },
+  {
+    "english": ["industrial chain"],
+    "chinese": "工业链",
+    "unit": 3
+  },
+  {
+    "english": ["resource allocation"],
+    "chinese": "资源配置",
+    "unit": 3
+  },
+  {
+    "english": ["productive forces"],
+    "chinese": "生产力",
+    "unit": 3
+  },
+  {
+    "english": ["moderate prosperity"],
+    "chinese": "小康",
+    "unit": 3
+  },
+  {
+    "english": ["intellectual property"],
+    "chinese": "知识产权",
+    "unit": 3
+  },
+  {
+    "english": ["materialistic dialectics"],
+    "chinese": "唯物辩证法",
+    "unit": 3
+  },
+  {
+    "english": ["comparative edges"],
+    "chinese": "相对优势",
+    "unit": 3
+  },
+  {
+    "english": ["shared prosperity"],
+    "chinese": "共同富裕",
+    "unit": 3
+  },
+  {
+    "english": ["equalitarianism"],
+    "chinese": "平均主义",
+    "unit": 3
+  },
+  {
+    "english": ["political civilization"],
+    "chinese": "政治文明",
+    "unit": 4
+  },
+  {
+    "english": ["historical heritage"],
+    "chinese": "历史传承",
+    "unit": 4
+  },
+  {
+    "english": ["patriotic United Front"],
+    "chinese": "爱国主义统一战线",
+    "unit": 4
+  },
+  {
+    "english": ["socialist consultative democracy"],
+    "chinese": "社会主义协商民主",
+    "unit": 4
+  },
+  {
+    "english": ["public opinion"],
+    "chinese": "民意",
+    "unit": 4
+  },
+  {
+    "english": ["multilevel system for scrutiny"],
+    "chinese": "多层次监督体系",
+    "unit": 4
+  },
+  {
+    "english": ["the people's democratic dictatorship"],
+    "chinese": "人民民主专政",
+    "unit": 4
+  },
+  {
+    "english": ["alliance of workers and farmers"],
+    "chinese": "工农联盟",
+    "unit": 4
+  },
+  {
+    "english": ["political consultation"],
+    "chinese": "政治协商",
+    "unit": 4
+  },
+  {
+    "english": ["social productivity"],
+    "chinese": "社会生产力",
+    "unit": 4
+  },
+  {
+    "english": ["socialist modernization"],
+    "chinese": "社会主义现代化",
+    "unit": 4
+  },
+  {
+    "english": ["economic strength"],
+    "chinese": "经济实力",
+    "unit": 4
+  },
+  {
+    "english": ["overall national strength"],
+    "chinese": "综合实力",
+    "unit": 4
+  },
+  {
+    "english": ["living standard", "standard of living"],
+    "chinese": "生活水平",
+    "unit": 4
+  },
+  {
+    "english": ["progress of legal system"],
+    "chinese": "法治建设",
+    "unit": 4
+  },
+  {
+    "english": ["the Third Plenary Session of the 18th CPC Central Committee"],
+    "chinese": "十八届三中全会",
+    "unit": 4
+  },
+  {
+    "english": ["the socialist system with Chinese characteristics"],
+    "chinese": "中国特色社会主义制度",
+    "unit": 4
+  },
+  {
+    "english": ["governance system"],
+    "chinese": "治理体系",
+    "unit": 4
+  },
+  {
+    "english": ["governance capacity"],
+    "chinese": "治理能力量",
+    "unit": 4
+  },
+  {
+    "english": ["law-based governance"],
+    "chinese": "依法执政",
+    "unit": 4
+  },
+  {
+    "english": ["regional ethnic autonomy"],
+    "chinese": "民族区域自治（制度）",
+    "unit": 4
+  },
+  {
+    "english": ["democratic centralism"],
+    "chinese": "民主集中制",
+    "unit": 4
+  },
+  {
+    "english": ["law-based governance"],
+    "chinese": "依法治国",
+    "unit": 5
+  },
+  {
+    "english": ["the CPC Central Committee"],
+    "chinese": "中国共产党中央委员会",
+    "unit": 5
+  },
+  {
+    "english": ["legal awareness"],
+    "chinese": "法律意识",
+    "unit": 5
+  },
+  {
+    "english": ["constitution-based governance"],
+    "chinese": "依宪治国",
+    "unit": 5
+  },
+  {
+    "english": ["the national Constitution Day"],
+    "chinese": "国家宪法日",
+    "unit": 5
+  },
+  {
+    "english": ["administrative approval"],
+    "chinese": "行政审批",
+    "unit": 5
+  },
+  {
+    "english": ["negative list"],
+    "chinese": "负面清单",
+    "unit": 5
+  },
+  {
+    "english": ["executive power"],
+    "chinese": "行政权力",
+    "unit": 5
+  },
+  {
+    "english": ["judicial accountability"],
+    "chinese": "司法责任制",
+    "unit": 5
+  },
+  {
+    "english": ["personal quota systems"],
+    "chinese": "员额制",
+    "unit": 5
+  },
+  {
+    "english": ["criminal litigation system"],
+    "chinese": "刑事诉讼制度",
+    "unit": 5
+  }
+]

@@ -4,32 +4,35 @@ This module provides the implementation for testing professional terms and expre
 """
 
 import os
-import csv
+import json
 import random
 from .base import TestBase
 
 class TermsTest(TestBase):
     """《理解当代中国》英汉互译类"""
     
-    def __init__(self, name, csv_file):
+    def __init__(self, name, json_file):
         super().__init__(f"《理解当代中国》英汉互译 - {name}")
-        self.csv_file = csv_file
+        self.json_file = json_file
     
     def load_vocabulary(self):
-        """从CSV文件加载词汇"""
+        """从JSON文件加载词汇"""
         vocabulary = []
         
-        # 确保CSV路径是相对于项目根目录的
+        # 确保JSON路径是相对于项目根目录的
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        csv_path = os.path.join(project_root, self.csv_file)
+        json_path = os.path.join(project_root, self.json_file)
         
         try:
-            with open(csv_path, 'r', encoding='utf-8') as file:
-                reader = csv.reader(file)
-                for row in reader:
-                    if len(row) >= 2:  # 确保行有足够的列
-                        english = row[0].strip()
-                        chinese = row[1].strip()
+            with open(json_path, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+                for item in data:
+                    # 支持一个中文对应多个英文表达
+                    english_terms = item["english"]
+                    chinese = item["chinese"]
+                    
+                    # 将每个英文表达与中文配对
+                    for english in english_terms:
                         vocabulary.append((english, chinese))
         except Exception as e:
             print(f"加载词汇表出错: {e}")
@@ -176,7 +179,7 @@ class TermsTestUnit1to5(TermsTest):
     
     def __init__(self):
         # 使用相对于项目根目录的路径
-        super().__init__("单元1-5", "terms_and_expressions/terms_and_expressions_1.csv")
+        super().__init__("单元1-5", "terms_and_expressions/terms_and_expressions_1.json")
 
 
 class TermsTestUnit6to10(TermsTest):
@@ -184,4 +187,4 @@ class TermsTestUnit6to10(TermsTest):
     
     def __init__(self):
         # 使用相对于项目根目录的路径
-        super().__init__("单元6-10", "terms_and_expressions/terms_and_expressions_2.csv")
+        super().__init__("单元6-10", "terms_and_expressions/terms_and_expressions_2.json")

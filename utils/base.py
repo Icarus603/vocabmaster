@@ -4,10 +4,9 @@ This module provides the base class TestBase that implements common functionalit
 for all test types in the Dictation system.
 """
 
-import random
 import os
-import pandas as pd
-import csv
+import random
+import json
 
 class TestBase:
     """词汇测试基类，提供所有测试模块共用的基础功能"""
@@ -25,34 +24,30 @@ class TestBase:
         """加载词汇表（由子类实现）"""
         raise NotImplementedError("子类必须实现load_vocabulary方法")
 
-    def read_vocabulary_file(self, file_path):
-        """通用的词汇表文件读取方法，支持csv、xlsx和xls格式"""
-        file_ext = os.path.splitext(file_path)[1].lower()
+    @staticmethod
+    def read_vocabulary_file(file_path):
+        """通用的词汇表文件读取方法，支持JSON格式"""
         vocabulary = []
-
+        file_ext = os.path.splitext(file_path)[1].lower()
+        
         try:
-            if file_ext == '.csv':
-                with open(file_path, 'r', encoding='utf-8') as file:
-                    reader = csv.reader(file)
-                    for row in reader:
-                        if len(row) >= 2:  # 确保行有足够的列
-                            english = row[0].strip()
-                            chinese = row[1].strip()
+            with open(file_path, 'r', encoding='utf-8') as file:
+                if file_ext == '.json':
+                    # 读取JSON文件
+                    data = json.load(file)
+                    for item in data:
+                        # 支持一个中文对应多个英文表达
+                        english_terms = item["english"]
+                        chinese = item["chinese"]
+                        
+                        # 将每个英文表达与中文配对
+                        for english in english_terms:
                             vocabulary.append((english, chinese))
-            elif file_ext in ['.xlsx', '.xls']:
-                df = pd.read_excel(file_path)
-                if len(df.columns) >= 2:
-                    for _, row in df.iterrows():
-                        english = str(row[0]).strip()
-                        chinese = str(row[1]).strip()
-                        if english and chinese:  # 确保不是空值
-                            vocabulary.append((english, chinese))
-            else:
-                raise ValueError(f"不支持的文件格式：{file_ext}")
-
-            return vocabulary
+                else:
+                    print(f"不支持的文件格式: {file_ext}，请使用JSON格式")
+                    return []
         except Exception as e:
-            print(f"读取文件 {file_path} 时出错：{str(e)}")
+            print(f"读取词汇表文件出错: {e}")
             return []
     
     def select_random_words(self, count=None):
