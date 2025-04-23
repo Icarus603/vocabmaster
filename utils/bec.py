@@ -6,6 +6,7 @@ This module provides the BEC vocabulary test implementation and its module-speci
 import os
 import json
 from .base import TestBase
+from .resource_path import resource_path
 
 class BECTest(TestBase):
     """BEC高级词汇测试类"""
@@ -25,9 +26,8 @@ class BECTest(TestBase):
             
         # 否则从JSON文件加载
         try:
-            # 获取项目根目录路径
-            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            json_path = os.path.join(project_root, "bec_higher_cufe.json")
+            # 使用resource_path获取正确的文件路径，兼容开发环境和PyInstaller打包环境
+            json_path = resource_path("bec_higher_cufe.json")
             
             with open(json_path, 'r', encoding='utf-8') as file:
                 data = json.load(file)

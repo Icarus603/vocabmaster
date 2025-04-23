@@ -8,6 +8,7 @@ import os
 import json
 import random
 from .base import TestBase
+from .resource_path import resource_path
 
 class DIYTest(TestBase):
     """DIY自定义词汇测试类"""
