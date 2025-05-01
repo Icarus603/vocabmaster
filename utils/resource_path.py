@@ -10,10 +10,10 @@ import sys
 def resource_path(relative_path):
     """Get absolute path to resource, works for dev and for PyInstaller"""
     # PyInstaller creates a temp folder and stores path in _MEIPASS
-    if hasattr(sys, '_MEIPASS'):
+    try:
         # If running in a PyInstaller bundle
-        base_path = sys._MEIPASS  # type: ignore
-    else:
+        base_path = sys._MEIPASS
+    except Exception:
         # If running in normal Python environment
         base_path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     
