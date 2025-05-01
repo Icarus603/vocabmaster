@@ -54,6 +54,9 @@ class DIYTest(TestBase):
         """从JSON文件加载词汇"""
         vocabulary = []
         
+        if not self.file_path:
+            raise ValueError("未设置文件路径")
+            
         try:
             with open(self.file_path, 'r', encoding='utf-8') as file:
                 data = json.load(file)

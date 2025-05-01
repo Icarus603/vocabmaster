@@ -931,9 +931,9 @@ class MainWindow(QMainWindow):
                 else:
                     # 未知格式，尽量提取可用信息
                     print(f"错误：未知的错题格式 - {wrong_item}")
-                    if hasattr(wrong_item, "get"):
+                    if isinstance(wrong_item, dict):
                         question = wrong_item.get("question", "未知问题")
-                        answer = wrong_item.get("answer", "未知答案")
+                        answer = wrong_item.get("answer", "未知答案") 
                         user_answer = wrong_item.get("user_answer", "未知回答")
                     else:
                         question = str(wrong_item)
@@ -1188,7 +1188,7 @@ def main():
                 print(f"程序错误: {str(value)}", file=sys.stderr)
                 
         # 保存原始异常处理器并设置新的
-        sys._excepthook = sys.excepthook
+        sys.excepthook = sys.excepthook
         sys.excepthook = handle_qt_exception
         
         logger.info("启动主窗口")
