@@ -5,7 +5,7 @@ a = Analysis(
     ['D:\\Projects\\VocabMaster\\app.py'],
     pathex=[],
     binaries=[],
-    datas=[('D:\\Projects\\VocabMaster\\assets', 'assets'), ('D:\\Projects\\VocabMaster\\terms_and_expressions', 'terms_and_expressions'), ('D:\\Projects\\VocabMaster\\logs', 'logs'), ('D:\\Projects\\VocabMaster\\data', 'data')],
+    datas=[('D:\\Projects\\VocabMaster\\assets', 'assets'), ('D:\\Projects\\VocabMaster\\logs', 'logs'), ('bec_higher_cufe.json', '.'), ('terms_and_expressions\\terms_and_expressions_1.json', '.'), ('terms_and_expressions\\terms_and_expressions_2.json', '.')],
     hiddenimports=['pandas', 'openpyxl', 'PyQt6'],
     hookspath=[],
     hooksconfig={},

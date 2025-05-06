@@ -91,11 +91,17 @@ def build_executable():
         "--windowed",  # 使用 GUI 模式，不显示控制台窗口
         "--onefile",   # 打包成单个可执行文件
         "--clean",     # 在构建之前清理 PyInstaller 缓存
-        # 添加必要的数据文件
+        # 添加资源文件目录
         "--add-data", f"{assets_path}{os.pathsep}assets",
-        "--add-data", f"{terms_path}{os.pathsep}terms_and_expressions",
+        # 添加日志目录 (确保logs目录存在)
         "--add-data", f"{logs_dir}{os.pathsep}logs",
-        "--add-data", f"{data_dir}{os.pathsep}data",
+        # 添加根目录下的数据文件 (目标是根目录 '.')
+        "--add-data", f"bec_higher_cufe.json{os.pathsep}.",
+        # 添加 terms_and_expressions 子目录下的数据文件 (目标是根目录 '.')
+        "--add-data", f"terms_and_expressions{os.path.sep}terms_and_expressions_1.json{os.pathsep}.",
+        "--add-data", f"terms_and_expressions{os.path.sep}terms_and_expressions_2.json{os.pathsep}.",
+        # 如果还有其他数据文件，也像上面一样添加
+        
         # 排除不必要的模块以减小文件大小
         "--exclude-module=matplotlib",
         "--exclude-module=opencv-python",

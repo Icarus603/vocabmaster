@@ -9,6 +9,8 @@ from PyQt6.QtGui import QFont, QIcon, QPixmap, QShortcut, QKeySequence
 from utils import BECTest, TermsTest, DIYTest
 from utils.bec import BECTestModule1, BECTestModule2, BECTestModule3, BECTestModule4
 from utils.terms import TermsTestUnit1to5, TermsTestUnit6to10
+# 导入 resource_path 用于查找资源文件
+from utils.resource_path import resource_path
 
 class MainWindow(QMainWindow):
     """VocabMaster GUI主窗口"""
@@ -19,6 +21,13 @@ class MainWindow(QMainWindow):
         # 设置窗口标题和大小
         self.setWindowTitle("VocabMaster - 词汇测试系统")
         self.setMinimumSize(800, 600)
+        
+        # 设置窗口图标
+        icon_path = resource_path(os.path.join("assets", "icon.png"))
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
+        else:
+            print(f"警告: 窗口图标文件未找到: {icon_path}")
         
         # 初始化测试模块
         self.tests = {

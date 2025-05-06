@@ -26,7 +26,7 @@ class BECTest(TestBase):
             
         # 否则从JSON文件加载
         try:
-            # 使用resource_path获取正确的文件路径，兼容开发环境和PyInstaller打包环境
+            # 使用resource_path获取正确的文件路径
             json_path = resource_path("bec_higher_cufe.json")
             
             with open(json_path, 'r', encoding='utf-8') as file:

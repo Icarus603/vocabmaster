@@ -20,8 +20,16 @@ class TermsTest(TestBase):
         """从JSON文件加载词汇"""
         vocabulary = []
         
-        # 使用resource_path获取正确的文件路径，兼容开发环境和PyInstaller打包环境
-        json_path = resource_path(self.json_file)
+        # 根据单元范围确定JSON文件名
+        if self.unit_range == "1-5":
+            filename = "terms_and_expressions_1.json"
+        elif self.unit_range == "6-10":
+            filename = "terms_and_expressions_2.json"
+        else:
+            raise ValueError(f"未知的单元范围: {self.unit_range}")
+            
+        # 使用resource_path获取正确的文件路径
+        json_path = resource_path(filename)
         
         try:
             with open(json_path, 'r', encoding='utf-8') as file:
