@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['D:\\Projects\\VocabMaster\\app.py'],
+    ['D:\\Projects\\vocabmaster\\app.py'],
     pathex=[],
     binaries=[],
-    datas=[('D:\\Projects\\VocabMaster\\assets', 'assets'), ('D:\\Projects\\VocabMaster\\logs', 'logs'), ('bec_higher_cufe.json', '.'), ('terms_and_expressions\\terms_and_expressions_1.json', '.'), ('terms_and_expressions\\terms_and_expressions_2.json', '.')],
+    datas=[('D:\\Projects\\vocabmaster\\assets', 'assets'), ('D:\\Projects\\vocabmaster\\logs', 'logs'), ('bec_higher_cufe.json', '.'), ('D:\\Projects\\vocabmaster\\terms_and_expressions', 'terms_and_expressions')],
     hiddenimports=['pandas', 'openpyxl', 'PyQt6'],
     hookspath=[],
     hooksconfig={},
@@ -35,5 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['D:\\Projects\\VocabMaster\\assets\\icon.ico'],
+    icon=['D:\\Projects\\vocabmaster\\assets\\icon.ico'],
 )

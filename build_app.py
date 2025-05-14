@@ -97,9 +97,8 @@ def build_executable():
         "--add-data", f"{logs_dir}{os.pathsep}logs",
         # 添加根目录下的数据文件 (目标是根目录 '.')
         "--add-data", f"bec_higher_cufe.json{os.pathsep}.",
-        # 添加 terms_and_expressions 子目录下的数据文件 (目标是根目录 '.')
-        "--add-data", f"terms_and_expressions{os.path.sep}terms_and_expressions_1.json{os.pathsep}.",
-        "--add-data", f"terms_and_expressions{os.path.sep}terms_and_expressions_2.json{os.pathsep}.",
+        # 修改：将整个 terms_and_expressions 文件夹添加到打包目录中，并保持其名称
+        "--add-data", f"{terms_path}{os.pathsep}terms_and_expressions",
         # 如果还有其他数据文件，也像上面一样添加
         
         # 排除不必要的模块以减小文件大小
