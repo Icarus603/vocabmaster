@@ -95,44 +95,23 @@ def build_executable():
         "--add-data", f"{assets_path}{os.pathsep}assets",
         # 添加日志目录 (确保logs目录存在)
         "--add-data", f"{logs_dir}{os.pathsep}logs",
-        # 添加根目录下的数据文件 (目标是根目录 '.')
-        "--add-data", f"bec_higher_cufe.json{os.pathsep}.",
-        # 修改：将整个 terms_and_expressions 文件夹添加到打包目录中，并保持其名称
-        "--add-data", f"{terms_path}{os.pathsep}terms_and_expressions",
-        # 如果还有其他数据文件，也像上面一样添加
-        
-        # 排除不必要的模块以减小文件大小
-        "--exclude-module=matplotlib",
-        "--exclude-module=opencv-python",
-        "--exclude-module=notebook",
-        "--exclude-module=scipy",
-        # 指定隐藏导入，确保所有依赖被正确打包
-        "--hidden-import=pandas",
-        "--hidden-import=openpyxl",
-        "--hidden-import=PyQt6",
+        # 添加整个 vocab 目录
+        "--add-data", f"{os.path.join(base_dir, 'vocab')}{os.pathsep}vocab",
+        # 添加 api_config.py.template 到 utils 目录
+        "--add-data", f"{os.path.join(base_dir, 'utils', 'api_config.py.template')}{os.pathsep}utils",
+        # 确保运行时能找到 utils 模块中的其他 .py 文件 (例如 ielts.py, api_config.py - 虽然后者不应分发，但模板应能被找到)
+        # PyInstaller 通常会自动处理导入的 .py 文件，但如果 utils 目录本身需要作为包存在，
+        # 或者为了确保 api_config.py.template 旁边的其他辅助工具（如果将来有）也能被正确处理，
+        # 可以考虑添加 utils 目录中的 Python 文件。
+        # 不过，对于 .py 文件，PyInstaller 的模块分析通常足够。
+        # 主要目标是 api_config.py.template。
+        # 确保以下行是主脚本
+        app_path
     ]
-    
-    # 根据操作系统添加特定配置
-    system = platform.system().lower()
-    if system == "darwin":  # macOS
-        cmd.extend([
-            "--target-architecture=x86_64",  # 支持Intel芯片
-            "--target-architecture=arm64",   # 支持Apple Silicon
-            "--osx-bundle-identifier=com.vocabmaster.app",
-        ])
-    elif system == "linux":
-        # Linux特定配置
-        cmd.extend([
-            "--runtime-tmpdir=/tmp",
-        ])
-    
-    # 添加主程序文件路径
-    cmd.append(app_path)
-    
-    # 过滤掉空项
-    cmd = [item for item in cmd if item]
-    
-    # 切换到脚本所在目录执行命令
+    # Filter out empty strings from cmd list (e.g., if icon_path was empty)
+    cmd = [arg for arg in cmd if arg]
+
+    # 切换到脚本所在目录执行 PyInstaller
     original_dir = os.getcwd()
     os.chdir(base_dir)
     

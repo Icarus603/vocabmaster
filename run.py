@@ -14,6 +14,7 @@ import logging
 from utils import BECTest, TermsTest, DIYTest
 from utils.bec import BECTestModule1, BECTestModule2, BECTestModule3, BECTestModule4
 from utils.terms import TermsTestUnit1to5, TermsTestUnit6to10
+from utils.ielts import IeltsTest # Added import
 
 # 获取logger
 logger = logging.getLogger("VocabMaster.CLI")
@@ -52,7 +53,6 @@ class DictationApp:
         
         # 用于存储最近一次的DIY测试
         self.diy_test = None
-    
     def clear_screen(self):
         """清屏函数"""
         try:
@@ -71,6 +71,7 @@ class DictationApp:
             print("1. BEC高级词汇测试")
             print("2. 《理解当代中国》英汉互译")
             print("3. DIY自定义词汇测试")
+            print("4. IELTS 词汇测试") # Added IELTS option
             print("0. 退出程序\n")
             
             choice = input("请输入选项编号: ").strip()
@@ -81,6 +82,8 @@ class DictationApp:
                 self.show_terms_menu()
             elif choice == "3":
                 self.show_diy_menu()
+            elif choice == "4": # Added IELTS choice
+                self.show_ielts_menu()
             elif choice == "0":
                 print("\n感谢使用VocabMaster，再见!")
                 sys.exit(0)
@@ -147,6 +150,20 @@ class DictationApp:
             logger.error(f"显示《理解当代中国》菜单时发生错误: {e}")
             traceback.print_exc()
     
+    def show_ielts_menu(self):
+        """显示IELTS词汇测试菜单"""
+        try:
+            self.clear_screen()
+            print("===== IELTS 词汇测试 =====\n")
+            # Directly set the test, as IELTS has no submodules
+            self.current_test = IeltsTest()
+            self.show_test_mode_menu(is_fixed_direction=True) # IELTS is fixed direction
+        except Exception as e:
+            logger.error(f"显示IELTS菜单时发生错误: {e}")
+            traceback.print_exc()
+            input("按Enter键返回主菜单...")
+            self.show_main_menu()
+
     def show_diy_menu(self):
         """显示DIY自定义词汇测试菜单"""
         try:
@@ -162,9 +179,10 @@ class DictationApp:
             if choice == "1":
                 self.import_vocabulary()
             elif choice == "2":
-                if hasattr(self, 'diy_test') and self.diy_test.vocabulary:
+                if hasattr(self, 'diy_test') and self.diy_test and self.diy_test.vocabulary:
                     self.current_test = self.diy_test
-                    self.show_test_mode_menu()
+                    is_fixed_dir = getattr(self.diy_test, 'is_semantic_diy', False)
+                    self.show_test_mode_menu(is_fixed_direction=is_fixed_dir)
                 else:
                     print("\n尚未导入词汇表，请先导入")
                     input("按Enter键继续...")
@@ -186,7 +204,10 @@ class DictationApp:
             print("===== 导入词汇表 =====\n")
             print("支持的文件格式: .json")
             print("文件格式要求:")
-            print("- JSON文件: 包含英文和中文对应关系的JSON格式文件\n")
+            print("- 传统JSON文件: 包含英文和中文对应关系的JSON格式文件。")
+            print("  示例: [{'english': 'apple', 'chinese': '苹果'}, ... ]")
+            print("- 语义JSON文件: 只包含英文单词列表的JSON格式文件 (用于语义相似度测试)。")
+            print("  示例: ['apple', 'banana', 'orange', ... ]\n")
             
             file_path = input("请输入文件路径: ").strip()
             
@@ -212,7 +233,9 @@ class DictationApp:
                 print(f"\n成功导入词汇表，共{len(vocabulary)}个词汇")
                 self.current_test = self.diy_test
                 input("按Enter键继续...")
-                self.show_test_mode_menu()
+                # For semantic DIY, test direction is fixed (English to Chinese)
+                is_fixed_dir = getattr(self.diy_test, 'is_semantic_diy', False)
+                self.show_test_mode_menu(is_fixed_direction=is_fixed_dir)
                 
             except Exception as e:
                 logger.error(f"导入词汇表时发生错误: {e}")
@@ -223,7 +246,7 @@ class DictationApp:
             logger.error(f"导入词汇表时发生错误: {e}")
             traceback.print_exc()
     
-    def show_test_mode_menu(self):
+    def show_test_mode_menu(self, is_fixed_direction=False):
         """显示测试模式菜单"""
         try:
             self.clear_screen()
@@ -237,16 +260,22 @@ class DictationApp:
             print("请选择测试模式：")
             print("1. 默认题数模式")
             print("2. 自选题数模式")
+            # Test direction selection is only needed if not fixed
+            if not is_fixed_direction:
+                print("3. 选择测试方向 (当前: {"".join(self.current_test.test_direction)}) ")
             print("0. 返回上级菜单\n")
             
             choice = input("请输入选项编号: ").strip()
             
             if choice == "1":
                 # 默认题数模式
-                self.run_test()
+                self.run_test(is_fixed_direction=is_fixed_direction)
             elif choice == "2":
                 # 自选题数模式
-                self.run_custom_count_test()
+                self.run_custom_count_test(is_fixed_direction=is_fixed_direction)
+            elif not is_fixed_direction and choice == "3":
+                # 选择测试方向
+                self.select_test_direction()
             elif choice == "0":
                 # 返回上级菜单
                 if isinstance(self.current_test, BECTestModule1) or \
@@ -257,7 +286,9 @@ class DictationApp:
                 elif isinstance(self.current_test, TermsTestUnit1to5) or \
                      isinstance(self.current_test, TermsTestUnit6to10):
                     self.show_terms_menu()
-                else:
+                elif isinstance(self.current_test, IeltsTest): # Added IeltsTest check
+                    self.show_main_menu() # IELTS returns to main menu
+                else: # DIY test
                     self.show_diy_menu()
             else:
                 print("\n无效选项，请重新选择")
@@ -267,7 +298,7 @@ class DictationApp:
             logger.error(f"显示测试模式菜单时发生错误: {e}")
             traceback.print_exc()
     
-    def run_test(self):
+    def run_test(self, is_fixed_direction=False):
         """运行默认题数测试"""
         try:
             self.clear_screen()
@@ -277,16 +308,16 @@ class DictationApp:
                 self.show_main_menu()
                 return
                 
-            self.current_test.start()
+            self.current_test.start(is_fixed_direction=is_fixed_direction)
             
             # 测试完成后返回测试模式菜单
             input("\n按Enter键返回菜单...")
-            self.show_test_mode_menu()
+            self.show_test_mode_menu(is_fixed_direction=is_fixed_direction) # Pass back the flag
         except Exception as e:
             logger.error(f"运行测试时发生错误: {e}")
             traceback.print_exc()
     
-    def run_custom_count_test(self):
+    def run_custom_count_test(self, is_fixed_direction=False):
         """运行自选题数测试"""
         try:
             self.clear_screen()
@@ -328,15 +359,58 @@ class DictationApp:
                     print("请输入有效的数字")
             
             # 运行测试
-            self.current_test.start(count)
+            self.current_test.start(count, is_fixed_direction=is_fixed_direction)
             
             # 测试完成后返回测试模式菜单
             input("\n按Enter键返回菜单...")
-            self.show_test_mode_menu()
+            self.show_test_mode_menu(is_fixed_direction=is_fixed_direction) # Pass back the flag
         except Exception as e:
             logger.error(f"运行自选题数测试时发生错误: {e}")
             traceback.print_exc()
 
+    def select_test_direction(self):
+        """选择测试方向"""
+        try:
+            self.clear_screen()
+            if self.current_test is None or not hasattr(self.current_test, 'test_direction'):
+                print("错误：当前测试不支持选择方向或未选择测试。")
+                input("按Enter键继续...")
+                self.show_test_mode_menu()
+                return
+
+            print(f"===== {self.current_test.name} - 选择测试方向 =====\\n")
+            print(f'当前方向: {"".join(self.current_test.test_direction)}') # Changed to single quotes for outer string
+            print("请选择新的测试方向：")
+            print("1. 英 -> 中")
+            print("2. 中 -> 英")
+            print("3. 双向")
+            print("0. 返回")
+
+            choice = input("请输入选项编号: ").strip()
+
+            if choice == "1":
+                self.current_test.test_direction = ("E", "C")
+            elif choice == "2":
+                self.current_test.test_direction = ("C", "E")
+            elif choice == "3":
+                self.current_test.test_direction = ("E", "C", "B") # B for Bidirectional
+            elif choice == "0":
+                self.show_test_mode_menu()
+                return
+            else:
+                print("\\n无效选项，请重新选择")
+                input("按Enter键继续...")
+                self.select_test_direction()
+                return
+            
+            print(f'\\n测试方向已更新为: {"".join(self.current_test.test_direction)}') # Changed to single quotes for outer string
+            input("按Enter键返回测试模式菜单...")
+            self.show_test_mode_menu()
+
+        except Exception as e:
+            logger.error(f"选择测试方向时发生错误: {e}")
+            traceback.print_exc()
+            self.show_test_mode_menu()
 
 if __name__ == "__main__":
     try:

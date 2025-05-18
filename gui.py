@@ -1,5 +1,6 @@
 import sys
 import os
+import random # 新增导入
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                            QLabel, QPushButton, QStackedWidget, QComboBox, QLineEdit, 
                            QFileDialog, QMessageBox, QTextEdit, QSpinBox, QProgressBar,
@@ -9,6 +10,8 @@ from PyQt6.QtGui import QFont, QIcon, QPixmap, QShortcut, QKeySequence
 from utils import BECTest, TermsTest, DIYTest
 from utils.bec import BECTestModule1, BECTestModule2, BECTestModule3, BECTestModule4
 from utils.terms import TermsTestUnit1to5, TermsTestUnit6to10
+from utils.ielts import IeltsTest, SIMILARITY_THRESHOLD # <-- 新增导入 SIMILARITY_THRESHOLD
+from utils.base import TestResult # <-- 确保 TestResult 已导入
 # 导入 resource_path 用于查找资源文件
 from utils.resource_path import resource_path
 
@@ -49,6 +52,11 @@ class MainWindow(QMainWindow):
                     "6-10": TermsTestUnit6to10()
                 }
             },
+            # 新增 IELTS 测试
+            "ielts": {
+                "name": "IELTS 雅思英译中 (语义)",
+                "instance": IeltsTest()
+            },
             # DIY测试
             "diy": {
                 "name": "DIY自定义词汇测试",
@@ -57,7 +65,8 @@ class MainWindow(QMainWindow):
         }
         self.current_test = None
         self.diy_test = None
-        self.test_words = []
+        self.test_words = [] # 用于存储当前测试会话的题目列表
+        self.detailed_results_for_session = [] # 用于存储 TestResult 对象
         self.current_word_index = 0
         self.correct_count = 0
         self.wrong_answers = []
@@ -104,17 +113,19 @@ class MainWindow(QMainWindow):
         
         # 测试类型按钮
         bec_btn = QPushButton("BEC高级词汇测试")
+        ielts_btn = QPushButton("IELTS 雅思英译中 (语义)") # <-- 新增 IELTS 按钮
         terms_btn = QPushButton("《理解当代中国》英汉互译")
         diy_btn = QPushButton("DIY自定义词汇测试")
         exit_btn = QPushButton("退出程序")
         
         # 设置按钮样式和大小
-        for btn in [bec_btn, terms_btn, diy_btn, exit_btn]:
+        for btn in [bec_btn, ielts_btn, terms_btn, diy_btn, exit_btn]: # <-- 将 ielts_btn 加入列表
             btn.setMinimumSize(300, 50)
             btn.setFont(QFont("Arial", 12))
         
         # 连接按钮点击事件
         bec_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(1))
+        ielts_btn.clicked.connect(lambda: self.select_test("ielts")) # <-- 连接 IELTS 按钮事件
         terms_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(2))
         diy_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(3))
         exit_btn.clicked.connect(self.close)
@@ -125,6 +136,8 @@ class MainWindow(QMainWindow):
         layout.addWidget(subtitle)
         layout.addSpacing(40)
         layout.addWidget(bec_btn)
+        layout.addSpacing(10)
+        layout.addWidget(ielts_btn) # <-- 新增 IELTS 按钮到布局
         layout.addSpacing(10)
         layout.addWidget(terms_btn)
         layout.addSpacing(10)
@@ -268,64 +281,63 @@ class MainWindow(QMainWindow):
         """设置导入词汇表页面"""
         page = QWidget()
         layout = QVBoxLayout(page)
-        page.setStyleSheet("background-color: #2d2d2d; color: #e0e0e0;")  # 深色背景，浅色文字
+        # page.setStyleSheet("background-color: #2d2d2d; color: #e0e0e0;") # 移除深色背景，使用默认
         
         # 标题
-        title = QLabel("导入词汇表")
+        title = QLabel("导入DIY词汇表") # 更新标题
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setFont(QFont("Arial", 20, QFont.Weight.Bold))
-        title.setStyleSheet("color: #ffffff;")  # 白色标题
+        # title.setStyleSheet("color: #ffffff;") # 移除特定颜色
         
         # 文件格式说明
-        info = QLabel("支持的文件格式: 仅支持.json格式\n\n"
-                    "JSON格式要求:\n"
-                    "1. 必须是一个JSON数组(列表)\n"
-                    "2. 每个词条必须包含\"english\"和\"chinese\"字段\n"
-                    "3. 这两个字段可以是字符串或字符串数组\n"
-                    "4. 如果是数组，支持多个中文对应多个英文\n"
-                    "5. 可选：使用\"alternatives\"字段提供更多备选英文答案\n\n"
-                    "注意: 在中译英模式中，用户输入任何一个英文表达（主表达或备选答案）都会被视为正确\n"
-                    "      在英译中模式中，用户输入任何一个中文表达也会被视为正确")
-        info.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        info.setFont(QFont("Arial", 12))
-        info.setStyleSheet("color: #e0e0e0;")  # 浅灰色文字
+        info_text = ("支持的文件格式: 仅支持.json格式\n\n"
+                     "JSON格式要求:\n"
+                     "1. 传统模式 (英汉词对):\n"
+                     "   - JSON文件应为一个列表 (array)，每个元素是一个字典 (object)。\n"
+                     "   - 每个字典必须包含 \"english\" 和 \"chinese\" 键。\n"
+                     "   - 这两个键的值可以是字符串或字符串列表。\n"
+                     "   - 可选 \"alternatives\" 键 (字符串列表) 提供更多英文备选。\n"
+                     "2. 语义模式 (纯英文词汇):\n"
+                     "   - JSON文件应为一个简单的字符串列表 (array of strings)。\n"
+                     "   - 每个字符串代表一个英文单词或短语。\n"
+                     "   - 此模式下，将通过API进行英译中语义相似度判断。\n\n"
+                     "导入时，系统会自动检测文件格式。")
+        info = QLabel(info_text)
+        info.setAlignment(Qt.AlignmentFlag.AlignLeft) # 左对齐
+        info.setWordWrap(True) # 自动换行
+        info.setFont(QFont("Arial", 11))
+        # info.setStyleSheet("color: #e0e0e0;") # 移除特定颜色
         
         # 查看示例按钮
         view_examples_btn = QPushButton("查看JSON格式详细示例")
         view_examples_btn.setMinimumSize(300, 40)
         view_examples_btn.setFont(QFont("Arial", 12))
-        view_examples_btn.setStyleSheet("background-color: #404040; color: #8cf26e;")
-        view_examples_btn.clicked.connect(self.show_json_examples)
+        # view_examples_btn.setStyleSheet("background-color: #404040; color: #8cf26e;") # 移除特定样式
+        view_examples_btn.clicked.connect(self.show_json_examples_diy) # 连接到新的示例函数
         
-        # 简化的示例
-        simple_example = QLabel("JSON示例: [{\"english\": \"go public\", \"chinese\": \"上市\"}]")
-        simple_example.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        simple_example.setFont(QFont("Consolas", 11))
-        simple_example.setStyleSheet("color: #8cf26e;")
-        
-        # 文件路径输入 - 使用深色输入框
+        # 文件路径输入
         file_layout = QHBoxLayout()
         self.file_path_input = QLineEdit()
         self.file_path_input.setPlaceholderText("请选择JSON词汇表文件...")
         self.file_path_input.setMinimumHeight(30)
-        self.file_path_input.setStyleSheet("background-color: #3a3a3a; color: #ffffff; border: 1px solid #555555; padding: 5px;")
+        # self.file_path_input.setStyleSheet("background-color: #3a3a3a; color: #ffffff; border: 1px solid #555555; padding: 5px;") # 移除特定样式
         browse_btn = QPushButton("浏览...")
         browse_btn.setMinimumSize(100, 30)
-        browse_btn.setStyleSheet("background-color: #4a4a4a; color: white;")
+        # browse_btn.setStyleSheet("background-color: #4a4a4a; color: white;") # 移除特定样式
         file_layout.addWidget(self.file_path_input)
         file_layout.addWidget(browse_btn)
         
-        # 导入按钮 - 使用醒目色彩
+        # 导入按钮
         import_btn = QPushButton("导入词汇表")
         import_btn.setMinimumSize(300, 50)
         import_btn.setFont(QFont("Arial", 12))
-        import_btn.setStyleSheet("background-color: #007acc; color: white;")
+        # import_btn.setStyleSheet("background-color: #007acc; color: white;") # 移除特定样式
         
         # 返回按钮
-        back_btn = QPushButton("返回")
+        back_btn = QPushButton("返回DIY菜单") # 更新按钮文本
         back_btn.setMinimumSize(300, 50)
         back_btn.setFont(QFont("Arial", 12))
-        back_btn.setStyleSheet("background-color: #4a4a4a; color: white;")
+        # back_btn.setStyleSheet("background-color: #4a4a4a; color: white;") # 移除特定样式
         
         # 连接按钮点击事件
         browse_btn.clicked.connect(self.browse_vocabulary_file)
@@ -340,9 +352,7 @@ class MainWindow(QMainWindow):
         layout.addSpacing(10)
         layout.addWidget(view_examples_btn, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addSpacing(10)
-        layout.addWidget(simple_example)
-        layout.addSpacing(20)
-        layout.addLayout(file_layout)
+        layout.addLayout(file_layout) # Changed from addWidget to addLayout
         layout.addSpacing(20)
         layout.addWidget(import_btn, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addSpacing(20)
@@ -561,35 +571,44 @@ class MainWindow(QMainWindow):
         # 将页面添加到堆叠部件
         self.stacked_widget.addWidget(page)
     
-    def select_test(self, test_type, module_key):
-        """选择测试类型和模块"""
-        self.current_test = self.tests[test_type]["modules"][module_key]
-        self.test_mode_title.setText(self.current_test.name)
-        
-        # 加载词汇表
-        if not self.current_test.vocabulary:
-            self.current_test.load_vocabulary()
-        
-        # 更新题数选择器的最大值
-        max_count = len(self.current_test.vocabulary)
-        self.question_count_spinbox.setMaximum(max_count)
-        self.question_count_spinbox.setValue(min(10, max_count))
-        
-        # 根据测试类型设置测试方向选项
-        if test_type == "bec":
-            # BEC测试只保留中译英模式
+    def select_test(self, test_type, module_key=None):
+        """选择测试类型和模块，并设置测试模式页面"""
+        self.current_test = None # 重置 current_test
+
+        if test_type == "ielts":
+            self.current_test = self.tests["ielts"]["instance"]
+            self.e2c_radio.setChecked(True)
+            self.c2e_radio.setVisible(False)
+            self.mixed_radio.setVisible(False)
+            self.e2c_radio.setVisible(True) 
+        elif test_type == "bec":
+            self.current_test = self.tests[test_type]["modules"][module_key]
             self.e2c_radio.setVisible(False)
             self.mixed_radio.setVisible(False)
             self.c2e_radio.setChecked(True)
-        else:
-            # 其他测试类型显示所有模式
+            self.c2e_radio.setVisible(True)
+        elif test_type == "terms":
+            self.current_test = self.tests[test_type]["modules"][module_key]
             self.e2c_radio.setVisible(True)
+            self.c2e_radio.setVisible(True)
             self.mixed_radio.setVisible(True)
             self.e2c_radio.setChecked(True)
-        
-        # 显示测试模式页面
-        self.stacked_widget.setCurrentIndex(5)
-    
+        # DIY 测试通过 import_vocabulary 或 use_previous_vocabulary 设置 self.current_test
+
+        if self.current_test: 
+            self.test_mode_title.setText(self.current_test.name)
+            # 确保词汇表已加载以获取大小 (IELTS 的 prepare_test_session 也会加载)
+            if not self.current_test.vocabulary and hasattr(self.current_test, 'load_vocabulary'):
+                self.current_test.load_vocabulary()
+            
+            max_words = self.current_test.get_vocabulary_size()
+            self.question_count_spinbox.setMaximum(max_words if max_words > 0 else 1)
+            self.question_count_spinbox.setValue(min(10, max_words) if max_words > 0 else 1)
+            
+            self.stacked_widget.setCurrentIndex(5)  # 导航到测试模式选择页面
+        elif test_type != "diy": # 如果 current_test 未设置且不是DIY（DIY有自己的流程）
+            QMessageBox.warning(self, "错误", f"无法加载测试类型: {test_type}")
+
     def browse_vocabulary_file(self):
         """浏览词汇表文件"""
         file_path, _ = QFileDialog.getOpenFileName(
@@ -611,31 +630,51 @@ class MainWindow(QMainWindow):
         
         try:
             # 创建DIY测试实例
-            self.diy_test = DIYTest("自定义测试", file_path)
+            # 从文件名提取一个更友好的名称，例如 'my_vocab' from 'my_vocab.json'
+            base_name = os.path.basename(file_path)
+            test_name_prefix = os.path.splitext(base_name)[0]
+            self.diy_test = DIYTest(name=f"DIY - {test_name_prefix}", file_path=file_path)
             
-            # 加载词汇表
+            # 加载词汇表 (load_vocabulary 内部会调用 _load_from_json 并设置 is_semantic_diy)
             vocabulary = self.diy_test.load_vocabulary()
             
             if not vocabulary:
-                QMessageBox.warning(self, "警告", "词汇表为空或格式不正确")
+                QMessageBox.warning(self, "警告", "词汇表为空或格式不正确，或者无法识别JSON内容。请检查文件内容和格式说明。")
+                self.diy_test = None # 重置，因为加载失败
                 return
             
             # 设置当前测试
             self.current_test = self.diy_test
-            self.test_mode_title.setText(self.current_test.name)
+            self.test_mode_title.setText(self.current_test.name) 
             
             # 更新题数选择器的最大值
             max_count = len(vocabulary)
             self.question_count_spinbox.setMaximum(max_count)
             self.question_count_spinbox.setValue(min(10, max_count))
-            
-            QMessageBox.information(self, "成功", f"成功导入词汇表，共{len(vocabulary)}个词汇")
+
+            # 根据DIY测试的类型 (传统 vs 语义) 设置测试方向选项
+            if hasattr(self.current_test, 'is_semantic_diy') and self.current_test.is_semantic_diy:
+                self.e2c_radio.setChecked(True)
+                self.c2e_radio.setVisible(False)
+                self.mixed_radio.setVisible(False)
+                self.e2c_radio.setVisible(True) # 确保可见
+                QMessageBox.information(self, "成功", f"成功导入纯英文词汇表 ‘{base_name}’，共{len(vocabulary)}个词汇。将进行英译中语义测试。")
+            else:
+                self.e2c_radio.setVisible(True)
+                self.c2e_radio.setVisible(True)
+                self.mixed_radio.setVisible(True)
+                self.e2c_radio.setChecked(True) # 传统DIY默认英译中
+                QMessageBox.information(self, "成功", f"成功导入英汉词对词汇表 ‘{base_name}’，共{len(vocabulary)}个词汇。")
             
             # 显示测试模式页面
             self.stacked_widget.setCurrentIndex(5)
             
+        except ValueError as ve:
+            QMessageBox.critical(self, "导入错误", f"导入词汇表时发生值错误：{str(ve)}\n请确保文件是有效的JSON，并且符合指定的格式之一。")
+            self.diy_test = None # 重置
         except Exception as e:
-            QMessageBox.critical(self, "错误", f"导入词汇表出错：{str(e)}")
+            QMessageBox.critical(self, "导入错误", f"导入词汇表时发生未知错误：{str(e)}")
+            self.diy_test = None # 重置
     
     def use_previous_vocabulary(self):
         """使用上次导入的词汇表"""
@@ -643,51 +682,96 @@ class MainWindow(QMainWindow):
             self.current_test = self.diy_test
             self.test_mode_title.setText(self.current_test.name)
             
-            # 更新题数选择器的最大值
-            max_count = len(self.diy_test.vocabulary)
+            max_count = len(self.current_test.vocabulary)
             self.question_count_spinbox.setMaximum(max_count)
             self.question_count_spinbox.setValue(min(10, max_count))
             
-            # 显示测试模式页面
-            self.stacked_widget.setCurrentIndex(5)
+            # 根据DIY测试的类型 (传统 vs 语义) 设置测试方向选项
+            if hasattr(self.current_test, 'is_semantic_diy') and self.current_test.is_semantic_diy:
+                self.e2c_radio.setChecked(True)
+                self.c2e_radio.setVisible(False)
+                self.mixed_radio.setVisible(False)
+                self.e2c_radio.setVisible(True)
+            else:
+                self.e2c_radio.setVisible(True)
+                self.c2e_radio.setVisible(True)
+                self.mixed_radio.setVisible(True)
+                self.e2c_radio.setChecked(True) 
+
+            self.stacked_widget.setCurrentIndex(5) 
         else:
-            QMessageBox.warning(self, "警告", "尚未导入词汇表，请先导入")
+            QMessageBox.information(self, "提示", "没有找到上次导入的词汇表，请先导入新的词汇表。")
+            self.stacked_widget.setCurrentIndex(4) 
     
     def back_to_previous_menu(self):
         """返回上一级菜单"""
-        if isinstance(self.current_test, BECTestModule1) or \
-           isinstance(self.current_test, BECTestModule2) or \
-           isinstance(self.current_test, BECTestModule3) or \
-           isinstance(self.current_test, BECTestModule4):
-            self.stacked_widget.setCurrentIndex(1)  # BEC菜单
-        elif isinstance(self.current_test, TermsTestUnit1to5) or \
-             isinstance(self.current_test, TermsTestUnit6to10):
-            self.stacked_widget.setCurrentIndex(2)  # 《理解当代中国》菜单
+        # 简化的返回逻辑：总是尝试返回到主菜单或特定测试类型的主菜单
+        # 注意：此处的逻辑可能需要根据 current_test 的来源进行更精确的调整
+        # 例如，如果 current_test 是 BEC 的某个模块，则返回 BEC 菜 menu
+        
+        current_widget_index = self.stacked_widget.currentIndex()
+        
+        # 如果在测试模式选择页面 (index 5)
+        if current_widget_index == 5:
+            if isinstance(self.current_test, (BECTestModule1, BECTestModule2, BECTestModule3, BECTestModule4)):
+                self.stacked_widget.setCurrentIndex(1) # BEC 菜单
+            elif isinstance(self.current_test, (TermsTestUnit1to5, TermsTestUnit6to10)):
+                self.stacked_widget.setCurrentIndex(2) # Terms 菜单
+            elif isinstance(self.current_test, DIYTest):
+                self.stacked_widget.setCurrentIndex(3) # DIY 菜单
+            elif isinstance(self.current_test, IeltsTest): # IELTS 直接从主菜单进入，没有自己的子菜单
+                self.stacked_widget.setCurrentIndex(0) # 主菜单
+            else:
+                self.stacked_widget.setCurrentIndex(0) # 默认为主菜单
         else:
-            self.stacked_widget.setCurrentIndex(3)  # DIY菜单
-    
+            # 对于其他页面，通常返回主菜单
+            self.stacked_widget.setCurrentIndex(0)
+
     def start_test(self):
         """开始测试"""
+        # ... (之前的检查和 current_test 设置) ...
         if not self.current_test:
             QMessageBox.warning(self, "警告", "未选择测试模块")
             return
         
-        # 获取测试参数
         count = self.question_count_spinbox.value()
-        
-        # 随机选择词汇
-        self.test_words = self.current_test.select_random_words(count)
-        
+        self.test_words = [] 
+
+        is_semantic_diy_test = (isinstance(self.current_test, DIYTest) and 
+                                hasattr(self.current_test, 'is_semantic_diy') and 
+                                self.current_test.is_semantic_diy)
+
+        if isinstance(self.current_test, IeltsTest):
+            num_prepared = self.current_test.prepare_test_session(count)
+            if num_prepared == 0:
+                QMessageBox.warning(self, "警告", "IELTS 词汇表为空或无法准备测试。")
+                return
+            self.test_words = self.current_test.selected_words_for_session
+        elif is_semantic_diy_test:
+            if not self.current_test.vocabulary:
+                QMessageBox.warning(self, "警告", "DIY语义词汇表为空。")
+                return
+            num_to_select = min(count, len(self.current_test.vocabulary))
+            if num_to_select > 0:
+                self.test_words = random.sample(self.current_test.vocabulary, num_to_select)
+            else:
+                QMessageBox.warning(self, "警告", "没有足够的DIY语义词汇进行测试。")
+                return
+        elif hasattr(self.current_test, 'select_random_words'): 
+            self.test_words = self.current_test.select_random_words(count)
+        else:
+            QMessageBox.critical(self, "错误", "当前测试模块不支持选择随机词汇。")
+            return
+
         if not self.test_words:
-            QMessageBox.warning(self, "警告", "词汇表为空")
+            QMessageBox.warning(self, "警告", "词汇表为空或未能选择题目。")
             return
         
-        # 初始化测试状态
+        self.test_words_backup_for_review = list(self.test_words) 
         self.current_word_index = 0
         self.correct_count = 0
-        self.wrong_answers = []
+        self.detailed_results_for_session = [] 
         
-        # 设置进度条
         self.progress_bar.setMaximum(len(self.test_words))
         self.progress_bar.setValue(0)
         
@@ -710,132 +794,132 @@ class MainWindow(QMainWindow):
             self.show_results()
             return
         
-        # 清空结果标签和答案输入框
         self.result_label.setText("")
         self.answer_input.clear()
-        
-        # 获取当前词汇
-        word_pair = self.test_words[self.current_word_index]
-        
-        # 根据词汇格式获取英文和中文
-        if isinstance(word_pair, tuple) and len(word_pair) == 2:
-            english, chinese = word_pair
-            alternatives = []
-            chinese_list = [chinese]
-            english_list = [english]
-        elif isinstance(word_pair, dict):
-            english = word_pair.get("english", "")
-            chinese = word_pair.get("chinese", "")
-            # 获取所有可能的表达方式
-            alternatives = word_pair.get("alternatives", [])
-            chinese_list = [chinese]
-            english_list = [english]
-        else:
-            # 非预期格式，记录错误并跳过
-            print(f"错误：未知的词汇格式 - {word_pair}")
-            self.current_word_index += 1
-            self.show_next_question()
-            return
-        
-        # 根据测试方向设置问题
-        if self.e2c_radio.isChecked():
-            self.question_label.setText(english)
-            self.expected_answer = chinese
-            self.expected_alternatives = []  # 英译中没有备选答案
-            self.expected_chinese_list = chinese_list  # 保存所有中文表达
-        elif self.c2e_radio.isChecked():
-            self.question_label.setText(chinese)
-            self.expected_answer = english
-            self.expected_alternatives = alternatives  # 存储备选答案
-            self.expected_english_list = english_list  # 保存所有英文表达
-        else:  # 混合模式
-            if self.current_word_index % 2 == 0:
-                self.question_label.setText(english)
-                self.expected_answer = chinese
-                self.expected_alternatives = []
-                self.expected_chinese_list = chinese_list
+        self.answer_input.setReadOnly(False) 
+        self.submit_btn.setVisible(True) 
+        self.next_btn.setVisible(False)  
+
+        current_question_data = self.test_words[self.current_word_index]
+
+        is_semantic_diy_test = (isinstance(self.current_test, DIYTest) and 
+                                hasattr(self.current_test, 'is_semantic_diy') and 
+                                self.current_test.is_semantic_diy)
+
+        if isinstance(self.current_test, IeltsTest) or is_semantic_diy_test:
+            if isinstance(current_question_data, dict):
+                self.question_label.setText(current_question_data.get("english", "未知问题"))
             else:
-                self.question_label.setText(chinese)
-                self.expected_answer = english
-                self.expected_alternatives = alternatives
+                self.question_label.setText(str(current_question_data))
+            self.expected_answer = "语义判断" 
+        else:
+            # 传统测试模式 (BEC, Terms, 传统DIY)
+            if isinstance(current_question_data, tuple) and len(current_question_data) == 2:
+                english, chinese = current_question_data
+                alternatives = [] 
+                # Forcing list format for consistency, though current code might handle strings directly
+                chinese_list = [chinese] if isinstance(chinese, str) else chinese
+                english_list = [english] if isinstance(english, str) else english
+            elif isinstance(current_question_data, dict):
+                english = current_question_data.get("english", "")
+                chinese = current_question_data.get("chinese", "")
+                alternatives = current_question_data.get("alternatives", [])
+                chinese_list = [chinese] if isinstance(chinese, str) else chinese
+                english_list = [english] if isinstance(english, str) else english
+            else:
+                # 非预期格式，记录错误并跳过
+                print(f"错误：未知的词汇格式 - {current_question_data}")
+                self.current_word_index += 1
+                self.show_next_question()
+                return
+            
+            # Determine question and expected answer based on test direction
+            if self.e2c_radio.isChecked() or (self.mixed_radio.isChecked() and self.current_word_index % 2 == 0):
+                #英译中 (E2C)
+                self.question_label.setText(english_list[0] if isinstance(english_list, list) and english_list else str(english_list))
+                self.expected_answer = chinese_list[0] if isinstance(chinese_list, list) and chinese_list else str(chinese_list)
+                self.expected_alternatives = [] 
+                self.expected_chinese_list = chinese_list 
+            else: #中译英 (C2E)
+                self.question_label.setText(chinese_list[0] if isinstance(chinese_list, list) and chinese_list else str(chinese_list))
+                self.expected_answer = english_list[0] if isinstance(english_list, list) and english_list else str(english_list)
+                self.expected_alternatives = alternatives 
                 self.expected_english_list = english_list
         
-        # 更新进度
         self.progress_bar.setValue(self.current_word_index)
         self.progress_label.setText(f"进度: {self.current_word_index + 1}/{len(self.test_words)}")
     
     def check_answer(self):
         """检查答案"""
-        # 获取用户输入
         user_answer = self.answer_input.text().strip()
         
-        if not user_answer:
-            return
+        is_correct = False
+        current_question_text_on_label = self.question_label.text() 
         
-        # 获取当前词汇 - 支持不同的词汇格式
-        word_pair = self.test_words[self.current_word_index]
+        question_num_for_result = self.current_word_index + 1
+        raw_question_data = self.test_words[self.current_word_index]
         
-        # 获取正确格式的英文和中文
-        if isinstance(word_pair, tuple) and len(word_pair) == 2:
-            english, chinese = word_pair
-        elif isinstance(word_pair, dict):
-            english = word_pair.get("english", "")
-            chinese = word_pair.get("chinese", "")
+        question_content_for_result = ""
+        if isinstance(raw_question_data, dict):
+            question_content_for_result = raw_question_data.get("english", str(raw_question_data)) 
+        elif isinstance(raw_question_data, str):
+            question_content_for_result = raw_question_data 
         else:
-            # 未知格式，尝试记录日志并使用安全值
-            print(f"错误：未知的词汇格式 - {word_pair}")
-            english = str(word_pair)
-            chinese = ""
-        
-        # 检查答案是否正确
-        is_correct = self.compare_answers(user_answer, self.expected_answer)
-        
-        if is_correct:
-            self.correct_count += 1
-            self.result_label.setText("✓ 正确!")
-            self.result_label.setStyleSheet("color: green;")
-            self.score_label.setText(f"得分: {self.correct_count}")
+            question_content_for_result = current_question_text_on_label 
+            
+        expected_answer_for_result = ""
+        notes_for_result = ""
+
+        is_semantic_diy_test = (isinstance(self.current_test, DIYTest) and 
+                                hasattr(self.current_test, 'is_semantic_diy') and 
+                                self.current_test.is_semantic_diy)
+
+        if isinstance(self.current_test, IeltsTest) or is_semantic_diy_test:
+            is_correct = self.current_test.check_answer_with_api(question_content_for_result, user_answer)
+            similarity_threshold_display = SIMILARITY_THRESHOLD 
+            if hasattr(self.current_test, 'SIMILARITY_THRESHOLD'):
+                 similarity_threshold_display = self.current_test.SIMILARITY_THRESHOLD
+            elif isinstance(self.current_test, DIYTest) and hasattr(self.current_test, 'SIMILARITY_THRESHOLD'): 
+                 similarity_threshold_display = self.current_test.SIMILARITY_THRESHOLD
+
+            expected_answer_for_result = f"语义相似度 > {similarity_threshold_display:.2f}"
+            notes_for_result = "语义相似度判定"
+            if is_correct:
+                self.correct_count += 1
+                self.result_label.setText("✓ 语义相近!")
+                self.result_label.setStyleSheet("color: green;")
+            else:
+                self.result_label.setText(f"✗ 语义不符")
+                self.result_label.setStyleSheet("color: red;")
         else:
-            self.result_label.setText(f"✗ 错误! 正确答案: {self.expected_answer}")
-            self.result_label.setStyleSheet("color: red;")
-            
-            # 记录错误答案 - 确保存储实际单词，而不是变量名
-            question_word = ""
-            answer_word = ""
-            
-            if self.e2c_radio.isChecked():
-                question_word = english  # 英文是问题
-                answer_word = chinese    # 中文是答案
-                direction = "英译中"
-            elif self.c2e_radio.isChecked():
-                question_word = chinese  # 中文是问题
-                answer_word = english    # 英文是答案
-                direction = "中译英"
-            else:  # 混合模式
-                if self.current_word_index % 2 == 0:
-                    question_word = english  # 英文是问题
-                    answer_word = chinese    # 中文是答案
-                    direction = "英译中"
-                else:
-                    question_word = chinese  # 中文是问题
-                    answer_word = english    # 英文是答案
-                    direction = "中译英"
-                    
-            # 存储完整的错题信息
-            self.wrong_answers.append({
-                "english": english,
-                "chinese": chinese,
-                "direction": direction,
-                "user_answer": user_answer,
-                "question_word": question_word,
-                "answer_word": answer_word
-            })
+            # 传统测试模式 (BEC, Terms, 传统DIY)
+            is_correct = self.compare_answers(user_answer, self.expected_answer)
+            expected_answer_for_result = self.expected_answer # The primary correct translation
+            notes_for_result = "固定答案匹配"
+
+            if is_correct:
+                self.correct_count += 1
+                self.result_label.setText("✓ 正确!")
+                self.result_label.setStyleSheet("color: green;")
+            else:
+                self.result_label.setText(f"✗ 错误! 正确答案: {self.expected_answer}")
+                self.result_label.setStyleSheet("color: red;")
         
-        # 切换到下一题或显示结果
-        self.current_word_index += 1
-        
-        # 显示下一题按钮，隐藏提交按钮
+        self.score_label.setText(f"得分: {self.correct_count}")
+
+        # Store detailed result for this question
+        result_entry = TestResult(
+            question_num=question_num_for_result,
+            question=question_content_for_result,
+            expected_answer=expected_answer_for_result,
+            user_answer=user_answer if user_answer else "<空>",
+            is_correct=is_correct,
+            notes=notes_for_result
+        )
+        self.detailed_results_for_session.append(result_entry)
+
         self.submit_btn.setVisible(False)
+        # 显示下一题按钮，隐藏提交按钮
         self.next_btn.setVisible(True)
         
         # 如果已经是最后一题，修改下一题按钮文本为"查看结果"
@@ -852,6 +936,10 @@ class MainWindow(QMainWindow):
     
     def proceed_to_next_question(self):
         """处理下一题或显示结果"""
+        # 移动 current_word_index 的递增操作到这里
+        # 确保在显示下一题或结果之前，索引已经更新
+        self.current_word_index += 1
+
         # 重置UI状态为下一题做准备
         self.answer_input.setReadOnly(False)  # 重新启用输入框
         self.submit_btn.setVisible(True)      # 显示提交按钮
@@ -906,195 +994,165 @@ class MainWindow(QMainWindow):
     
     def show_results(self):
         """显示测试结果"""
-        # 更新结果统计信息
         total = len(self.test_words)
         correct = self.correct_count
-        accuracy = correct / total * 100 if total > 0 else 0
+        # total_answered = sum(1 for r in self.detailed_results_for_session if r.user_answer != "<跳过>") # 如果需要区分跳过
+        # accuracy = (correct / total_answered * 100) if total_answered > 0 else 0
+        accuracy = (correct / total * 100) if total > 0 else 0 # 基于总题数的准确率
         
-        self.result_stats.setText(
+        result_summary = (
+            f"测试: {self.current_test.name}\n"
             f"总题数: {total}\n"
-            f"正确数: {correct}\n"
-            f"错误数: {total - correct}\n"
-            f"正确率: {accuracy:.1f}%"
+            f"回答正确: {correct}\n"
+            f"回答错误: {total - correct}\n"
+            f"准确率: {accuracy:.1f}%"
         )
+        if isinstance(self.current_test, IeltsTest) or \
+           (isinstance(self.current_test, DIYTest) and hasattr(self.current_test, 'is_semantic_diy') and self.current_test.is_semantic_diy):
+            similarity_threshold_display = SIMILARITY_THRESHOLD # Default
+            if hasattr(self.current_test, 'SIMILARITY_THRESHOLD'):
+                 similarity_threshold_display = self.current_test.SIMILARITY_THRESHOLD
+            result_summary += f"\n(语义测试模式，相似度阈值: {similarity_threshold_display:.2f})"
+
+        self.result_stats.setText(result_summary)
         
-        # 更新错误题目列表
-        if self.wrong_answers:
-            self.wrong_answers_text.clear()
-            for i, wrong_item in enumerate(self.wrong_answers, 1):
-                # 使用新的错题格式
-                if isinstance(wrong_item, dict) and "question_word" in wrong_item and "answer_word" in wrong_item:
-                    # 新格式: 使用专门存储的问题词和答案词
-                    question = wrong_item["question_word"]
-                    answer = wrong_item["answer_word"]
-                    user_answer = wrong_item["user_answer"]
-                elif isinstance(wrong_item, tuple) and len(wrong_item) >= 4:
-                    # 兼容旧格式: (english, chinese, direction, user_answer)
-                    english, chinese, direction, user_answer = wrong_item
-                    if direction == "英译中":
-                        question = english
-                        answer = chinese
-                    else:
-                        question = chinese
-                        answer = english
-                else:
-                    # 未知格式，尽量提取可用信息
-                    print(f"错误：未知的错题格式 - {wrong_item}")
-                    if hasattr(wrong_item, "get"):
-                        question = wrong_item.get("question", "未知问题")
-                        answer = wrong_item.get("answer", "未知答案")
-                        user_answer = wrong_item.get("user_answer", "未知回答")
-                    else:
-                        question = str(wrong_item)
-                        answer = "未知答案"
-                        user_answer = "未知回答"
+        # 更新错误题目列表 (现在使用 detailed_results_for_session)
+        self.wrong_answers_text.clear()
+        wrong_count = 0
+        for i, result_item in enumerate(self.detailed_results_for_session, 1):
+            if not result_item.is_correct:
+                wrong_count += 1
+                # 确保 question, expected_answer, user_answer 都是字符串
+                q_text = str(result_item.question if result_item.question is not None else "未知问题")
+                e_text = str(result_item.expected_answer if result_item.expected_answer is not None else "未知答案")
+                u_text = str(result_item.user_answer if result_item.user_answer is not None else "<空>")
                 
-                # 添加错题到显示区域
                 self.wrong_answers_text.append(
-                    f"{i}. {question}\n"
-                    f"您的答案: {user_answer}\n"
-                    f"正确答案: {answer}\n"
+                    f"{wrong_count}. 问题: {q_text}\n"
+                    f"   您的答案: {u_text}\n"
+                    f"   参考答案/标准: {e_text}\n"
+                    f"   备注: {result_item.notes}\n"
                 )
-            
-            self.review_btn.setEnabled(True)
-        else:
+        
+        if wrong_count == 0:
             self.wrong_answers_text.setText("恭喜！没有错误题目。")
             self.review_btn.setEnabled(False)
+        else:
+            self.review_btn.setEnabled(True)
         
         # 显示结果页面
         self.stacked_widget.setCurrentIndex(7)
     
     def review_wrong_answers(self):
-        """复习错误题目"""
-        if not self.wrong_answers:
+        """复习错误题目 (基于 detailed_results_for_session)"""
+        # 从 detailed_results_for_session 中提取错题
+        # 注意：这里的逻辑需要确保错题能被正确地重新格式化为 self.test_words 所需的格式
+        # 对于语义测试，原始问题（英文单词）存储在 result_item.question 中
+        # 对于传统测试，也类似，但可能需要区分E2C和C2E来决定显示哪个作为问题
+        
+        wrong_questions_for_review = []
+        original_test_was_semantic = isinstance(self.current_test, IeltsTest) or \
+                                     (isinstance(self.current_test, DIYTest) and \
+                                      hasattr(self.current_test, 'is_semantic_diy') and \
+                                      self.current_test.is_semantic_diy)
+
+        for result_item in self.detailed_results_for_session:
+            if not result_item.is_correct:
+                if original_test_was_semantic:
+                    # 对于语义测试，我们只需要原始的英文问题词
+                    # result_item.question 已经是英文单词了
+                    if isinstance(self.current_test, DIYTest) and self.current_test.is_semantic_diy:
+                         # DIY 语义模式下，test_words 的元素是 {"english": "word", ...}
+                         wrong_questions_for_review.append({"english": result_item.question, "chinese": "N/A (语义判断)"})
+                    else: # IELTS
+                         wrong_questions_for_review.append(result_item.question) 
+                else:
+                    # 对于传统测试，我们需要找到原始的 (english, chinese) 对或字典
+                    # 这部分比较复杂，因为 result_item.question 可能已经是转换后的问题 (例如中文)
+                    # 我们需要从原始的 self.test_words 中找到对应项
+                    # 假设 self.test_words 在复习前没有被修改，并且索引对应
+                    original_idx = result_item.question_num - 1 # question_num is 1-based
+                    if 0 <= original_idx < len(self.test_words_backup_for_review): # 使用备份
+                        wrong_questions_for_review.append(self.test_words_backup_for_review[original_idx])
+                    else:
+                        # Fallback or error handling if original data can't be retrieved
+                        print(f"Warning: Could not retrieve original question data for review: {result_item.question}")
+                        # As a simple fallback, try to reconstruct if possible, though this might be imperfect
+                        # For now, we might skip this item in review if original cannot be found reliably
+                        pass 
+
+        if not wrong_questions_for_review:
+            QMessageBox.information(self, "复习", "没有可复习的错题。")
             return
         
-        # 初始化测试状态
-        new_test_words = []
-        
-        # 将错题转换为测试所需的格式
-        for wrong_item in self.wrong_answers:
-            if isinstance(wrong_item, dict) and "english" in wrong_item and "chinese" in wrong_item:
-                # 新格式
-                new_test_words.append((wrong_item["english"], wrong_item["chinese"]))
-        
-        # 更新当前词汇列表为错题列表
-        self.test_words = new_test_words  # 这里是关键修复
-        
-        # 初始化测试状态
+        # 保存一份原始的 test_words，以备复习功能使用 (如果尚未保存)
+        # 这个备份应该在 start_test 时创建，这里只是确保它存在
+        if not hasattr(self, 'test_words_backup_for_review') or not self.test_words_backup_for_review:
+             self.test_words_backup_for_review = list(self.test_words) # Should be done in start_test
+
+        self.test_words = wrong_questions_for_review
         self.current_word_index = 0
         self.correct_count = 0
-        self.wrong_answers = []
+        self.detailed_results_for_session = [] # 为复习会话重置详细结果
         
-        # 设置进度条
         self.progress_bar.setMaximum(len(self.test_words))
         self.progress_bar.setValue(0)
+        self.progress_label.setText(f"进度 (复习): 0/{len(self.test_words)}")
+        self.score_label.setText(f"得分 (复习): 0")
         
-        # 更新测试信息
-        self.progress_label.setText(f"进度: 0/{len(self.test_words)}")
-        self.score_label.setText(f"得分: 0")
-        
-        # 显示第一个问题
         self.show_next_question()
-        
-        # 显示测试界面
         self.stacked_widget.setCurrentIndex(6)
-        
-        # 设置焦点到答案输入框
         self.answer_input.setFocus()
-    
+
     def show_json_examples(self):
-        """显示JSON格式详细示例窗口"""
+        """显示JSON格式详细示例窗口 (旧的，保留或移除)"""
+        # ... (此函数内容可以保留，或者将其内容合并到 show_json_examples_diy)
+        # 为了清晰，建议创建一个新的 show_json_examples_diy 并更新调用点
+        # 这里暂时保留，但实际调用已改为 show_json_examples_diy
+        QMessageBox.information(self, "提示", "请查看新的DIY词汇表示例。")
+
+    def show_json_examples_diy(self):
+        """显示DIY JSON格式详细示例窗口 (包含传统和语义模式)"""
         examples_dialog = QDialog(self)
-        examples_dialog.setWindowTitle("JSON词汇表格式示例")
-        examples_dialog.setMinimumSize(700, 600)
-        examples_dialog.setStyleSheet("background-color: #2d2d2d; color: #e0e0e0;")
+        examples_dialog.setWindowTitle("DIY词汇表JSON格式示例")
+        examples_dialog.setMinimumSize(750, 650) # 稍大一点以容纳更多内容
+        # examples_dialog.setStyleSheet("background-color: #2d2d2d; color: #e0e0e0;") # 移除深色主题
         
-        # 创建滚动区域内容容器
         scroll_content = QWidget()
         scroll_layout = QVBoxLayout(scroll_content)
         scroll_layout.setSpacing(15)
         scroll_layout.setContentsMargins(20, 20, 20, 20)
         
-        # 主布局
-        layout = QVBoxLayout(examples_dialog)
+        main_layout = QVBoxLayout(examples_dialog)
         
-        # 标题
-        title = QLabel("JSON词汇表格式示例 - 三种常用模式")
+        title = QLabel("DIY词汇表JSON格式示例")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setFont(QFont("Arial", 18, QFont.Weight.Bold))
-        title.setStyleSheet("color: #ffffff; margin-bottom: 10px;")
-        
-        # 示例1：简单模式
-        example1_title = QLabel("1. 简单模式：单个英文对应单个中文")
+        # title.setStyleSheet("color: #ffffff; margin-bottom: 10px;")
+
+        # 模式选择提示
+        mode_intro = QLabel("VocabMaster的DIY模式支持两种JSON文件格式：")
+        mode_intro.setFont(QFont("Arial", 12))
+        mode_intro.setWordWrap(True)
+
+        # 示例1：传统模式 (英汉词对)
+        example1_title = QLabel("1. 传统模式: 英汉词对 (用于精确匹配测试)")
         example1_title.setFont(QFont("Arial", 14, QFont.Weight.Bold))
-        example1_title.setStyleSheet("color: #8cf26e; margin-top: 20px;")
+        # example1_title.setStyleSheet("color: #8cf26e; margin-top: 15px;")
         
-        example1_code = QLabel()
-        example1_code.setFont(QFont("Consolas", 12))
-        example1_code.setStyleSheet("background-color: #3a3a3a; color: #f8f8f8; padding: 10px; border-radius: 5px;")
-        example1_code.setText(
-            '{\n'
-            '  "english": "go public",\n'
-            '  "chinese": "上市",\n'
-            '  "alternatives": ["be listed on the Stock Exchange"]\n'
-            '}'
+        example1_desc = QLabel(
+            "文件内容是一个JSON数组，每个元素是一个包含 \"english\" 和 \"chinese\" 键的字典。\n"
+            "这些键的值可以是单个字符串，也可以是字符串数组，以支持多对多释义。\n"
+            "可选的 \"alternatives\" 键 (字符串数组) 可以为英文提供更多备选答案。"
         )
-        example1_code.setTextFormat(Qt.TextFormat.PlainText)
-        example1_code.setWordWrap(True)
-        
-        example1_note = QLabel("备选英文答案通过'alternatives'数组提供，用户输入任一答案均正确")
-        example1_note.setStyleSheet("color: #cccccc; font-style: italic;")
-        
-        # 示例2：一对多模式
-        example2_title = QLabel("2. 一对多模式：多个英文对应一个中文")
-        example2_title.setFont(QFont("Arial", 14, QFont.Weight.Bold))
-        example2_title.setStyleSheet("color: #8cf26e; margin-top: 20px;")
-        
-        example2_code = QLabel()
-        example2_code.setFont(QFont("Consolas", 12))
-        example2_code.setStyleSheet("background-color: #3a3a3a; color: #f8f8f8; padding: 10px; border-radius: 5px;")
-        example2_code.setText(
-            '{\n'
-            '  "english": ["investment", "capital investment"],\n'
-            '  "chinese": "投资"\n'
-            '}'
-        )
-        example2_code.setTextFormat(Qt.TextFormat.PlainText)
-        example2_code.setWordWrap(True)
-        
-        example2_note = QLabel("当'english'为数组时，第一个元素作为主要表达，其余作为备选答案")
-        example2_note.setStyleSheet("color: #cccccc; font-style: italic;")
-        
-        # 示例3：多对多模式
-        example3_title = QLabel("3. 多对多模式：多个英文对应多个中文")
-        example3_title.setFont(QFont("Arial", 14, QFont.Weight.Bold))
-        example3_title.setStyleSheet("color: #8cf26e; margin-top: 20px;")
-        
-        example3_code = QLabel()
-        example3_code.setFont(QFont("Consolas", 12))
-        example3_code.setStyleSheet("background-color: #3a3a3a; color: #f8f8f8; padding: 10px; border-radius: 5px;")
-        example3_code.setText(
-            '{\n'
-            '  "english": ["work from home", "remote work", "teleworking"],\n'
-            '  "chinese": ["远程工作", "在家办公", "远程办公"]\n'
-            '}'
-        )
-        example3_code.setTextFormat(Qt.TextFormat.PlainText)
-        example3_code.setWordWrap(True)
-        
-        example3_note = QLabel("'english'和'chinese'都可以是数组，在中译英模式下输入任一英文表达均正确，英译中模式下输入任一中文表达均正确")
-        example3_note.setStyleSheet("color: #cccccc; font-style: italic;")
-        
-        # 完整示例
-        full_example_title = QLabel("完整词汇表示例")
-        full_example_title.setFont(QFont("Arial", 14, QFont.Weight.Bold))
-        full_example_title.setStyleSheet("color: #ffffff; margin-top: 20px;")
-        
-        full_example = QLabel()
-        full_example.setFont(QFont("Consolas", 12))
-        full_example.setStyleSheet("background-color: #3a3a3a; color: #f8f8f8; padding: 10px; border-radius: 5px;")
-        full_example.setText(
+        example1_desc.setFont(QFont("Arial", 11))
+        example1_desc.setWordWrap(True)
+
+        example1_code = QTextEdit()
+        example1_code.setFont(QFont("Consolas", 11))
+        # example1_code.setStyleSheet("background-color: #3a3a3a; color: #f8f8f8; padding: 10px; border-radius: 5px; border: 1px solid #555;")
+        example1_code.setReadOnly(True)
+        example1_code.setPlainText(
             '[\n'
             '  {\n'
             '    "english": "go public",\n'
@@ -1106,48 +1164,69 @@ class MainWindow(QMainWindow):
             '    "chinese": "投资"\n'
             '  },\n'
             '  {\n'
-            '    "english": ["work from home", "remote work", "teleworking"],\n'
-            '    "chinese": ["远程工作", "在家办公", "远程办公"]\n'
+            '    "english": ["work from home", "remote work"],\n'
+            '    "chinese": ["远程工作", "在家办公"]\n'
             '  }\n'
             ']'
         )
-        full_example.setTextFormat(Qt.TextFormat.PlainText)
-        full_example.setWordWrap(True)
-        
+        example1_code.setFixedHeight(250) # 固定高度
+
+        # 示例2：语义模式 (纯英文词汇)
+        example2_title = QLabel("2. 语义模式: 纯英文词汇列表 (用于英译中语义相似度测试)")
+        example2_title.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        # example2_title.setStyleSheet("color: #61dafb; margin-top: 20px;") # 不同的颜色以区分
+
+        example2_desc = QLabel(
+            "文件内容是一个简单的JSON数组，其中每个元素都是一个表示英文单词或短语的字符串。\n"
+            "导入后，测试将以英译中方式进行，答案通过与SiliconFlow API (netease-youdao模型) 计算的语义相似度进行判断。"
+        )
+        example2_desc.setFont(QFont("Arial", 11))
+        example2_desc.setWordWrap(True)
+
+        example2_code = QTextEdit()
+        example2_code.setFont(QFont("Consolas", 11))
+        # example2_code.setStyleSheet("background-color: #3a3a3a; color: #f8f8f8; padding: 10px; border-radius: 5px; border: 1px solid #555;")
+        example2_code.setReadOnly(True)
+        example2_code.setPlainText(
+            '[\n'
+            '  "ubiquitous",\n'
+            '  "artificial intelligence",\n'
+            '  "machine learning",\n'
+            '  "sustainable development",\n'
+            '  "globalization"\n'
+            ']'
+        )
+        example2_code.setFixedHeight(150) # 固定高度
+
         # 关闭按钮
         close_btn = QPushButton("关闭")
         close_btn.setFont(QFont("Arial", 12))
-        close_btn.setStyleSheet("background-color: #4a4a4a; color: white; padding: 8px 16px;")
+        # close_btn.setStyleSheet("background-color: #4a4a4a; color: white; padding: 8px 16px;")
         close_btn.setMinimumHeight(40)
         close_btn.clicked.connect(examples_dialog.accept)
         
-        # 添加所有部件到滚动区域布局
         scroll_layout.addWidget(title)
+        scroll_layout.addWidget(mode_intro)
+        scroll_layout.addSpacing(10)
         scroll_layout.addWidget(example1_title)
+        scroll_layout.addWidget(example1_desc)
         scroll_layout.addWidget(example1_code)
-        scroll_layout.addWidget(example1_note)
+        scroll_layout.addSpacing(15)
         scroll_layout.addWidget(example2_title)
+        scroll_layout.addWidget(example2_desc)
         scroll_layout.addWidget(example2_code)
-        scroll_layout.addWidget(example2_note)
-        scroll_layout.addWidget(example3_title)
-        scroll_layout.addWidget(example3_code)
-        scroll_layout.addWidget(example3_note)
-        scroll_layout.addWidget(full_example_title)
-        scroll_layout.addWidget(full_example)
+        scroll_layout.addSpacing(20)
         scroll_layout.addWidget(close_btn, alignment=Qt.AlignmentFlag.AlignCenter)
         
-        # 创建滚动区域
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setWidget(scroll_content)
-        scroll.setFrameShape(QScrollArea.Shape.NoFrame)  # 移除边框
-        scroll.setStyleSheet("background-color: transparent;")  # 透明背景
+        # scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+        # scroll.setStyleSheet("background-color: transparent;")
         
-        # 将滚动区域添加到主布局
-        layout.addWidget(scroll)
-        layout.setContentsMargins(0, 0, 0, 0)  # 移除主布局边距
+        main_layout.addWidget(scroll)
+        # main_layout.setContentsMargins(0, 0, 0, 0)
         
-        # 显示对话框
         examples_dialog.exec()
     
     def on_enter_key_pressed(self):

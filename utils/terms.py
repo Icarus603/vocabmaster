@@ -15,34 +15,21 @@ class TermsTest(TestBase):
     def __init__(self, name, json_file):
         super().__init__(f"《理解当代中国》英汉互译 - {name}")
         self.json_file = json_file
-        self.vocabulary = []  # Initialize vocabulary attribute
-        self.unit_range = None  # Initialize unit_range
-
-        # Infer unit_range from json_file if it matches known patterns
-        if self.json_file.endswith("terms_and_expressions_1.json"):
-            self.unit_range = "1-5"
-        elif self.json_file.endswith("terms_and_expressions_2.json"):
-            self.unit_range = "6-10"
     
     def load_vocabulary(self):
         """从JSON文件加载词汇"""
         vocabulary = []
         
-        # Ensure self.unit_range was set, which implies self.json_file was valid in __init__.
-        if self.unit_range is None:
-            error_message = "单元范围 (unit_range) 未设置。"
-            if hasattr(self, 'json_file') and self.json_file:
-                error_message += f" self.json_file ('{self.json_file}') 可能无法识别。"
-            else:
-                error_message += " self.json_file 未提供或为空。"
-            raise ValueError(error_message)
+        # 根据单元范围确定JSON文件名
+        if self.unit_range == "1-5":
+            filename = "terms_and_expressions_1.json"
+        elif self.unit_range == "6-10":
+            filename = "terms_and_expressions_2.json"
+        else:
+            raise ValueError(f"未知的单元范围: {self.unit_range}")
             
-        # self.json_file already contains the correct relative path to the JSON file,
-        # e.g., "terms_and_expressions/terms_and_expressions_1.json".
-        # This path is what resource_path expects.
-        
         # 使用resource_path获取正确的文件路径
-        json_path = resource_path(self.json_file) # Use self.json_file directly
+        json_path = resource_path(filename)
         
         try:
             with open(json_path, 'r', encoding='utf-8') as file:
@@ -52,12 +39,11 @@ class TermsTest(TestBase):
                     english_terms = item["english"]
                     chinese = item["chinese"]
                     
-                    # 修改：为了确保词汇数量与JSON文件中的条目数量一致（例如145条），
-                    # 这里我们只取每个中文词条对应的第一个英文表达。
-                    if english_terms:  # 确保英文表达列表不为空
-                        vocabulary.append((english_terms[0], chinese))
+                    # 将每个英文表达与中文配对
+                    for english in english_terms:
+                        vocabulary.append((english, chinese))
         except Exception as e:
-            print(f"加载词汇表 '{json_path}' 出错: {e}") # Include json_path in error
+            print(f"加载词汇表出错: {e}")
             return []
         
         self.vocabulary = vocabulary

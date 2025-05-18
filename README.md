@@ -12,6 +12,28 @@ VocabMaster 是一个用于词汇测试和记忆的应用程序，专为英语�
 
 ## 🆕 最新更新
 
+**2025 年 5 月 16 日更新 (v1.3)**:
+
+- **新增 IELTS 雅思词汇测试模式**:
+  - 采用英译中测试方式。
+  - 从 `vocab/ielts_vocab.json` 加载词汇。
+  - 使用 SiliconFlow API (`https://api.siliconflow.cn/v1/embeddings`, 模型: `netease-youdao/bce-embedding-base_v1`) 生成词向量。
+  - 通过计算用户输入中文翻译与标准英文单词的词向量余弦相似度来判断答案正确性 (阈值约为 0.75)。
+  - API 密钥需要在 `utils/api_config.py` 文件中配置 (详情见下文 API 密钥配置部分)。
+- **新增 DIY (Do It Yourself) 语义测试模式**:
+  - 用户可以导入仅包含英文单词列表的 JSON 文件。
+  - 测试机制与 IELTS 模式相同，采用英译中，通过 API 进行语义相似度判断。
+  - 原有的基于英汉词对的 DIY 模式保持不变。
+- **API 密钥管理**:
+  - 新增 `utils/api_config.py` 用于存放 API 密钥。
+  - `utils/api_config.py` 已被添加到 `.gitignore` 以防止密钥泄露。
+- **依赖更新**:
+  - `requirements.txt` 中已添加 `requests` 和 `scikit-learn` 依赖。
+- **底层代码更新**:
+  - 在 `utils/base.py` 中定义了通用的 `TestResult` 类。
+  - 修复了 GUI 中导入词汇表布局相关的 `TypeError`。
+  - 确保了 IELTS 词汇正确加载。
+
 **2025 年 5 月 14 日更新 (v1.2)**:
 
 - 修复了打包后词汇文件加载失败导致测试题数为 0 的问题。
@@ -32,13 +54,15 @@ VocabMaster 是一个用于词汇测试和记忆的应用程序，专为英语�
 
 ## ✨ 功能特点
 
-- **多种测试类型**：支持 BEC 高级词汇、专业术语以及自定义词汇测试
+- **多种测试类型**：支持 BEC 高级词汇、专业术语、《理解当代中国》英汉互译、**IELTS 雅思词汇**以及两种 DIY 自定义词汇测试（传统英汉词对和**新增的纯英文词汇语义测试**）。
 - **图形界面和命令行双模式**：提供直观的图形界面和灵活的命令行操作方式
 - **灵活的测试模式**：提供英译汉、汉译英和混合三种测试方向
 - **随机出题**：每次测试都会随机打乱词汇顺序，确保全面复习
 - **即时反馈**：测试过程中提供即时正误反馈
 - **错题复习**：测试结束后可以选择复习错题，强化记忆
-- **自定义词汇表**：支持导入 JSON 格式的自定义词汇表（不再支持 CSV 格式）
+- **自定义词汇表**：支持导入 JSON 格式的自定义词汇表。
+  - **传统模式**：包含英文和中文词对的 JSON 文件。
+  - **新增语义模式**：仅包含英文单词列表的 JSON 文件 (用于英译中语义测试)。
 - **清晰的测试结果**：显示测试总题数、正确数、错误数和正确率
 - **直观的进度显示**：在 GUI 模式下提供进度条和得分实时显示
 - **智能文件导入**：自动识别 JSON 词汇表文件中的多种表达方式
@@ -104,6 +128,18 @@ conda activate VocabMaster
 pip install -r requirements.txt
 ```
 
+**重要提示：API 密钥配置 (IELTS 和语义 DIY 模式)**
+
+对于 IELTS 测试模式和新的 DIY 语义测试模式，您需要配置 SiliconFlow API 密钥。
+
+1.  在 `utils` 文件夹下创建一个名为 `api_config.py` 的文件。
+2.  在该文件中添加一行代码，定义您的 API 密钥，例如：
+    ```python
+    NETEASE_API_KEY = "YOUR_SILICONFLOW_API_KEY"
+    ```
+    请将 `"YOUR_SILICONFLOW_API_KEY"` 替换为您从 SiliconFlow 获取的真实 API 密钥。
+3.  `utils/api_config.py` 文件已被添加到 `.gitignore` 中，以确保您的密钥不会被提交到版本控制系统。
+
 如遇网络问题，可使用国内镜像：
 
 ```bash
@@ -163,7 +199,10 @@ python app.py --cli
 
 1. **BEC 高级词汇测试**：包含 4 个模块的 BEC 商务英语词汇
 2. **《理解当代中国》英汉互译**：包含两个部分的《理解当代中国》英汉互译词汇
-3. **DIY 自定义词汇测试**：支持导入自定义词汇表进行测试
+3. **IELTS 雅思词汇测试**：基于语义相似度的英译中测试 (需要配置 API 密钥)
+4. **DIY 自定义词汇测试**：
+   - **传统模式**：导入包含英文和中文词对的 JSON 文件。
+   - **新增语义模式**：导入仅包含英文单词列表的 JSON 文件，进行英译中语义测试 (需要配置 API 密钥)。
 
 ### 测试模式
 
@@ -179,7 +218,9 @@ python app.py --cli
 
 ### DIY 词汇表格式要求
 
-VocabMaster 仅支持 JSON 格式的词汇表文件，具有以下格式要求：
+VocabMaster 支持两种 JSON 格式的词汇表文件：
+
+**1. 传统英汉词对模式 (用于标准 DIY 测试):**
 
 ```json
 [
@@ -197,12 +238,25 @@ VocabMaster 仅支持 JSON 格式的词汇表文件，具有以下格式要求�
 
 格式说明：
 
-1. 必须是一个 JSON 数组(以`[`开始，以`]`结束)
-2. 每个词条必须包含`english`和`chinese`字段
-3. 这两个字段可以是字符串或字符串数组
-   - 如果是字符串：表示单一的表达方式
-   - 如果是数组：可以表示多个中文对应多个英文，系统会全部识别
-4. 可以使用可选的`alternatives`字段提供额外的英文备选答案
+- 必须是一个 JSON 数组 (以`[`开始，以`]`结束)。
+- 每个词条必须包含 `english` 和 `chinese` 字段。
+- 这两个字段可以是字符串或字符串数组。
+- 可以使用可选的 `alternatives` 字段提供额外的英文备选答案。
+
+**2. 新增纯英文词汇列表模式 (用于 DIY 语义测试 - 英译中):**
+
+```json
+{
+  "list": ["projector", "dissatisfy", "implore", "depletion", "puppet"]
+}
+```
+
+格式说明：
+
+- 必须是一个 JSON 对象。
+- 该对象必须包含一个名为 `"list"` 的键。
+- `"list"` 键对应的值必须是一个扁平的字符串数组，其中每个字符串是一个英文单词。
+- 此格式用于新的 DIY 语义测试模式，系统将要求用户提供这些英文单词的中文翻译，并通过 API 进行语义相似度判断。
 
 注意事项：
 
@@ -220,14 +274,18 @@ VocabMaster/
 ├── run.py                   # 命令行模式实现
 ├── utils/                   # 核心工具库
 │   ├── __init__.py          # 包初始化文件
+│   ├── api_config.py.template # API 密钥配置文件模板 (用户需复制并重命名为 api_config.py)
 │   ├── base.py              # 基础测试类
 │   ├── bec.py               # BEC测试实现
 │   ├── diy.py               # DIY测试实现
+│   ├── ielts.py             # IELTS测试实现 (新增)
 │   └── terms.py             # 《理解当代中国》英汉互译实现
-├── terms_and_expressions/   # 《理解当代中国》英汉互译
-│   ├── terms_and_expressions_1.json  # 第一部分词汇
-│   └── terms_and_expressions_2.json  # 第二部分词汇
-├── bec_higher_cufe.json     # BEC高级词汇数据（JSON格式）
+├── vocab/                   # 词汇文件目录 (新增)
+│   ├── bec_higher_cufe.json # BEC 高级词汇 (从根目录移动)
+│   ├── ielts_vocab.json     # IELTS 词汇 (新增)
+│   ├── terms_and_expressions/   # 《理解当代中国》英汉互译 (从根目录移动)
+│   │   ├── terms_and_expressions_1.json
+│   │   └── terms_and_expressions_2.json
 ├── assets/                  # 图标和资源文件
 │   └── icon.ico             # 应用图标
 ├── build_app.py             # 应用打包脚本
@@ -241,7 +299,7 @@ VocabMaster/
 ├── LICENSE                  # 许可证文件
 ├── README.md                # 项目说明（中文）
 ├── README_en.md             # 项目说明（英文）
-├── requirements.txt         # 项目依赖
+├── requirements.txt         # 项目依赖 (已更新: requests, scikit-learn)
 └── VocabMaster.spec         # PyInstaller规格文件
 ```
 
@@ -280,6 +338,6 @@ VocabMaster/
 
 **VocabMaster** ©2025 开发者。
 
-<sub>最后更新: 2025 年 5 月 14 日</sub>
+<sub>最后更新: 2025 年 5 月 16 日</sub>
 
 </div>

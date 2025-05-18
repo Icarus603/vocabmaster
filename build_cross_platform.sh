@@ -47,31 +47,22 @@ pip3 install -r requirements.txt
 
 # 清理之前的构建
 echo "清理之前的构建文件..."
-rm -rf build dist *.spec
+rm -rf build dist VocabMaster.spec # Also remove .spec as build_app.py might generate it
 
-# 构建应用
-echo "开始构建应用..."
+# 执行 build_app.py 脚本进行构建
+echo "执行 build_app.py 进行构建..."
 python3 build_app.py
 
-# 检查构建结果
-if [ "$OS_TYPE" = "darwin" ]; then
-    EXECUTABLE="dist/VocabMaster"
+if [ $? -eq 0 ]; then
+    echo "=================================================="
+    echo "VocabMaster 构建成功！"
+    echo "可执行文件位于 dist/ 目录下。"
+    echo "=================================================="
 else
-    EXECUTABLE="dist/VocabMaster"
-fi
-
-if [ -f "$EXECUTABLE" ]; then
-    echo "构建成功！"
-    echo "可执行文件位置: $EXECUTABLE"
-    # 添加执行权限
-    chmod +x "$EXECUTABLE"
-    echo "已添加执行权限"
-    echo "运行方式: ./$EXECUTABLE"
-else
-    echo "构建失败，请检查错误信息"
+    echo "=================================================="
+    echo "VocabMaster 构建失败。请检查错误信息。"
+    echo "=================================================="
     exit 1
 fi
 
-echo "=================================================="
-echo "构建完成！"
-echo "=================================================="
+echo "脚本执行完毕。"

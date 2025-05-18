@@ -1,0 +1,27 @@
+2025-05-16 19:56:07,092 - VocabMaster - INFO - 启动VocabMaster
+2025-05-16 19:56:07,093 - VocabMaster - INFO - 使用GUI模式
+2025-05-16 19:56:08,886 - VocabMaster - ERROR - 程序运行出错
+Traceback (most recent call last):
+  File "D:\Projects\vocabmaster\app.py", line 74, in main
+    from gui import main
+  File "D:\Projects\vocabmaster\gui.py", line 9, in <module>
+    from utils import BECTest, TermsTest, DIYTest
+  File "D:\Projects\vocabmaster\utils\__init__.py", line 7, in <module>
+    from .diy import DIYTest
+  File "D:\Projects\vocabmaster\utils\diy.py", line 13, in <module>
+    from .base import TestBase, TestResult # Ensure TestResult is imported
+ImportError: cannot import name 'TestResult' from 'utils.base' (D:\Projects\vocabmaster\utils\base.py)
+2025-05-16 19:56:08,888 - VocabMaster - ERROR - 未捕获的异常:
+Traceback (most recent call last):
+  File "D:\Projects\vocabmaster\app.py", line 81, in <module>
+    main()
+  File "D:\Projects\vocabmaster\app.py", line 74, in main
+    from gui import main
+  File "D:\Projects\vocabmaster\gui.py", line 9, in <module>
+    from utils import BECTest, TermsTest, DIYTest
+  File "D:\Projects\vocabmaster\utils\__init__.py", line 7, in <module>
+    from .diy import DIYTest
+  File "D:\Projects\vocabmaster\utils\diy.py", line 13, in <module>
+    from .base import TestBase, TestResult # Ensure TestResult is imported
+ImportError: cannot import name 'TestResult' from 'utils.base' (D:\Projects\vocabmaster\utils\base.py)
+

@@ -8,6 +8,15 @@ import os
 import random
 import json
 
+class TestResult:
+    def __init__(self, question_num, question, expected_answer, user_answer, is_correct, notes=""):
+        self.question_num = question_num
+        self.question = question
+        self.expected_answer = expected_answer
+        self.user_answer = user_answer
+        self.is_correct = is_correct
+        self.notes = notes
+
 class TestBase:
     """词汇测试基类，提供所有测试模块共用的基础功能"""
     
