@@ -113,7 +113,7 @@ PYINSTALLER_CMD+=" --hidden-import=openpyxl"
 
 
 # 增加日志级别，方便调试打包过程中的问题
-PYINSTALLER_CMD+=" --loglevel=INFO"
+PYINSTALLER_CMD+=" --log-level INFO"
 
 # 执行PyInstaller构建
 echo "执行PyInstaller进行构建..."
