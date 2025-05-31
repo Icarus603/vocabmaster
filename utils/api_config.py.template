@@ -1,1 +1,9 @@
+# 请将此文件复制为 utils/api_config.py 并填入您的 API 密钥。
+# utils/api_config.py 已被添加到 .gitignore，不会被提交到版本库。
+
+# SiliconFlow API Key (用于 IELTS 和 DIY 语义测试)
+# 您可以从 SiliconFlow 官方网站获取。
 NETEASE_API_KEY = "YOUR_SILICONFLOW_API_KEY_HERE"
+
+# 如果将来需要其他 API 密钥，可以在此添加
+# OTHER_API_KEY = "YOUR_OTHER_KEY_HERE" 

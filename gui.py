@@ -658,13 +658,13 @@ class MainWindow(QMainWindow):
                 self.c2e_radio.setVisible(False)
                 self.mixed_radio.setVisible(False)
                 self.e2c_radio.setVisible(True) # 确保可见
-                QMessageBox.information(self, "成功", f"成功导入纯英文词汇表 ‘{base_name}’，共{len(vocabulary)}个词汇。将进行英译中语义测试。")
+                QMessageBox.information(self, "成功", f"成功导入纯英文词汇表 ' {base_name} '，共{len(vocabulary)}个词汇。将进行英译中语义测试。")
             else:
                 self.e2c_radio.setVisible(True)
                 self.c2e_radio.setVisible(True)
                 self.mixed_radio.setVisible(True)
                 self.e2c_radio.setChecked(True) # 传统DIY默认英译中
-                QMessageBox.information(self, "成功", f"成功导入英汉词对词汇表 ‘{base_name}’，共{len(vocabulary)}个词汇。")
+                QMessageBox.information(self, "成功", f"成功导入英汉词对词汇表 ' {base_name} '，共{len(vocabulary)}个词汇。")
             
             # 显示测试模式页面
             self.stacked_widget.setCurrentIndex(5)
@@ -882,7 +882,30 @@ class MainWindow(QMainWindow):
             elif isinstance(self.current_test, DIYTest) and hasattr(self.current_test, 'SIMILARITY_THRESHOLD'): 
                  similarity_threshold_display = self.current_test.SIMILARITY_THRESHOLD
 
-            expected_answer_for_result = f"语义相似度 > {similarity_threshold_display:.2f}"
+            # 取得中文释义
+            ref_answer = ""
+            if isinstance(self.current_test, IeltsTest):
+                # 读取 ielts_vocab.json，查找对应单字的 meanings
+                try:
+                    import json
+                    from utils.resource_path import resource_path
+                    json_path = resource_path("vocab/ielts_vocab.json")
+                    with open(json_path, 'r', encoding='utf-8') as f:
+                        vocab_data = json.load(f)
+                    ref_answer = "（无中文释义）"
+                    if isinstance(vocab_data, list):
+                        for item in vocab_data:
+                            if isinstance(item, dict) and item.get("word") == question_content_for_result:
+                                meanings = item.get("meanings", [])
+                                if meanings and any(meanings):
+                                    ref_answer = "；".join([m for m in meanings if m])
+                                break
+                except Exception as e:
+                    ref_answer = "（无中文释义）"
+            else:
+                ref_answer = f"语义相似度 > {similarity_threshold_display:.2f}"
+
+            expected_answer_for_result = ref_answer
             notes_for_result = "语义相似度判定"
             if is_correct:
                 self.correct_count += 1

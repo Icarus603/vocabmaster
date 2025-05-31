@@ -11,16 +11,21 @@ from sklearn.metrics.pairwise import cosine_similarity
 from .base import TestBase, TestResult # Updated import
 from .resource_path import resource_path
 
-# Try to import the API key from api_config.py, which should be in .gitignore
-# Fallback to None if the file or key doesn't exist, with a clear error message.
+# Attempt to import the API key from api_config.py
+# This file should be created by the user from api_config.py.template and placed in the utils directory.
+# It is included in .gitignore to prevent accidental commits of the key.
+NETEASE_API_KEY = None
 try:
     from .api_config import NETEASE_API_KEY
 except ImportError:
     print("警告：无法从 utils.api_config 导入 NETEASE_API_KEY。"
-          "请确保您已在 d:\\Projects\\vocabmaster\\utils\\api_config.py 文件中定义了 NETEASE_API_KEY。"
-          "该文件应包含一行：NETEASE_API_KEY = \"您的API金钥\""
-          "并且 utils/api_config.py 应该被添加到 .gitignore 文件中以防止上传到版本控制系统。")
-    NETEASE_API_KEY = None
+          "请确保您已遵循以下步骤操作：")
+    print("1. 将项目根目录下的 `utils/api_config.py.template` 文件复制一份。")
+    print("2. 将复制的文件重命名为 `utils/api_config.py`。")
+    print("3. 在 `utils/api_config.py` 文件中，将 `NETEASE_API_KEY` 的值替换为您的 SiliconFlow API 密钥。")
+    print("   例如: NETEASE_API_KEY = \"sk-yourActualApiKey...\"")
+    print("IELTS 语义测试功能在 API 密钥配置正确之前将无法正常工作。")
+    # NETEASE_API_KEY 保持为 None，后续逻辑会检查它
 
 # Updated API URL based on the provided documentation
 NETEASE_EMBEDDING_API_URL = "https://api.siliconflow.cn/v1/embeddings"
@@ -35,23 +40,25 @@ class IeltsTest(TestBase):
 
     def __init__(self):
         super().__init__("IELTS 英译中 (语义相似度)")
-        self.vocabulary = []
-        self.selected_words_for_session = []
+        self.vocabulary = []  # 现在存储完整词条对象 [{word, meanings}]
+        self.selected_words_for_session = []  # 现在存储完整词条对象
         self.current_question_index_in_session = 0
         # self.load_vocabulary() # Vocabulary will be loaded on demand or when preparing a session
 
     def load_vocabulary(self):
-        """Loads vocabulary from ielts_vocab.json."""
+        """Loads vocabulary from ielts_vocab.json as a list of dicts with 'word' and 'meanings'."""
         try:
             json_path = resource_path("vocab/ielts_vocab.json")
             with open(json_path, 'r', encoding='utf-8') as file:
-                data = json.load(file) # Load the entire JSON object
-            
-            # Check if 'list' key exists and is a list of strings
-            if isinstance(data, dict) and 'list' in data and isinstance(data['list'], list) and all(isinstance(word, str) for word in data['list']):
-                self.vocabulary = data['list']
+                data = json.load(file)
+            # 只支持 [{"word": ..., "meanings": [...]}, ...] 格式
+            if isinstance(data, list) and all(isinstance(item, dict) and 'word' in item and 'meanings' in item for item in data):
+                self.vocabulary = data
+            elif isinstance(data, dict) and 'list' in data and isinstance(data['list'], list):
+                # 兼容旧格式，自动转为新格式
+                self.vocabulary = [{"word": w, "meanings": []} for w in data['list']]
             else:
-                print("Error: vocab/ielts_vocab.json should contain a JSON object with a 'list' key, and 'list' should be a flat list of English word strings.")
+                print("Error: vocab/ielts_vocab.json 应为 [ {\"word\": ..., \"meanings\": [...] }, ... ] 格式。")
                 self.vocabulary = []
         except FileNotFoundError:
             print(f"Error: IELTS vocabulary file not found at {json_path}")
@@ -62,44 +69,38 @@ class IeltsTest(TestBase):
         except Exception as e:
             print(f"Error loading IELTS vocabulary: {e}")
             self.vocabulary = []
-        
         if not self.vocabulary:
             print("Warning: IELTS vocabulary is empty. Test will have no questions.")
         else:
             print(f"Loaded {len(self.vocabulary)} IELTS words.")
 
     def prepare_test_session(self, num_questions: int):
-        """Prepares a new test session with a specified number of random words."""
+        """Prepares a new test session with a specified number of random word objects."""
         if not self.vocabulary:
             self.load_vocabulary()
-        
         if not self.vocabulary:
             print("Error: IELTS vocabulary is empty. Cannot prepare test session.")
             self.selected_words_for_session = []
             self.current_question_index_in_session = 0
             return 0
-            
         actual_num_questions = min(num_questions, len(self.vocabulary))
         if actual_num_questions <= 0:
             self.selected_words_for_session = []
             self.current_question_index_in_session = 0
             return 0
-            
         self.selected_words_for_session = random.sample(self.vocabulary, actual_num_questions)
         self.current_question_index_in_session = 0
         print(f"Prepared IELTS test session with {len(self.selected_words_for_session)} words.")
         return len(self.selected_words_for_session)
 
-    def get_next_ielts_question(self) -> str | None:
-        """Gets the next English word for the current session. Returns None if no more questions."""
+    def get_next_ielts_question(self) -> dict | None:
+        """Gets the next word object for the current session. Returns None if no more questions."""
         if self.current_question_index_in_session < len(self.selected_words_for_session):
-            word = self.selected_words_for_session[self.current_question_index_in_session]
-            # self.current_question_index_in_session += 1 # Increment will be handled by GUI logic after processing
-            return word
+            word_obj = self.selected_words_for_session[self.current_question_index_in_session]
+            return word_obj
         return None
 
     def get_current_session_question_count(self) -> int:
-        """Returns the total number of questions in the current prepared session."""
         return len(self.selected_words_for_session)
 
     def get_embedding(self, text: str, lang_type: str):
@@ -108,9 +109,8 @@ class IeltsTest(TestBase):
         lang_type is currently not used in the API call itself as the model handles language.
         """
         if not NETEASE_API_KEY:
-            # This message is more of a fallback now, as the key is hardcoded above.
-            # It would be more relevant if loading from a potentially missing config file.
-            print("错误：API 金钥未配置。请检查代码中的 NETEASE_API_KEY 设置。")
+            print("错误：SiliconFlow API 金钥 (NETEASE_API_KEY) 未在 utils/api_config.py 中配置或配置不正确。")
+            print("请按照程序启动时的警告提示进行配置。IELTS 语义测试功能无法使用。")
             return None
 
         headers = {
@@ -168,101 +168,116 @@ class IeltsTest(TestBase):
             print(f"An unexpected error occurred while getting embedding for '{text[:50]}...': {e}")
             return None
 
-    def check_answer_with_api(self, english_word: str, user_chinese_definition: str) -> bool:
+    def check_answer_with_api(self, standard_chinese_meanings: list, user_chinese_definition: str) -> bool:
         """
-        Checks the user's Chinese definition against the English word using semantic similarity.
-        Returns True if similar enough, False otherwise.
+        Checks the user's Chinese definition against all standard meanings using semantic similarity.
+        Returns True if any meaning is similar enough, False otherwise.
         """
-        if not english_word or not user_chinese_definition:
+        if not standard_chinese_meanings or not user_chinese_definition:
             return False
-
-        english_embedding = self.get_embedding(english_word, lang_type="en")
-        chinese_embedding = self.get_embedding(user_chinese_definition, lang_type="zh")
-
-        if english_embedding is None or chinese_embedding is None:
-            print("Could not get one or both embeddings for comparison.")
+        user_embedding = self.get_embedding(user_chinese_definition, lang_type="zh")
+        if user_embedding is None or user_embedding.shape[0] == 0:
+            print("Error: 用户输入 embedding 获取失败。")
             return False
-        
-        if english_embedding.shape[0] == 0 or chinese_embedding.shape[0] == 0:
-            print("Error: One or both embeddings are empty.")
-            return False
-
-        # Ensure embeddings are 2D arrays for cosine_similarity
-        english_embedding = english_embedding.reshape(1, -1)
-        chinese_embedding = chinese_embedding.reshape(1, -1)
-        
-        try:
-            similarity = cosine_similarity(english_embedding, chinese_embedding)[0][0]
-            print(f"Comparing E: '{english_word}' and C: '{user_chinese_definition}' -> Similarity: {similarity:.4f}")
-            return similarity >= SIMILARITY_THRESHOLD
-        except Exception as e:
-            print(f"Error calculating cosine similarity: {e}")
-            return False
+        user_embedding = user_embedding.reshape(1, -1)
+        max_similarity = 0.0
+        for std_meaning in standard_chinese_meanings:
+            if not std_meaning:
+                continue
+            std_embedding = self.get_embedding(std_meaning, lang_type="zh")
+            if std_embedding is None or std_embedding.shape[0] == 0:
+                continue
+            std_embedding = std_embedding.reshape(1, -1)
+            try:
+                similarity = cosine_similarity(user_embedding, std_embedding)[0][0]
+                print(f"Comparing 用户答案: '{user_chinese_definition}' 和 标准释义: '{std_meaning}' -> 相似度: {similarity:.4f}")
+                if similarity > max_similarity:
+                    max_similarity = similarity
+                if similarity >= SIMILARITY_THRESHOLD:
+                    return True
+            except Exception as e:
+                print(f"Error calculating cosine similarity: {e}")
+                continue
+        print(f"最大相似度: {max_similarity:.4f}")
+        return False
 
     def run_test(self, num_questions: int, on_question_display, on_result_display):
-        """Runs the IELTS test session."""
+        """运行IELTS测试会话。"""
         if not self.vocabulary:
-            on_result_display("错误：IELTS 词汇表为空或加载失败，无法开始测试。", True, 0, 0, 0, 0, [])
+            on_result_display("错误：IELTS词汇表为空或加载失败，无法开始测试。", True, 0, 0, 0, 0, [])
             return
 
         actual_num_questions = min(num_questions, len(self.vocabulary))
         if actual_num_questions <= 0:
-            on_result_display("错误：没有足够的词汇进行测试 (或请求数量为0)。", True, 0, 0, 0, 0, [])
+            on_result_display("错误：没有足够的词汇进行测试（或请求数量为0）。", True, 0, 0, 0, 0, [])
             return
             
-        # Ensure random.sample doesn't try to pick more items than available
+        # 确保 random.sample 不会超出范围
         if len(self.vocabulary) < actual_num_questions:
-            print(f"Warning: Requested {actual_num_questions} questions, but only {len(self.vocabulary)} words available. Using all available words.")
+            print(f"警告：请求了{actual_num_questions}题，但只有{len(self.vocabulary)}个单词。将使用全部单词。")
             actual_num_questions = len(self.vocabulary)
 
         selected_words = random.sample(self.vocabulary, actual_num_questions)
+        
+        # 读取完整的词条对象列表（带 meanings）
+        json_path = resource_path("vocab/ielts_vocab.json")
+        with open(json_path, 'r', encoding='utf-8') as file:
+            vocab_data = json.load(file)
+        word2meanings = {}
+        if isinstance(vocab_data, list):
+            for item in vocab_data:
+                if isinstance(item, dict) and 'word' in item and 'meanings' in item:
+                    word2meanings[item['word']] = item['meanings']
         
         correct_answers = 0
         incorrect_answers = 0
         skipped_answers = 0
         detailed_results = []
 
-        for i, english_word in enumerate(selected_words):
-            question_text = f"英文单词： {english_word}\n\n请输入您的中文翻译：" # Added newline for better formatting
-            
+        for i, word_obj in enumerate(selected_words):
+            english_word = word_obj['word']
+            meanings = word_obj.get('meanings', [])
+            question_text = f"英文单词： {english_word}\n\n请输入您的中文翻译："
             user_input = on_question_display(
                 question_text, 
                 i + 1, 
                 actual_num_questions,
-                is_semantic_test=True # Indicate this is a semantic test to the GUI
+                is_semantic_test=True
             )
-
-            if user_input is None:  # Skipped
+            if not meanings or not any(meanings):
+                ref_answer = "（无中文释义）"
+            else:
+                ref_answer = "；".join([m for m in meanings if m])
+            if user_input is None:  # 跳过
                 skipped_answers += 1
                 result = TestResult(
                     question_num=i + 1,
                     question=english_word,
-                    expected_answer="N/A (语义判断)",
+                    expected_answer=ref_answer,
                     user_answer="跳过",
                     is_correct=False,
                     notes="用户跳过"
                 )
-            elif not user_input.strip(): # Empty answer treated as incorrect
+            elif not user_input.strip(): # 空答案视为错误
                 incorrect_answers += 1
                 result = TestResult(
                     question_num=i + 1,
                     question=english_word,
-                    expected_answer="N/A (语义判断)",
+                    expected_answer=ref_answer,
                     user_answer=user_input if user_input else "<空>",
                     is_correct=False,
                     notes="答案为空"
                 )
             else:
-                is_correct = self.check_answer_with_api(english_word, user_input.strip())
+                is_correct = self.check_answer_with_api(meanings, user_input.strip())
                 if is_correct:
                     correct_answers += 1
                 else:
                     incorrect_answers += 1
-                
                 result = TestResult(
                     question_num=i + 1,
                     question=english_word,
-                    expected_answer=f"语义相似度 > {SIMILARITY_THRESHOLD}",
+                    expected_answer=ref_answer,
                     user_answer=user_input,
                     is_correct=is_correct,
                     notes=f"语义相似度判定"
@@ -273,14 +288,13 @@ class IeltsTest(TestBase):
         accuracy = (correct_answers / total_answered * 100) if total_answered > 0 else 0
         
         summary_message = (
-            f"IELTS 测试完成!\n\n"
+            f"IELTS测试完成!\n\n"
             f"总题数: {actual_num_questions}\n"
             f"回答正确: {correct_answers}\n"
             f"回答错误: {incorrect_answers}\n"
             f"跳过题数: {skipped_answers}\n"
             f"准确率: {accuracy:.2f}% (基于已回答题目)\n\n"
             f"注意：此测试通过语义相似度判断答案，阈值为 {SIMILARITY_THRESHOLD}。"
-            # Removed the part about mock API calls as it's now a real call
         )
         
         on_result_display(
@@ -331,24 +345,21 @@ class IeltsTest(TestBase):
         correct_answers = 0
         detailed_results_cli = []
 
-        for i, eng_word in enumerate(self.selected_words_for_session):
+        for i, word_obj in enumerate(self.selected_words_for_session):
+            eng_word = word_obj['word']
+            meanings = word_obj.get('meanings', [])
             print(f"\n题目 {i+1}/{prepared_count}: {eng_word}")
             user_chinese = input("请输入您的中文翻译: ").strip()
-
             is_correct = False
             if not user_chinese:
                 print("提示：答案不能为空，计为错误。")
-                # is_correct remains False
             else:
-                is_correct = self.check_answer_with_api(eng_word, user_chinese)
-            
+                is_correct = self.check_answer_with_api(meanings, user_chinese)
             if is_correct:
                 print("回答正确！")
                 correct_answers += 1
             else:
-                # API check might print its own errors, here we just state incorrect.
                 print("回答错误或语义不符。")
-            
             detailed_results_cli.append(
                 TestResult(
                     question_num=i + 1,
