@@ -78,11 +78,31 @@ echo "清理之前的构建文件 (build/ 和 dist/)..."
 rm -rf build dist
 find . -name 'Resources' -type l -delete
 
+# 根据操作系统设置 PyInstaller --add-data 分隔符
+if [ "${OS_TYPE}" == "windows" ]; then
+    DATA_SEP=";"
+else
+    DATA_SEP=":"
+fi
+
 # 定义PyInstaller参数
 PYINSTALLER_CMD="poetry run pyinstaller app.py --name VocabMaster --noconfirm --clean"
 
 # 添加对PyQt6的收集，这是最关键的
 PYINSTALLER_CMD+=" --collect-all PyQt6"
+PYINSTALLER_CMD+=" --collect-submodules PyQt6"
+PYINSTALLER_CMD+=" --collect-data PyQt6"
+PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6"
+PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6Widgets"
+PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6Gui"
+PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6Core"
+PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6PrintSupport"
+PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6Network"
+PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6OpenGL"
+PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6Svg"
+PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6Qml"
+PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6Quick"
+
 
 # 根据操作系统添加特定参数
 if [ "${OS_TYPE}" == "darwin" ]; then
@@ -98,9 +118,9 @@ fi
 
 # 添加数据文件
 # PyInstaller路径分隔符: Windows用';', POSIX系统用':'。PyInstaller的--add-data会自动处理。
-PYINSTALLER_CMD+=" --add-data assets:assets"
-PYINSTALLER_CMD+=" --add-data vocab:vocab"
-PYINSTALLER_CMD+=" --add-data utils/api_config.py.template:utils"
+PYINSTALLER_CMD+=" --add-data assets${DATA_SEP}assets"
+PYINSTALLER_CMD+=" --add-data vocab${DATA_SEP}vocab"
+PYINSTALLER_CMD+=" --add-data utils/api_config.py.template${DATA_SEP}utils"
 
 # 明确指定需要的隐藏导入，虽然--collect-all PyQt6可能已覆盖部分
 PYINSTALLER_CMD+=" --hidden-import=PyQt6.sip"
