@@ -67,7 +67,8 @@ fi
 
 # 安装项目依赖
 echo "使用Poetry安装项目依赖 (including dev)..."
-poetry install
+poetry lock --no-interaction
+poetry install --with dev --no-interaction
 
 echo "--- Poetry Environment Packages (after install) ---"
 poetry run pip list
