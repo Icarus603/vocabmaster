@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 # VocabMaster 跨平台打包脚本
 # 支持 Linux、macOS、Windows (GitHub Actions)
 
@@ -35,47 +35,50 @@ case "${OS}" in
             PY=python
             PIP=pip
         else
-            echo "不支持的操作系统: ${OS}"
-            exit 1
+        echo "不支持的操作系统: ${OS}"
+        exit 1
         fi
         ;;
 esac
 
-# 检查Python环境
-if ! command -v $PY &> /dev/null; then
-    echo "错误: 未找到Python ($PY)，请先安装Python并确保在PATH中。"
-    exit 1
-fi
+# 检查Python环境 (Poetry会处理)
+# if ! command -v $PY &> /dev/null; then
+#     echo "错误: 未找到Python ($PY)，请先安装Python并确保在PATH中。"
+#     exit 1
+# fi
 
-# 检查pip
-if ! command -v $PIP &> /dev/null; then
-    echo "错误: 未找到pip ($PIP)，请先安装pip。"
-    exit 1
-fi
+# 检查pip (Poetry会处理)
+# if ! command -v $PIP &> /dev/null; then
+#     echo "错误: 未找到pip ($PIP)，请先安装pip。"
+#     exit 1
+# fi
 
-# 检查并安装PyInstaller
-if ! $PY -m PyInstaller --version &> /dev/null; then
-    echo "未找到PyInstaller，正在使用 $PIP 安装..."
-    $PIP install --upgrade pyinstaller
-fi
+# 检查并安装PyInstaller (Poetry会处理)
+# if ! $PY -m PyInstaller --version &> /dev/null; then
+#     echo "未找到PyInstaller，正在使用 $PIP 安装..."
+#     $PIP install --upgrade pyinstaller
+# fi
 
 # 检查Poetry
 if ! command -v poetry &> /dev/null; then
     echo "错误: 未找到Poetry。请确保Poetry已安装并配置在PATH中。"
-    # GitHub Actions中 poetry 是通过 pip install poetry 安装的，所以这里不再尝试curl
     exit 1
 fi
 
 # 安装项目依赖
 echo "使用Poetry安装项目依赖 (excluding dev)..."
-poetry install --no-dev
+poetry install --without dev
+
+echo "--- Poetry Environment Packages (after install) ---"
+poetry run pip list
+echo "-------------------------------------------------"
 
 # 清理之前的构建
 echo "清理之前的构建文件 (build/ 和 dist/)..."
 rm -rf build dist
 
 # 定义PyInstaller参数
-PYINSTALLER_CMD="$PY -m PyInstaller app.py --name VocabMaster --noconfirm --clean"
+PYINSTALLER_CMD="poetry run pyinstaller app.py --name VocabMaster --noconfirm --clean"
 
 # 添加对PyQt6的收集，这是最关键的
 PYINSTALLER_CMD+=" --collect-all PyQt6"
