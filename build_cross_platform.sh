@@ -66,8 +66,8 @@ if ! command -v poetry &> /dev/null; then
 fi
 
 # 安装项目依赖
-echo "使用Poetry安装项目依赖 (excluding dev)..."
-poetry install --without dev
+echo "使用Poetry安装项目依赖 (including dev)..."
+poetry install
 
 echo "--- Poetry Environment Packages (after install) ---"
 poetry run pip list
