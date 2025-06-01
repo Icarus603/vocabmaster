@@ -89,8 +89,19 @@ fi
 PYINSTALLER_CMD="poetry run pyinstaller app.py --name VocabMaster --noconfirm --clean"
 
 # 添加 Qt plugins 平台支持
-QT_PLUGIN_PATH="$($PY -c 'import PyQt6.QtCore as qc; print(qc.QLibraryInfo.path(qc.QLibraryInfo.LibraryPath.PluginsPath))')"
-PYINSTALLER_CMD+=" --add-data \"${QT_PLUGIN_PATH}${DATA_SEP}PyQt6/Qt/plugins\""
+QT_PLUGIN_PATH="$($PY -c 'import PyQt6.QtCore as qc; print(qc.QLibraryInfo.path(qc.QLibraryInfo.LibraryPath.PluginsPath))' 2>/dev/null)"
+
+if [ -z "$QT_PLUGIN_PATH" ] && [ -n "$CI" ]; then
+    # 在CI环境下无法通过QLibraryInfo获得路径，尝试用find方式寻找PyQt6插件路径
+    QT_PLUGIN_PATH=$(find .venv -type d -path "*PyQt6/Qt6/plugins" | head -n 1)
+fi
+
+if [ -n "$QT_PLUGIN_PATH" ]; then
+    echo "使用 Qt 插件路径: $QT_PLUGIN_PATH"
+    PYINSTALLER_CMD+=" --add-data \"${QT_PLUGIN_PATH}${DATA_SEP}PyQt6/Qt/plugins\""
+else
+    echo "警告: 未能获取 Qt 插件路径，跳过 --add-data 插件注入。"
+fi
 
 # 添加对PyQt6的收集，这是最关键的
 PYINSTALLER_CMD+=" --collect-all PyQt6"
