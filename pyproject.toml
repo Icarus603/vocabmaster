@@ -6,7 +6,7 @@ authors = [
     {name = "Icarus603",email = "zhehongl91@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.13, <3.14"
+requires-python = ">=3.12, <3.13"
 dependencies = [
     "pyqt6 (>=6.9.0,<7.0.0)",
     "numpy (>=2.2.6,<3.0.0)",
@@ -24,5 +24,5 @@ build-backend = "poetry.core.masonry.api"
 package-mode = false
 
 [tool.poetry.group.dev.dependencies]
-pyinstaller = "^6.13.0"
+pyinstaller = "5.13.2"
 
