@@ -10,7 +10,10 @@
 1. 图形界面： python app.py (默认)
 2. 命令行界面： python app.py --cli
 """
+import os
+import PyQt6.QtCore as qc
 
+os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = qc.QLibraryInfo.path(qc.QLibraryInfo.LibraryPath.PluginsPath)
 import sys
 import os
 import traceback

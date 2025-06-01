@@ -86,7 +86,7 @@ else
 fi
 
 # 定义PyInstaller参数
-PYINSTALLER_CMD="poetry run pyinstaller app.py --name VocabMaster --noconfirm --clean"
+PYINSTALLER_CMD="poetry run pyinstaller app.py --name VocabMaster --noconfirm --clean --onefile"
 
 # 添加 Qt plugins 平台支持
 QT_PLUGIN_PATH="$($PY -c 'import PyQt6.QtCore as qc; print(qc.QLibraryInfo.path(qc.QLibraryInfo.LibraryPath.PluginsPath))' 2>/dev/null)"
@@ -142,6 +142,8 @@ PYINSTALLER_CMD+=" --hidden-import=PyQt6.sip"
 PYINSTALLER_CMD+=" --hidden-import=PyQt6.QtCore"
 PYINSTALLER_CMD+=" --hidden-import=PyQt6.QtGui"
 PYINSTALLER_CMD+=" --hidden-import=PyQt6.QtWidgets"
+PYINSTALLER_CMD+=" --hidden-import=PyQt6.QtNetwork"
+PYINSTALLER_CMD+=" --hidden-import=PyQt6.QtPrintSupport"
 # 如果用到其他PyQt6模块，也需要加入，例如 PyQt6.QtNetwork, PyQt6.QtPrintSupport 等
 
 PYINSTALLER_CMD+=" --hidden-import=sklearn"
