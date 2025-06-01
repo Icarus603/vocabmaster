@@ -85,8 +85,8 @@ else
     DATA_SEP=":"
 fi
 
-# 定义PyInstaller参数
-PYINSTALLER_CMD="poetry run pyinstaller app.py --name VocabMaster --noconfirm --clean --onefile"
+ # 定义PyInstaller参数
+PYINSTALLER_CMD="poetry run pyinstaller app.py --name VocabMaster --noconfirm --clean"
 PYINSTALLER_CMD+=" --additional-hooks-dir=hooks"
 
 # 添加 Qt plugins 平台支持
