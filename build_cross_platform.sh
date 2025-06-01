@@ -88,6 +88,10 @@ fi
 # 定义PyInstaller参数
 PYINSTALLER_CMD="poetry run pyinstaller app.py --name VocabMaster --noconfirm --clean"
 
+# 添加 Qt plugins 平台支持
+QT_PLUGIN_PATH="$($PY -c 'import PyQt6.QtCore as qc; print(qc.QLibraryInfo.path(qc.QLibraryInfo.LibraryPath.PluginsPath))')"
+PYINSTALLER_CMD+=" --add-data \"${QT_PLUGIN_PATH}${DATA_SEP}PyQt6/Qt/plugins\""
+
 # 添加对PyQt6的收集，这是最关键的
 PYINSTALLER_CMD+=" --collect-all PyQt6"
 PYINSTALLER_CMD+=" --collect-submodules PyQt6"
@@ -138,8 +142,12 @@ PYINSTALLER_CMD+=" --hidden-import=openpyxl"
 
 # 增加日志级别，方便调试打包过程中的问题
 PYINSTALLER_CMD+=" --log-level INFO"
+PYINSTALLER_CMD+=" --debug=all"
 
 # 执行PyInstaller构建
+export QT_QPA_PLATFORM_PLUGIN_PATH="PyQt6/Qt/plugins/platforms"
+export QT_DEBUG_PLUGINS=1
+
 echo "执行PyInstaller进行构建..."
 echo "命令: ${PYINSTALLER_CMD}"
 
