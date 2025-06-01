@@ -87,6 +87,7 @@ fi
 
 # 定义PyInstaller参数
 PYINSTALLER_CMD="poetry run pyinstaller app.py --name VocabMaster --noconfirm --clean --onefile"
+PYINSTALLER_CMD+=" --additional-hooks-dir=hooks"
 
 # 添加 Qt plugins 平台支持
 QT_PLUGIN_PATH="$($PY -c 'import PyQt6.QtCore as qc; print(qc.QLibraryInfo.path(qc.QLibraryInfo.LibraryPath.PluginsPath))' 2>/dev/null)"
