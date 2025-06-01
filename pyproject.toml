@@ -6,7 +6,7 @@ authors = [
     {name = "Icarus603",email = "zhehongl91@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.10.17, <3.14"
+requires-python = ">=3.13, <3.14"
 dependencies = [
     "pyqt6 (>=6.9.0,<7.0.0)",
     "numpy (>=2.2.6,<3.0.0)",
