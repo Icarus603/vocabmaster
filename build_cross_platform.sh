@@ -76,6 +76,7 @@ echo "-------------------------------------------------"
 # 清理之前的构建
 echo "清理之前的构建文件 (build/ 和 dist/)..."
 rm -rf build dist
+find . -name 'Resources' -type l -delete
 
 # 定义PyInstaller参数
 PYINSTALLER_CMD="poetry run pyinstaller app.py --name VocabMaster --noconfirm --clean"
