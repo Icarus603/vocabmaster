@@ -188,18 +188,20 @@ class IeltsTest(TestBase):
             if std_embedding is None or std_embedding.shape[0] == 0:
                 continue
             std_embedding = std_embedding.reshape(1, -1)
-        try:
+            try:
                 similarity = cosine_similarity(user_embedding, std_embedding)[0][0]
-                print(f"Comparing 用户答案: '{user_chinese_definition}' 和 标准释义: '{std_meaning}' -> 相似度: {similarity:.4f}")
+                print(
+                    f"Comparing 用户答案: '{user_chinese_definition}' 和 标准释义: '{std_meaning}' -> 相似度: {similarity:.4f}"
+                )
                 if similarity > max_similarity:
                     max_similarity = similarity
                 if similarity >= SIMILARITY_THRESHOLD:
                     return True
-        except Exception as e:
-            print(f"Error calculating cosine similarity: {e}")
+            except Exception as e:
+                print(f"Error calculating cosine similarity: {e}")
                 continue
         print(f"最大相似度: {max_similarity:.4f}")
-            return False
+        return False
 
     def run_test(self, num_questions: int, on_question_display, on_result_display):
         """运行IELTS测试会话。"""

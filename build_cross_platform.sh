@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env bash
 # VocabMaster 跨平台打包脚本
 # 支持 Linux、macOS、Windows (GitHub Actions)
 
@@ -14,6 +14,18 @@ case "${OS}" in
         OS_TYPE="linux"
         PY=python3
         PIP=pip3
+        echo "安装构建所需的系统库..."
+        if command -v sudo >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y libxcb-xinerama0 libxcb-icccm4 libxcb-image0 \
+                libxcb-keysyms1 libxcb-render-util0 libxcb-xkb1 libxkbcommon-x11-0 \
+                libegl1 libpulse0
+        else
+            apt-get update
+            apt-get install -y libxcb-xinerama0 libxcb-icccm4 libxcb-image0 \
+                libxcb-keysyms1 libxcb-render-util0 libxcb-xkb1 libxkbcommon-x11-0 \
+                libegl1 libpulse0
+        fi
         ;;
     Darwin*)
         echo "检测到macOS系统"
@@ -151,7 +163,6 @@ PYINSTALLER_CMD+=" --hidden-import=PyQt6.QtPrintSupport"
 PYINSTALLER_CMD+=" --hidden-import=sklearn"
 PYINSTALLER_CMD+=" --hidden-import=requests"
 PYINSTALLER_CMD+=" --hidden-import=pandas"
-PYINSTALLER_CMD+=" --hidden-import=openpyxl"
 # PYINSTALLER_CMD+=" --hidden-import=numpy" # sklearn通常会依赖numpy，PyInstaller应该能自动发现
 
 
