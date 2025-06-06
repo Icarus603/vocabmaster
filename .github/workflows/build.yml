@@ -29,11 +29,19 @@ jobs:
           chmod +x build_cross_platform.sh # 确保脚本有执行权限
           bash build_cross_platform.sh # 运行构建脚本
 
+      - name: Check Linux build output
+        run: |
+          echo "檢查Linux構建產物："
+          ls -la dist/ || echo "dist目錄不存在"
+          echo "查找VocabMaster可執行文件："
+          find dist/ -name "VocabMaster" || echo "未找到VocabMaster文件"
+
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4 # 上传构建产物
         with:
           name: VocabMaster-Linux # 产物名称
           path: dist/VocabMaster # 要上传的文件路径
+          if-no-files-found: error
 
   build-macos:
     name: Build for macOS
@@ -57,11 +65,21 @@ jobs:
           chmod +x build_cross_platform.sh
           bash build_cross_platform.sh
 
+      - name: Check macOS build output
+        run: |
+          echo "檢查macOS構建產物："
+          ls -la dist/ || echo "dist目錄不存在"
+          echo "查找.dmg文件："
+          find dist/ -name "*.dmg" || echo "未找到.dmg文件"
+          echo "查找.app文件："
+          find dist/ -name "*.app" || echo "未找到.app文件"
+
       - name: Upload macOS artifact
         uses: actions/upload-artifact@v4
         with:
           name: VocabMaster-macOS
-          path: dist/VocabMaster
+          path: dist/VocabMaster-macOS.dmg
+          if-no-files-found: error
 
   build-windows:
     name: Build for Windows

@@ -203,6 +203,48 @@ if [ ${BUILD_STATUS} -eq 0 ]; then
     
     if [ "${OS_TYPE}" == "darwin" ]; then
         echo "macOS .app 包位于: dist/VocabMaster.app"
+        
+        # 創建.dmg安裝包
+        echo "正在創建macOS .dmg安裝包..."
+        
+        # 創建臨時目錄用於dmg內容
+        DMG_DIR="dist/dmg_temp"
+        mkdir -p "$DMG_DIR"
+        
+        # 複製.app到臨時目錄
+        cp -R "dist/VocabMaster.app" "$DMG_DIR/"
+        
+        # 創建Applications文件夾的符號鏈接
+        ln -sf /Applications "$DMG_DIR/Applications"
+        
+        # 如果有背景圖片，可以添加
+        if [ -f "assets/dmg_background.png" ]; then
+            mkdir -p "$DMG_DIR/.background"
+            cp "assets/dmg_background.png" "$DMG_DIR/.background/"
+        fi
+        
+        # 創建.dmg文件
+        DMG_NAME="VocabMaster-macOS.dmg"
+        echo "創建 $DMG_NAME..."
+        
+        # 如果文件已存在，先刪除
+        rm -f "dist/$DMG_NAME"
+        
+        # 使用hdiutil創建dmg
+        hdiutil create -volname "VocabMaster" \
+                      -srcfolder "$DMG_DIR" \
+                      -ov -format UDZO \
+                      "dist/$DMG_NAME"
+        
+        if [ $? -eq 0 ]; then
+            echo "✅ 成功創建 $DMG_NAME"
+            ls -la "dist/$DMG_NAME"
+            
+            # 清理臨時目錄
+            rm -rf "$DMG_DIR"
+        else
+            echo "❌ 創建.dmg文件失敗"
+        fi
     elif [ "${OS_TYPE}" == "windows" ]; then
         echo "Windows 可执行文件位于: dist/VocabMaster.exe"
         # 檢查Windows可執行文件是否存在
