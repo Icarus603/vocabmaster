@@ -3,10 +3,12 @@
 This module provides the BEC vocabulary test implementation and its module-specific subclasses.
 """
 
-import os
 import json
+import os
+
 from .base import TestBase
 from .resource_path import resource_path
+
 
 class BECTest(TestBase):
     """BEC高级词汇测试类"""
@@ -18,6 +20,12 @@ class BECTest(TestBase):
         if vocabulary is not None:
             self.vocabulary = vocabulary
     
+    def get_vocabulary_size(self) -> int:
+        """获取词汇表大小"""
+        if not self.vocabulary:
+            self.load_vocabulary()
+        return len(self.vocabulary)
+    
     def load_vocabulary(self):
         """加载BEC词汇表"""
         # 如果已经有词汇表，直接返回
@@ -27,7 +35,7 @@ class BECTest(TestBase):
         # 否则从JSON文件加载
         try:
             # 使用resource_path获取正确的文件路径
-            json_path = resource_path("bec_higher_cufe.json")
+            json_path = resource_path("vocab/bec_higher_cufe.json")
             
             with open(json_path, 'r', encoding='utf-8') as file:
                 data = json.load(file)

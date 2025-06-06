@@ -66,8 +66,50 @@ VocabMaster 是一个用于词汇测试和记忆的应用程序，专为英语�
 
 
 
-# 🚀 使用方法
+# ⚙️ 配置设置
 
+在使用 IELTS 语义测试和 DIY 语义测试功能之前，您需要配置 API 金钥。
+
+## 快速配置
+
+1. **复制配置文件模板**
+   ```bash
+   cp config.yaml.template config.yaml
+   ```
+
+2. **编辑配置文件**
+   打开 `config.yaml` 文件，修改以下配置项：
+   
+   ```yaml
+   # API 配置
+   api:
+     # SiliconFlow API 金钥 (用于 IELTS 和 DIY 语义测试)
+     # 获取方式：访问 https://siliconflow.cn/ 注册并创建 API 金钥
+     siliconflow_api_key: "您的API金钥"
+   
+   # 语义相似度配置
+   semantic:
+     # 语义相似度阈值 (0.0-1.0)
+     # 数值越低，判定越宽松；数值越高，判定越严格
+     similarity_threshold: 0.40
+   ```
+
+3. **保存文件**
+   保存 `config.yaml` 文件。程序会自动读取配置。
+
+> ⚠️ **注意**: `config.yaml` 文件包含敏感信息，已被 `.gitignore` 忽略，不会被提交到版本控制系统。
+
+## 详细配置选项
+
+配置文件支持以下选项：
+
+- **API 配置**: API 金钥、超时时间、API 端点
+- **语义相似度**: 阈值设置、备用匹配选项
+- **测试设置**: 默认题数、日志等级
+- **UI 设置**: 窗口大小、字体配置
+- **日志配置**: 日志等级和文件设置
+
+# 🚀 使用方法
 
 ## GUI 模式启动（默认）
 
@@ -169,9 +211,11 @@ VocabMaster/
 ├── app.py                   # 主程序入口（GUI和CLI模式）
 ├── gui.py                   # 图形界面实现
 ├── run.py                   # 命令行模式实现
+├── config.yaml.template     # 配置文件模板 (用户需复制为 config.yaml)
+├── config.yaml              # 实际配置文件 (包含 API 金钥，被 .gitignore 忽略)
 ├── utils/                   # 核心工具库
 │   ├── __init__.py          # 包初始化文件
-│   ├── api_config.py.template # API 密钥配置文件模板 (用户需复制并重命名为 api_config.py)
+│   ├── config.py            # 统一配置管理模块 (新增)
 │   ├── base.py              # 基础测试类
 │   ├── bec.py               # BEC测试实现
 │   ├── diy.py               # DIY测试实现

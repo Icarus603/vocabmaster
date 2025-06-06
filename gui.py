@@ -1,20 +1,25 @@
-import sys
+import logging
 import os
-import random # 新增导入
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
-                           QLabel, QPushButton, QStackedWidget, QComboBox, QLineEdit, 
-                           QFileDialog, QMessageBox, QTextEdit, QSpinBox, QProgressBar,
-                           QRadioButton, QButtonGroup, QGroupBox, QDialog, QScrollArea)
-from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QFont, QIcon, QPixmap, QShortcut, QKeySequence
-from utils import BECTest, TermsTest, DIYTest
-from utils.bec import BECTestModule1, BECTestModule2, BECTestModule3, BECTestModule4
-from utils.terms import TermsTestUnit1to5, TermsTestUnit6to10
-from utils.ielts import IeltsTest, SIMILARITY_THRESHOLD # <-- 新增导入 SIMILARITY_THRESHOLD
-from utils.base import TestResult # <-- 确保 TestResult 已导入
+import random  # 新增导入
+import sys
+
+from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtGui import QFont, QIcon, QKeySequence, QPixmap, QShortcut
+from PyQt6.QtWidgets import (QApplication, QButtonGroup, QComboBox, QDialog,
+                             QFileDialog, QGroupBox, QHBoxLayout, QLabel,
+                             QLineEdit, QMainWindow, QMessageBox, QProgressBar,
+                             QPushButton, QRadioButton, QScrollArea, QSpinBox,
+                             QStackedWidget, QTextEdit, QVBoxLayout, QWidget)
+
+from utils import BECTest, DIYTest, TermsTest
+from utils.base import TestResult  # <-- 确保 TestResult 已导入
+from utils.bec import (BECTestModule1, BECTestModule2, BECTestModule3,
+                       BECTestModule4)
+from utils.config import config
+from utils.ielts import IeltsTest
 # 导入 resource_path 用于查找资源文件
 from utils.resource_path import resource_path
-import logging
+from utils.terms import TermsTestUnit1to5, TermsTestUnit6to10
 
 logger = logging.getLogger(__name__)
 
@@ -811,7 +816,12 @@ class MainWindow(QMainWindow):
 
         if isinstance(self.current_test, IeltsTest) or is_semantic_diy_test:
             if isinstance(current_question_data, dict):
-                self.question_label.setText(current_question_data.get("english", "未知问题"))
+                if isinstance(self.current_test, IeltsTest):
+                    # IELTS使用 "word" 欄位
+                    self.question_label.setText(current_question_data.get("word", "未知问题"))
+                else:
+                    # DIY語義測試使用 "english" 欄位
+                    self.question_label.setText(current_question_data.get("english", "未知问题"))
             else:
                 self.question_label.setText(str(current_question_data))
             self.expected_answer = "语义判断" 
@@ -864,7 +874,12 @@ class MainWindow(QMainWindow):
         
         question_content_for_result = ""
         if isinstance(raw_question_data, dict):
-            question_content_for_result = raw_question_data.get("english", str(raw_question_data)) 
+            if isinstance(self.current_test, IeltsTest):
+                # IELTS使用 "word" 欄位
+                question_content_for_result = raw_question_data.get("word", str(raw_question_data))
+            else:
+                # 其他測試使用 "english" 欄位
+                question_content_for_result = raw_question_data.get("english", str(raw_question_data)) 
         elif isinstance(raw_question_data, str):
             question_content_for_result = raw_question_data 
         else:
@@ -878,12 +893,15 @@ class MainWindow(QMainWindow):
                                 self.current_test.is_semantic_diy)
 
         if isinstance(self.current_test, IeltsTest) or is_semantic_diy_test:
-            is_correct = self.current_test.check_answer_with_api(question_content_for_result, user_answer)
-            similarity_threshold_display = SIMILARITY_THRESHOLD 
-            if hasattr(self.current_test, 'SIMILARITY_THRESHOLD'):
-                 similarity_threshold_display = self.current_test.SIMILARITY_THRESHOLD
-            elif isinstance(self.current_test, DIYTest) and hasattr(self.current_test, 'SIMILARITY_THRESHOLD'): 
-                 similarity_threshold_display = self.current_test.SIMILARITY_THRESHOLD
+            if isinstance(self.current_test, IeltsTest):
+                # 獲取當前單詞的中文釋義列表
+                current_word_data = raw_question_data
+                meanings = current_word_data.get("meanings", []) if isinstance(current_word_data, dict) else []
+                is_correct = self.current_test.check_answer_with_api(meanings, user_answer)
+            else:
+                # DIY語義測試的處理邏輯（保持原來的邏輯）
+                is_correct = self.current_test.check_answer_with_api(question_content_for_result, user_answer)
+            similarity_threshold_display = config.similarity_threshold
 
             # 取得中文释义
             ref_answer = ""
@@ -891,6 +909,7 @@ class MainWindow(QMainWindow):
                 # 读取 ielts_vocab.json，查找对应单字的 meanings
                 try:
                     import json
+
                     from utils.resource_path import resource_path
                     json_path = resource_path("vocab/ielts_vocab.json")
                     with open(json_path, 'r', encoding='utf-8') as f:
@@ -1035,9 +1054,7 @@ class MainWindow(QMainWindow):
         )
         if isinstance(self.current_test, IeltsTest) or \
            (isinstance(self.current_test, DIYTest) and hasattr(self.current_test, 'is_semantic_diy') and self.current_test.is_semantic_diy):
-            similarity_threshold_display = SIMILARITY_THRESHOLD # Default
-            if hasattr(self.current_test, 'SIMILARITY_THRESHOLD'):
-                 similarity_threshold_display = self.current_test.SIMILARITY_THRESHOLD
+            similarity_threshold_display = config.similarity_threshold
             result_summary += f"\n(语义测试模式，相似度阈值: {similarity_threshold_display:.2f})"
 
         self.result_stats.setText(result_summary)

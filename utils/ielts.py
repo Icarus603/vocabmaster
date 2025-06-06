@@ -2,36 +2,19 @@
 IELTS Test Mode using Netease Youdao Semantic Similarity API.
 '''
 import json
+import logging
 import os
 import random
-import requests
+
 import numpy as np
+import requests
 from sklearn.metrics.pairwise import cosine_similarity
 
-from .base import TestBase, TestResult # Updated import
+from .base import TestBase, TestResult  # Updated import
+from .config import config
 from .resource_path import resource_path
 
-import logging
-
 logger = logging.getLogger(__name__)
-
-# Attempt to import the API key from api_config.py
-# This file should be created by the user from api_config.py.template and placed in the utils directory.
-# It is included in .gitignore to prevent accidental commits of the key.
-NETEASE_API_KEY = None
-try:
-    from .api_config import NETEASE_API_KEY
-except ImportError:
-    logger.warning("无法从 utils.api_config import NETEASE_API_KEY. 请确保 api_config.py 文件存在且配置正确. IELTS 语义测试功能将不可用.")
-    # NETEASE_API_KEY 保持为 None，后续逻辑会检查它
-
-# Updated API URL based on the provided documentation
-NETEASE_EMBEDDING_API_URL = "https://api.siliconflow.cn/v1/embeddings"
-MODEL_NAME = "netease-youdao/bce-embedding-base_v1" # Confirmed available with this API endpoint
-
-SIMILARITY_THRESHOLD = 0.60  # Threshold for considering an answer correct (下調至0.60)
-# EMBEDDING_DIMENSION will be determined by the API response, so we can remove the fixed value or comment it out.
-# EMBEDDING_DIMENSION = 768 # Example dimension, adjust if known for the model
 
 class IeltsTest(TestBase):
     """IELTS English-to-Chinese test using semantic similarity."""
@@ -106,27 +89,28 @@ class IeltsTest(TestBase):
         Gets embedding for the given text using the SiliconFlow API (which supports Netease Youdao models).
         lang_type is currently not used in the API call itself as the model handles language.
         """
-        if not NETEASE_API_KEY:
-            logger.error("SiliconFlow API 金钥 (NETEASE_API_KEY) 未在 utils/api_config.py 中配置或配置不正确. IELTS 语义测试功能无法使用.")
+        api_key = config.api_key
+        if not api_key:
+            logger.error("SiliconFlow API 金鑰未在 config.yaml 中配置. IELTS 语义测试功能无法使用.")
             return None
 
         headers = {
-            "Authorization": f"Bearer {NETEASE_API_KEY}",
+            "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
         payload = {
-            "model": MODEL_NAME,
+            "model": config.model_name,
             "input": text,
             "encoding_format": "float"  # As per documentation
         }
 
         logger.info(f"--- Calling Embedding API ---")
-        logger.info(f"URL: {NETEASE_EMBEDDING_API_URL}")
-        logger.info(f"Model: {MODEL_NAME}")
+        logger.info(f"URL: {config.embedding_url}")
+        logger.info(f"Model: {config.model_name}")
         logger.info(f"Input text: '{text[:50]}...'") # Print first 50 chars of input
 
         try:
-            response = requests.post(NETEASE_EMBEDDING_API_URL, json=payload, headers=headers, timeout=20) # Increased timeout
+            response = requests.post(config.embedding_url, json=payload, headers=headers, timeout=config.api_timeout)
             response.raise_for_status()  # Raises an HTTPError for bad responses (4XX or 5XX)
             api_response = response.json()
             
@@ -167,16 +151,26 @@ class IeltsTest(TestBase):
     def check_answer_with_api(self, standard_chinese_meanings: list, user_chinese_definition: str) -> bool:
         """
         Checks the user's Chinese definition against all standard meanings using semantic similarity.
+        If API is unavailable, falls back to basic text matching.
         Returns True if any meaning is similar enough, False otherwise.
         """
         if not standard_chinese_meanings or not user_chinese_definition:
             return False
+        
+        # 檢查 API 金鑰是否可用
+        if not config.api_key:
+            logger.warning("API 金鑰未配置，使用基本文字匹配模式")
+            return self._fallback_text_matching(standard_chinese_meanings, user_chinese_definition)
+        
         user_embedding = self.get_embedding(user_chinese_definition, lang_type="zh")
         if user_embedding is None or user_embedding.shape[0] == 0:
-            logger.error("用户输入 embedding 获取失败。")
-            return False
+            logger.warning("用户输入 embedding 获取失败，切換到基本文字匹配模式")
+            return self._fallback_text_matching(standard_chinese_meanings, user_chinese_definition)
+        
         user_embedding = user_embedding.reshape(1, -1)
         max_similarity = 0.0
+        api_success = False
+        
         for std_meaning in standard_chinese_meanings:
             if not std_meaning:
                 continue
@@ -186,27 +180,74 @@ class IeltsTest(TestBase):
             std_embedding = std_embedding.reshape(1, -1)
             try:
                 similarity = cosine_similarity(user_embedding, std_embedding)[0][0]
-
-                print(
-
+                api_success = True
                 logger.info(
-
                     f"Comparing 用户答案: '{user_chinese_definition}' 和 标准释义: '{std_meaning}' -> 相似度: {similarity:.4f}"
                 )
                 if similarity > max_similarity:
                     max_similarity = similarity
-                if similarity >= SIMILARITY_THRESHOLD:
+                if similarity >= config.similarity_threshold:
                     return True
             except Exception as e:
-
-                print(f"Error calculating cosine similarity: {e}")
-                continue
-        print(f"最大相似度: {max_similarity:.4f}")
-
                 logger.error(f"Error calculating cosine similarity: {e}", exc_info=True)
                 continue
-        logger.info(f"最大相似度: {max_similarity:.4f}")
-
+        
+        if api_success:
+            logger.info(f"最大相似度: {max_similarity:.4f}")
+            return False
+        else:
+            logger.warning("所有 API 調用都失敗，切換到基本文字匹配模式")
+            return self._fallback_text_matching(standard_chinese_meanings, user_chinese_definition)
+    
+    def _fallback_text_matching(self, standard_meanings: list, user_answer: str) -> bool:
+        """
+        當 API 不可用時的備用文字匹配方法
+        """
+        user_answer = user_answer.strip()
+        if not user_answer:
+            return False
+        
+        for meaning in standard_meanings:
+            if not meaning:
+                continue
+            
+            # 移除詞性標記（如 "n.", "v.", "adj." 等）和人名標記
+            import re
+            cleaned_meaning = meaning
+            cleaned_meaning = re.sub(r'\b[a-zA-Z]+\.\s*', '', cleaned_meaning)  # 移除詞性標記
+            cleaned_meaning = re.sub(r'【[^】]*】[^；，。]*', '', cleaned_meaning)  # 移除人名標記
+            
+            # 基本包含檢查
+            if user_answer in cleaned_meaning or cleaned_meaning in user_answer:
+                logger.info(f"文字匹配成功: '{user_answer}' 在 '{cleaned_meaning}' 中")
+                return True
+            
+            # 分詞檢查（按標點符號分割）
+            parts = re.split(r'[，。；、（）\s]+', cleaned_meaning)
+            for part in parts:
+                part = part.strip()
+                if part and len(part) >= config.min_word_length:  # 忽略過短的片段
+                    if user_answer == part or part == user_answer:
+                         logger.info(f"文字匹配成功: '{user_answer}' 與 '{part}' 完全匹配")
+                         return True
+                    elif len(user_answer) >= config.min_word_length and (user_answer in part or part in user_answer):
+                         logger.info(f"文字匹配成功: '{user_answer}' 與 '{part}' 部分匹配")
+                         return True
+            
+            # 針對形容詞的特殊處理（如"珍貴的"和"珍貴"）
+            if user_answer.endswith('的') and len(user_answer) > 2:
+                base_word = user_answer[:-1]  # 移除"的"
+                if base_word in cleaned_meaning:
+                    logger.info(f"文字匹配成功: '{user_answer}' (形容詞形式) 與標準釋義匹配")
+                    return True
+            elif not user_answer.endswith('的'):
+                # 檢查是否有對應的形容詞形式
+                adj_form = user_answer + '的'
+                if adj_form in cleaned_meaning:
+                    logger.info(f"文字匹配成功: '{user_answer}' (對應形容詞 '{adj_form}') 與標準釋義匹配")
+                    return True
+        
+        logger.info(f"文字匹配失敗: '{user_answer}' 在標準釋義中未找到匹配")
         return False
 
     def run_test(self, num_questions: int, on_question_display, on_result_display):
@@ -302,7 +343,7 @@ class IeltsTest(TestBase):
             f"回答错误: {incorrect_answers}\n"
             f"跳过题数: {skipped_answers}\n"
             f"准确率: {accuracy:.2f}% (基于已回答题目)\n\n"
-            f"注意：此测试通过语义相似度判断答案，阈值为 {SIMILARITY_THRESHOLD}。"
+            f"注意：此测试通过语义相似度判断答案，阈值为 {config.similarity_threshold}。"
         )
         
         on_result_display(
@@ -379,7 +420,7 @@ class IeltsTest(TestBase):
                 TestResult(
                     question_num=i + 1,
                     question=eng_word,
-                    expected_answer=f"语义相似度 > {SIMILARITY_THRESHOLD}",
+                    expected_answer=f"语义相似度 > {config.similarity_threshold}",
                     user_answer=user_chinese if user_chinese else "<空>",
                     is_correct=is_correct,
                     notes="语义相似度判定 (CLI)"
@@ -393,7 +434,7 @@ class IeltsTest(TestBase):
         accuracy = (correct_answers / prepared_count * 100) if prepared_count > 0 else 0
         # CLI summary - print is appropriate
         print(f"准确率: {accuracy:.2f}%")
-        print(f"(语义相似度阈值: {SIMILARITY_THRESHOLD})")
+        print(f"(语义相似度阈值: {config.similarity_threshold})")
 
         # Optionally, display wrong answers - CLI output
         if correct_answers < prepared_count:

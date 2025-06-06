@@ -1,0 +1,59 @@
+# VocabMaster 配置文件模板
+# 請將此文件複製為 config.yaml 並根據需要修改配置項
+
+# API 配置
+api:
+  # SiliconFlow API 金鑰 (用於 IELTS 和 DIY 語義測試)
+  # 獲取方式：訪問 https://siliconflow.cn/ 註冊並創建 API 金鑰
+  siliconflow_api_key: "your_siliconflow_api_key_here"
+  
+  # API 請求超時時間（秒）
+  timeout: 20
+  
+  # API 端點配置
+  embedding_url: "https://api.siliconflow.cn/v1/embeddings"
+  model_name: "netease-youdao/bce-embedding-base_v1"
+
+# 語義相似度配置
+semantic:
+  # 語義相似度閾值 (0.0-1.0)
+  # 數值越低，判定越寬鬆；數值越高，判定越嚴格
+  similarity_threshold: 0.40
+  
+  # 是否啟用備用文字匹配（當API失敗時）
+  enable_fallback_matching: true
+  
+  # 備用匹配的最小詞長度
+  min_word_length: 2
+
+# 測試配置
+test:
+  # 默認測試題數
+  default_question_count: 10
+  
+  # 最大測試題數
+  max_question_count: 100
+  
+  # 是否顯示詳細日誌
+  verbose_logging: true
+
+# UI 配置
+ui:
+  # 窗口默認大小
+  window_width: 800
+  window_height: 600
+  
+  # 字體配置
+  font_family: "Arial"
+  font_size: 12
+
+# 日誌配置
+logging:
+  # 日誌等級: DEBUG, INFO, WARNING, ERROR
+  level: "INFO"
+  
+  # 是否保存日誌到文件
+  save_to_file: true
+  
+  # 日誌文件路径
+  log_file: "logs/vocabmaster.log" 

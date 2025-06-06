@@ -4,33 +4,22 @@ This module provides the implementation for custom vocabulary tests that can loa
 words from JSON files in a flexible format supporting multiple Chinese and English expressions.
 """
 
-import os
 import json
-import random
-import requests
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
-from .base import TestBase, TestResult # Updated import
-from .resource_path import resource_path
-from .ielts import IeltsTest # Import IeltsTest for type checking if needed, or reuse its components
-
-# Try to import the API key from api_config.py, similar to ielts.py
-try:
-    from .api_config import NETEASE_API_KEY
 import logging
+import os
+import random
+
+import numpy as np
+import requests
+from sklearn.metrics.pairwise import cosine_similarity
+
+from .base import TestBase, TestResult  # Updated import
+from .config import config
+from .ielts import \
+    IeltsTest  # Import IeltsTest for type checking if needed, or reuse its components
+from .resource_path import resource_path
 
 logger = logging.getLogger(__name__)
-
-try:
-    from .api_config import NETEASE_API_KEY
-except ImportError:
-    logger.warning("无法从 utils.api_config 导入 NETEASE_API_KEY。DIY 语义测试模式将不可用。")
-    NETEASE_API_KEY = None
-
-# Reuse API constants from ielts.py or define them here if they are identical
-NETEASE_EMBEDDING_API_URL = "https://api.siliconflow.cn/v1/embeddings"
-MODEL_NAME = "netease-youdao/bce-embedding-base_v1"
-SIMILARITY_THRESHOLD = 0.60 # 下調至0.60，與IELTS一致
 
 
 class DIYTest(TestBase):
@@ -168,21 +157,21 @@ class DIYTest(TestBase):
         Gets embedding for the given text using the SiliconFlow API.
         (Copied and adapted from IeltsTest)
         """
-        if not NETEASE_API_KEY:
-            logger.error("API 金钥未配置。无法获取词向量。")
+        if not config.api_key:
+            logger.error("API 金鑰未在 config.yaml 中配置。DIY 語義測試功能無法使用。")
             return None
 
         headers = {
-            "Authorization": f"Bearer {NETEASE_API_KEY}",
+            "Authorization": f"Bearer {config.api_key}",
             "Content-Type": "application/json"
         }
         payload = {
-            "model": MODEL_NAME,
+            "model": config.model_name,
             "input": text,
             "encoding_format": "float"
         }
         try:
-            response = requests.post(NETEASE_EMBEDDING_API_URL, json=payload, headers=headers, timeout=20)
+            response = requests.post(config.embedding_url, json=payload, headers=headers, timeout=config.api_timeout)
             response.raise_for_status()
             api_response = response.json()
             if api_response and 'data' in api_response and api_response['data']:
@@ -231,7 +220,7 @@ class DIYTest(TestBase):
         try:
             similarity = cosine_similarity(english_embedding, chinese_embedding)[0][0]
             logger.info(f"DIY Semantic Comparing E: '{english_word}' and C: '{user_chinese_definition}' -> Similarity: {similarity:.4f}")
-            return similarity >= SIMILARITY_THRESHOLD
+            return similarity >= config.similarity_threshold
         except Exception as e:
             logger.error(f"DIY Semantic: Error calculating cosine similarity: {e}", exc_info=True)
             return False
