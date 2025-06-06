@@ -145,6 +145,52 @@ PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6Quick"
 if [ "${OS_TYPE}" == "darwin" ]; then
     PYINSTALLER_CMD+=" --windowed"
     PYINSTALLER_CMD+=" --icon=assets/icon.icns"
+    
+    # macOS特定選項
+    PYINSTALLER_CMD+=" --osx-bundle-identifier=com.icarus603.vocabmaster"
+    
+    # 添加macOS所需的Info.plist配置
+    cat > app_info.plist << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDisplayName</key>
+    <string>VocabMaster</string>
+    <key>CFBundleExecutable</key>
+    <string>VocabMaster</string>
+    <key>CFBundleIconFile</key>
+    <string>icon.icns</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.icarus603.vocabmaster</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>VocabMaster</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>CFBundleVersion</key>
+    <string>1.0.0</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>10.14</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>VocabMaster needs to access system events for proper functionality.</string>
+    <key>NSNetworkVolumesUsageDescription</key>
+    <string>VocabMaster needs network access for vocabulary API services.</string>
+</dict>
+</plist>
+EOF
+    
+    PYINSTALLER_CMD+=" --info-plist=app_info.plist"
 elif [ "${OS_TYPE}" == "windows" ]; then
     PYINSTALLER_CMD+=" --windowed"
     PYINSTALLER_CMD+=" --icon=assets/icon.ico"
@@ -203,6 +249,30 @@ if [ ${BUILD_STATUS} -eq 0 ]; then
     
     if [ "${OS_TYPE}" == "darwin" ]; then
         echo "macOS .app 包位于: dist/VocabMaster.app"
+        
+        # macOS後處理
+        echo "正在進行macOS應用程序後處理..."
+        
+        # 設置正確的權限
+        chmod +x "dist/VocabMaster.app/Contents/MacOS/VocabMaster"
+        
+        # 嘗試ad-hoc代碼簽名（如果可能）
+        if command -v codesign >/dev/null 2>&1; then
+            echo "正在進行ad-hoc代碼簽名..."
+            codesign --force --deep --sign - "dist/VocabMaster.app" || echo "代碼簽名失敗，但應用程序仍可運行"
+        else
+            echo "未找到codesign工具，跳過代碼簽名"
+        fi
+        
+        # 驗證應用程序結構
+        if [ -f "dist/VocabMaster.app/Contents/MacOS/VocabMaster" ]; then
+            echo "✅ 主要可執行文件存在"
+        else
+            echo "❌ 警告：主要可執行文件不存在"
+        fi
+        
+        # 清理臨時文件
+        rm -f app_info.plist
         
         # 創建.dmg安裝包
         echo "正在創建macOS .dmg安裝包..."
