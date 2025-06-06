@@ -155,17 +155,31 @@ class IeltsTest(TestBase):
         Returns True if any meaning is similar enough, False otherwise.
         """
         if not standard_chinese_meanings or not user_chinese_definition:
+            logger.warning(f"答案檢查失敗：標準釋義或用戶答案為空")
             return False
+        
+        logger.info(f"=== 開始檢查答案 ===")
+        logger.info(f"用戶答案: '{user_chinese_definition}'")
+        logger.info(f"標準釋義: {standard_chinese_meanings}")
+        logger.info(f"相似度閾值: {config.similarity_threshold}")
+        
+        # 首先嘗試文字匹配（因為對於完全匹配的情況，文字匹配更可靠）
+        text_match_result = self._fallback_text_matching(standard_chinese_meanings, user_chinese_definition)
+        if text_match_result:
+            logger.info(f"文字匹配成功，直接返回 True")
+            return True
         
         # 檢查 API 金鑰是否可用
         if not config.api_key:
-            logger.warning("API 金鑰未配置，使用基本文字匹配模式")
-            return self._fallback_text_matching(standard_chinese_meanings, user_chinese_definition)
+            logger.warning("API 金鑰未配置，只能使用文字匹配模式")
+            return text_match_result
+        
+        logger.info("文字匹配失敗，嘗試語義匹配...")
         
         user_embedding = self.get_embedding(user_chinese_definition, lang_type="zh")
         if user_embedding is None or user_embedding.shape[0] == 0:
-            logger.warning("用户输入 embedding 获取失败，切換到基本文字匹配模式")
-            return self._fallback_text_matching(standard_chinese_meanings, user_chinese_definition)
+            logger.warning("用户输入 embedding 获取失败，使用文字匹配結果")
+            return text_match_result
         
         user_embedding = user_embedding.reshape(1, -1)
         max_similarity = 0.0
@@ -182,22 +196,23 @@ class IeltsTest(TestBase):
                 similarity = cosine_similarity(user_embedding, std_embedding)[0][0]
                 api_success = True
                 logger.info(
-                    f"Comparing 用户答案: '{user_chinese_definition}' 和 标准释义: '{std_meaning}' -> 相似度: {similarity:.4f}"
+                    f"語義比較 - 用户答案: '{user_chinese_definition}' vs 标准释义: '{std_meaning}' -> 相似度: {similarity:.4f}"
                 )
                 if similarity > max_similarity:
                     max_similarity = similarity
                 if similarity >= config.similarity_threshold:
+                    logger.info(f"語義匹配成功！相似度 {similarity:.4f} >= 閾值 {config.similarity_threshold}")
                     return True
             except Exception as e:
                 logger.error(f"Error calculating cosine similarity: {e}", exc_info=True)
                 continue
         
         if api_success:
-            logger.info(f"最大相似度: {max_similarity:.4f}")
+            logger.info(f"語義匹配失敗：最大相似度 {max_similarity:.4f} < 閾值 {config.similarity_threshold}")
             return False
         else:
-            logger.warning("所有 API 調用都失敗，切換到基本文字匹配模式")
-            return self._fallback_text_matching(standard_chinese_meanings, user_chinese_definition)
+            logger.warning("所有 API 調用都失敗，使用文字匹配結果")
+            return text_match_result
     
     def _fallback_text_matching(self, standard_meanings: list, user_answer: str) -> bool:
         """
@@ -207,38 +222,55 @@ class IeltsTest(TestBase):
         if not user_answer:
             return False
         
+        import re
+        
         for meaning in standard_meanings:
             if not meaning:
                 continue
             
             # 移除詞性標記（如 "n.", "v.", "adj." 等）和人名標記
-            import re
             cleaned_meaning = meaning
-            cleaned_meaning = re.sub(r'\b[a-zA-Z]+\.\s*', '', cleaned_meaning)  # 移除詞性標記
-            cleaned_meaning = re.sub(r'【[^】]*】[^；，。]*', '', cleaned_meaning)  # 移除人名標記
+            # 移除詞性標記 - 改進的正規表達式
+            cleaned_meaning = re.sub(r'\b[a-zA-Z]+\.\s*', '', cleaned_meaning)
+            # 移除人名標記 【名】等
+            cleaned_meaning = re.sub(r'【[^】]*】[^；，。]*', '', cleaned_meaning)
+            # 移除括號內的補充說明
+            cleaned_meaning = re.sub(r'（[^）]*）', '', cleaned_meaning)
             
-            # 基本包含檢查
-            if user_answer in cleaned_meaning or cleaned_meaning in user_answer:
-                logger.info(f"文字匹配成功: '{user_answer}' 在 '{cleaned_meaning}' 中")
+            logger.info(f"原始釋義: '{meaning}'")
+            logger.info(f"清理後釋義: '{cleaned_meaning}'")
+            
+            # 直接檢查用戶答案是否在清理後的釋義中
+            if user_answer in cleaned_meaning:
+                logger.info(f"文字匹配成功: '{user_answer}' 直接包含在清理後釋義中")
                 return True
             
             # 分詞檢查（按標點符號分割）
-            parts = re.split(r'[，。；、（）\s]+', cleaned_meaning)
+            # 使用更全面的中文標點符號分割
+            parts = re.split(r'[，。；、：（）\s]+', cleaned_meaning)
             for part in parts:
                 part = part.strip()
-                if part and len(part) >= config.min_word_length:  # 忽略過短的片段
-                    if user_answer == part or part == user_answer:
-                         logger.info(f"文字匹配成功: '{user_answer}' 與 '{part}' 完全匹配")
-                         return True
-                    elif len(user_answer) >= config.min_word_length and (user_answer in part or part in user_answer):
-                         logger.info(f"文字匹配成功: '{user_answer}' 與 '{part}' 部分匹配")
-                         return True
+                if not part:
+                    continue
+                    
+                logger.info(f"檢查分詞片段: '{part}'")
+                
+                # 完全匹配
+                if user_answer == part:
+                    logger.info(f"文字匹配成功: '{user_answer}' 與 '{part}' 完全匹配")
+                    return True
+                
+                # 包含檢查（雙向）
+                if len(part) >= config.min_word_length:
+                    if user_answer in part or part in user_answer:
+                        logger.info(f"文字匹配成功: '{user_answer}' 與 '{part}' 部分匹配")
+                        return True
             
-            # 針對形容詞的特殊處理（如"珍貴的"和"珍貴"）
+            # 針對形容詞的特殊處理（如"不友善的"和"不友善"）
             if user_answer.endswith('的') and len(user_answer) > 2:
                 base_word = user_answer[:-1]  # 移除"的"
                 if base_word in cleaned_meaning:
-                    logger.info(f"文字匹配成功: '{user_answer}' (形容詞形式) 與標準釋義匹配")
+                    logger.info(f"文字匹配成功: '{user_answer}' (形容詞形式，基詞 '{base_word}') 與標準釋義匹配")
                     return True
             elif not user_answer.endswith('的'):
                 # 檢查是否有對應的形容詞形式
@@ -247,7 +279,7 @@ class IeltsTest(TestBase):
                     logger.info(f"文字匹配成功: '{user_answer}' (對應形容詞 '{adj_form}') 與標準釋義匹配")
                     return True
         
-        logger.info(f"文字匹配失敗: '{user_answer}' 在標準釋義中未找到匹配")
+        logger.info(f"文字匹配失敗: '{user_answer}' 在所有標準釋義中未找到匹配")
         return False
 
     def run_test(self, num_questions: int, on_question_display, on_result_display):
