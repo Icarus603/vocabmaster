@@ -148,6 +148,9 @@ if [ "${OS_TYPE}" == "darwin" ]; then
 elif [ "${OS_TYPE}" == "windows" ]; then
     PYINSTALLER_CMD+=" --windowed"
     PYINSTALLER_CMD+=" --icon=assets/icon.ico"
+    # Windows特定選項
+    PYINSTALLER_CMD+=" --onefile"  # 單一可執行文件，確保生成 .exe
+    echo "Windows構建模式：單一可執行文件"
 else # Linux
     PYINSTALLER_CMD+=" --windowed"
     PYINSTALLER_CMD+=" --icon=assets/icon.ico" # Linux通常也用.ico，或不指定让PyInstaller用默认
@@ -193,10 +196,32 @@ if [ ${BUILD_STATUS} -eq 0 ]; then
     echo "=================================================="
     echo "VocabMaster 构建成功！"
     echo "可执行文件位于 dist/ 目录下。"
+    
+    # 顯示dist目錄的實際內容
+    echo "dist/ 目錄內容："
+    ls -la dist/ || echo "無法列出dist/目錄內容"
+    
     if [ "${OS_TYPE}" == "darwin" ]; then
         echo "macOS .app 包位于: dist/VocabMaster.app"
     elif [ "${OS_TYPE}" == "windows" ]; then
         echo "Windows 可执行文件位于: dist/VocabMaster.exe"
+        # 檢查Windows可執行文件是否存在
+        if [ -f "dist/VocabMaster.exe" ]; then
+            echo "✅ VocabMaster.exe 文件確實存在"
+            ls -la dist/VocabMaster.exe
+        else
+            echo "❌ VocabMaster.exe 文件不存在，查看可用文件："
+            find dist/ -name "*VocabMaster*" -o -name "*.exe" || echo "未找到相關文件"
+        fi
+    else
+        echo "Linux 可執行文件位於: dist/VocabMaster"
+        if [ -f "dist/VocabMaster" ]; then
+            echo "✅ VocabMaster 文件確實存在"
+            ls -la dist/VocabMaster
+        else
+            echo "❌ VocabMaster 文件不存在，查看可用文件："
+            find dist/ -name "*VocabMaster*" || echo "未找到相關文件"
+        fi
     fi
     echo "=================================================="
 else

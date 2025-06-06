@@ -85,8 +85,18 @@ jobs:
           chmod +x build_cross_platform.sh
           bash build_cross_platform.sh
 
+      - name: Check Windows build output
+        shell: bash
+        run: |
+          echo "檢查dist目錄內容："
+          ls -la dist/ || echo "dist目錄不存在"
+          echo "查找所有可執行文件："
+          find dist/ -name "*.exe" || echo "未找到.exe文件"
+          find dist/ -name "*VocabMaster*" || echo "未找到VocabMaster相關文件"
+
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: VocabMaster-Windows
           path: dist/VocabMaster.exe
+          if-no-files-found: error
