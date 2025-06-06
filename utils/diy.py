@@ -17,8 +17,14 @@ from .ielts import IeltsTest # Import IeltsTest for type checking if needed, or 
 # Try to import the API key from api_config.py, similar to ielts.py
 try:
     from .api_config import NETEASE_API_KEY
+import logging
+
+logger = logging.getLogger(__name__)
+
+try:
+    from .api_config import NETEASE_API_KEY
 except ImportError:
-    print("警告：无法从 utils.api_config 导入 NETEASE_API_KEY。DIY 语义测试模式将不可用。")
+    logger.warning("无法从 utils.api_config 导入 NETEASE_API_KEY。DIY 语义测试模式将不可用。")
     NETEASE_API_KEY = None
 
 # Reuse API constants from ielts.py or define them here if they are identical
@@ -62,7 +68,7 @@ class DIYTest(TestBase):
         try:
             vocabulary = self._load_from_json()
         except Exception as e:
-            print(f"加载词汇表出错: {e}")
+            logger.error(f"加载词汇表出错: {e}", exc_info=True)
             return []
         
         self.vocabulary = vocabulary
@@ -77,7 +83,7 @@ class DIYTest(TestBase):
                 data = json.load(file)
             
             if not isinstance(data, list):
-                print("JSON文件格式错误，根元素应为列表")
+                logger.error("JSON文件格式错误，根元素应为列表")
                 return []
             
             # Heuristic to detect if it's a simple list of strings (for semantic DIY)
@@ -85,7 +91,7 @@ class DIYTest(TestBase):
             if data and all(isinstance(item, str) for item in data):
                 # This is likely an English-only list for semantic DIY
                 self.is_semantic_diy = True # Add a flag to indicate semantic mode
-                print(f"检测到DIY文件 '{os.path.basename(self.file_path)}' 为纯英文词汇列表，将启用语义测试模式。")
+                logger.info(f"检测到DIY文件 '{os.path.basename(self.file_path)}' 为纯英文词汇列表，将启用语义测试模式。")
                 for english_word in data:
                     if english_word.strip():
                         vocabulary.append({"english": english_word.strip(), "chinese": "N/A (语义判断)"}) # Store in a compatible format
@@ -93,7 +99,7 @@ class DIYTest(TestBase):
             elif data and all(isinstance(item, dict) for item in data):
                 # This is the traditional E-C pair format
                 self.is_semantic_diy = False
-                print(f"检测到DIY文件 '{os.path.basename(self.file_path)}' 为英汉词对格式。")
+                logger.info(f"检测到DIY文件 '{os.path.basename(self.file_path)}' 为英汉词对格式。")
                 for item in data:
                     # 处理英文表达 - 可以是字符串或字符串数组
                     english_value = item.get("english", "")
@@ -148,11 +154,11 @@ class DIYTest(TestBase):
                         }
                         vocabulary.append(vocab_item)
             else:
-                print(f"JSON文件 '{os.path.basename(self.file_path)}' 格式无法识别。它应该是一个字符串列表（用于语义测试）或一个包含 'english' 和 'chinese' 键的字典列表。")
+                logger.error(f"JSON文件 '{os.path.basename(self.file_path)}' 格式无法识别。它应该是一个字符串列表（用于语义测试）或一个包含 'english' 和 'chinese' 键的字典列表。")
                 return []
 
         except Exception as e:
-            print(f"读取JSON文件出错: {e}")
+            logger.error(f"读取JSON文件出错: {e}", exc_info=True)
             return []
         
         return vocabulary
@@ -163,7 +169,7 @@ class DIYTest(TestBase):
         (Copied and adapted from IeltsTest)
         """
         if not NETEASE_API_KEY:
-            print("错误：API 金钥未配置。无法获取词向量。")
+            logger.error("API 金钥未配置。无法获取词向量。")
             return None
 
         headers = {
@@ -183,15 +189,15 @@ class DIYTest(TestBase):
                 embedding_data = api_response['data'][0]
                 if 'embedding' in embedding_data:
                     return np.array(embedding_data['embedding']).astype(np.float32)
-            print(f"Error: Unexpected API response structure for DIY semantic. Response: {api_response}")
+            logger.error(f"Error: Unexpected API response structure for DIY semantic. Response: {api_response}")
             return None
         except requests.exceptions.RequestException as e:
-            print(f"API request failed for DIY semantic: {e}")
+            logger.error(f"API request failed for DIY semantic: {e}")
             if hasattr(e, 'response') and e.response is not None:
-                print(f"Response content: {e.response.text}")
+                logger.error(f"Response content: {e.response.text}")
             return None
         except Exception as e: # Catch other potential errors like JSONDecodeError
-            print(f"An unexpected error occurred while getting embedding for DIY semantic: {e}")
+            logger.error(f"An unexpected error occurred while getting embedding for DIY semantic: {e}", exc_info=True)
             return None
 
 
@@ -212,11 +218,11 @@ class DIYTest(TestBase):
         chinese_embedding = self.get_embedding(user_chinese_definition, lang_type="zh")
 
         if english_embedding is None or chinese_embedding is None:
-            print("DIY Semantic: Could not get one or both embeddings for comparison.")
+            logger.error("DIY Semantic: Could not get one or both embeddings for comparison.")
             return False
         
         if english_embedding.shape[0] == 0 or chinese_embedding.shape[0] == 0:
-            print("DIY Semantic Error: One or both embeddings are empty.")
+            logger.error("DIY Semantic Error: One or both embeddings are empty.")
             return False
 
         english_embedding = english_embedding.reshape(1, -1)
@@ -224,10 +230,10 @@ class DIYTest(TestBase):
         
         try:
             similarity = cosine_similarity(english_embedding, chinese_embedding)[0][0]
-            print(f"DIY Semantic Comparing E: '{english_word}' and C: '{user_chinese_definition}' -> Similarity: {similarity:.4f}")
+            logger.info(f"DIY Semantic Comparing E: '{english_word}' and C: '{user_chinese_definition}' -> Similarity: {similarity:.4f}")
             return similarity >= SIMILARITY_THRESHOLD
         except Exception as e:
-            print(f"DIY Semantic: Error calculating cosine similarity: {e}")
+            logger.error(f"DIY Semantic: Error calculating cosine similarity: {e}", exc_info=True)
             return False
 
     # Override check_answer to delegate to API check if it's a semantic DIY test
