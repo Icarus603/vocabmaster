@@ -11,6 +11,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 from .base import TestBase, TestResult # Updated import
 from .resource_path import resource_path
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 # Attempt to import the API key from api_config.py
 # This file should be created by the user from api_config.py.template and placed in the utils directory.
 # It is included in .gitignore to prevent accidental commits of the key.
@@ -18,13 +22,7 @@ NETEASE_API_KEY = None
 try:
     from .api_config import NETEASE_API_KEY
 except ImportError:
-    print("警告：无法从 utils.api_config 导入 NETEASE_API_KEY。"
-          "请确保您已遵循以下步骤操作：")
-    print("1. 将项目根目录下的 `utils/api_config.py.template` 文件复制一份。")
-    print("2. 将复制的文件重命名为 `utils/api_config.py`。")
-    print("3. 在 `utils/api_config.py` 文件中，将 `NETEASE_API_KEY` 的值替换为您的 SiliconFlow API 密钥。")
-    print("   例如: NETEASE_API_KEY = \"sk-yourActualApiKey...\"")
-    print("IELTS 语义测试功能在 API 密钥配置正确之前将无法正常工作。")
+    logger.warning("无法从 utils.api_config import NETEASE_API_KEY. 请确保 api_config.py 文件存在且配置正确. IELTS 语义测试功能将不可用.")
     # NETEASE_API_KEY 保持为 None，后续逻辑会检查它
 
 # Updated API URL based on the provided documentation
@@ -58,28 +56,28 @@ class IeltsTest(TestBase):
                 # 兼容旧格式，自动转为新格式
                 self.vocabulary = [{"word": w, "meanings": []} for w in data['list']]
             else:
-                print("Error: vocab/ielts_vocab.json 应为 [ {\"word\": ..., \"meanings\": [...] }, ... ] 格式。")
+                logger.error("vocab/ielts_vocab.json 应为 [ {\"word\": ..., \"meanings\": [...] }, ... ] 格式。")
                 self.vocabulary = []
         except FileNotFoundError:
-            print(f"Error: IELTS vocabulary file not found at {json_path}")
+            logger.error(f"IELTS vocabulary file not found at {json_path}")
             self.vocabulary = []
         except json.JSONDecodeError:
-            print(f"Error: Could not decode JSON from {json_path}. Ensure it is valid.")
+            logger.error(f"Could not decode JSON from {json_path}. Ensure it is valid.")
             self.vocabulary = []
         except Exception as e:
-            print(f"Error loading IELTS vocabulary: {e}")
+            logger.error(f"Error loading IELTS vocabulary: {e}", exc_info=True)
             self.vocabulary = []
         if not self.vocabulary:
-            print("Warning: IELTS vocabulary is empty. Test will have no questions.")
+            logger.warning("IELTS vocabulary is empty. Test will have no questions.")
         else:
-            print(f"Loaded {len(self.vocabulary)} IELTS words.")
+            logger.info(f"Loaded {len(self.vocabulary)} IELTS words.")
 
     def prepare_test_session(self, num_questions: int):
         """Prepares a new test session with a specified number of random word objects."""
         if not self.vocabulary:
             self.load_vocabulary()
         if not self.vocabulary:
-            print("Error: IELTS vocabulary is empty. Cannot prepare test session.")
+            logger.error("IELTS vocabulary is empty. Cannot prepare test session.")
             self.selected_words_for_session = []
             self.current_question_index_in_session = 0
             return 0
@@ -90,7 +88,7 @@ class IeltsTest(TestBase):
             return 0
         self.selected_words_for_session = random.sample(self.vocabulary, actual_num_questions)
         self.current_question_index_in_session = 0
-        print(f"Prepared IELTS test session with {len(self.selected_words_for_session)} words.")
+        logger.info(f"Prepared IELTS test session with {len(self.selected_words_for_session)} words.")
         return len(self.selected_words_for_session)
 
     def get_next_ielts_question(self) -> dict | None:
@@ -109,8 +107,7 @@ class IeltsTest(TestBase):
         lang_type is currently not used in the API call itself as the model handles language.
         """
         if not NETEASE_API_KEY:
-            print("错误：SiliconFlow API 金钥 (NETEASE_API_KEY) 未在 utils/api_config.py 中配置或配置不正确。")
-            print("请按照程序启动时的警告提示进行配置。IELTS 语义测试功能无法使用。")
+            logger.error("SiliconFlow API 金钥 (NETEASE_API_KEY) 未在 utils/api_config.py 中配置或配置不正确. IELTS 语义测试功能无法使用.")
             return None
 
         headers = {
@@ -123,10 +120,10 @@ class IeltsTest(TestBase):
             "encoding_format": "float"  # As per documentation
         }
 
-        print(f"--- Calling Embedding API ---")
-        print(f"URL: {NETEASE_EMBEDDING_API_URL}")
-        print(f"Model: {MODEL_NAME}")
-        print(f"Input text: '{text[:50]}...'") # Print first 50 chars of input
+        logger.info(f"--- Calling Embedding API ---")
+        logger.info(f"URL: {NETEASE_EMBEDDING_API_URL}")
+        logger.info(f"Model: {MODEL_NAME}")
+        logger.info(f"Input text: '{text[:50]}...'") # Print first 50 chars of input
 
         try:
             response = requests.post(NETEASE_EMBEDDING_API_URL, json=payload, headers=headers, timeout=20) # Increased timeout
@@ -139,33 +136,32 @@ class IeltsTest(TestBase):
                 if 'embedding' in embedding_data and isinstance(embedding_data['embedding'], list):
                     embedding_vector = np.array(embedding_data['embedding']).astype(np.float32)
                     if embedding_vector.ndim == 1 and embedding_vector.shape[0] > 0:
-                        print(f"Successfully retrieved embedding for '{text[:50]}...' (dimension: {embedding_vector.shape[0]})")
+                        logger.info(f"Successfully retrieved embedding for '{text[:50]}...' (dimension: {embedding_vector.shape[0]})")
                         return embedding_vector
                     else:
-                        print(f"Error: Unexpected embedding vector format for '{text[:50]}...'. Vector shape: {embedding_vector.shape}")
+                        logger.error(f"Error: Unexpected embedding vector format for '{text[:50]}...'. Vector shape: {embedding_vector.shape}")
                         return None
                 else:
-                    print(f"Error: 'embedding' field not found or not a list in API response data for '{text[:50]}...'. Response data[0]: {embedding_data}")
+                    logger.error(f"Error: 'embedding' field not found or not a list in API response data for '{text[:50]}...'. Response data[0]: {embedding_data}")
                     return None
             else:
-                print(f"Error: Unexpected API response structure for '{text[:50]}...'. Response: {api_response}")
+                logger.error(f"Error: Unexpected API response structure for '{text[:50]}...'. Response: {api_response}")
                 return None
 
         except requests.exceptions.Timeout:
-            print(f"API request timed out for '{text[:50]}...'")
+            logger.error(f"API request timed out for '{text[:50]}...'")
             return None
         except requests.exceptions.HTTPError as http_err:
-            print(f"API request failed with HTTPError for '{text[:50]}...': {http_err}")
-            print(f"Response content: {response.text}")
+            logger.error(f"API request failed with HTTPError for '{text[:50]}...': {http_err}. Response: {response.text}", exc_info=True)
             return None
         except requests.exceptions.RequestException as req_err:
-            print(f"API request failed for '{text[:50]}...': {req_err}")
+            logger.error(f"API request failed for '{text[:50]}...': {req_err}", exc_info=True)
             return None
         except json.JSONDecodeError:
-            print(f"Failed to decode JSON response from API for '{text[:50]}...'. Response text: {response.text if 'response' in locals() else 'N/A'}")
+            logger.error(f"Failed to decode JSON response from API for '{text[:50]}...'. Response text: {response.text if 'response' in locals() else 'N/A'}", exc_info=True)
             return None
         except Exception as e:
-            print(f"An unexpected error occurred while getting embedding for '{text[:50]}...': {e}")
+            logger.error(f"An unexpected error occurred while getting embedding for '{text[:50]}...': {e}", exc_info=True)
             return None
 
     def check_answer_with_api(self, standard_chinese_meanings: list, user_chinese_definition: str) -> bool:
@@ -177,7 +173,7 @@ class IeltsTest(TestBase):
             return False
         user_embedding = self.get_embedding(user_chinese_definition, lang_type="zh")
         if user_embedding is None or user_embedding.shape[0] == 0:
-            print("Error: 用户输入 embedding 获取失败。")
+            logger.error("用户输入 embedding 获取失败。")
             return False
         user_embedding = user_embedding.reshape(1, -1)
         max_similarity = 0.0
@@ -190,7 +186,7 @@ class IeltsTest(TestBase):
             std_embedding = std_embedding.reshape(1, -1)
             try:
                 similarity = cosine_similarity(user_embedding, std_embedding)[0][0]
-                print(
+                logger.info(
                     f"Comparing 用户答案: '{user_chinese_definition}' 和 标准释义: '{std_meaning}' -> 相似度: {similarity:.4f}"
                 )
                 if similarity > max_similarity:
@@ -198,9 +194,9 @@ class IeltsTest(TestBase):
                 if similarity >= SIMILARITY_THRESHOLD:
                     return True
             except Exception as e:
-                print(f"Error calculating cosine similarity: {e}")
+                logger.error(f"Error calculating cosine similarity: {e}", exc_info=True)
                 continue
-        print(f"最大相似度: {max_similarity:.4f}")
+        logger.info(f"最大相似度: {max_similarity:.4f}")
         return False
 
     def run_test(self, num_questions: int, on_question_display, on_result_display):
@@ -216,7 +212,7 @@ class IeltsTest(TestBase):
             
         # 确保 random.sample 不会超出范围
         if len(self.vocabulary) < actual_num_questions:
-            print(f"警告：请求了{actual_num_questions}题，但只有{len(self.vocabulary)}个单词。将使用全部单词。")
+            logger.warning(f"请求了{actual_num_questions}题，但只有{len(self.vocabulary)}个单词。将使用全部单词。")
             actual_num_questions = len(self.vocabulary)
 
         selected_words = random.sample(self.vocabulary, actual_num_questions)
@@ -318,7 +314,7 @@ class IeltsTest(TestBase):
             self.load_vocabulary()
         
         if not self.vocabulary:
-            print("错误：IELTS 词汇表为空加载失败，无法开始测试。")
+            logger.error("错误：IELTS 词汇表为空加载失败，无法开始测试。")
             return
 
         if num_questions is None:
@@ -332,17 +328,20 @@ class IeltsTest(TestBase):
                     if 1 <= num_questions <= len(self.vocabulary):
                         break
                     else:
+                        # This is a CLI user prompt, so print is appropriate
                         print(f"请输入1到{len(self.vocabulary)}之间的有效数字。")
                 except ValueError:
+                    # This is a CLI user prompt, so print is appropriate
                     print("输入无效，请输入一个数字。")
         
         num_questions = min(max(1, num_questions), len(self.vocabulary))
 
         prepared_count = self.prepare_test_session(num_questions)
         if prepared_count == 0:
-            print("错误：无法准备IELTS测试会话 (可能是词汇表为空或数量不足)。")
+            logger.error("错误：无法准备IELTS测试会话 (可能是词汇表为空或数量不足)。")
             return
 
+        # This is a CLI status message, print is appropriate
         print(f"--- 开始IELTS英译中测试 (共 {prepared_count} 题) ---")
         correct_answers = 0
         detailed_results_cli = []
@@ -351,16 +350,20 @@ class IeltsTest(TestBase):
             eng_word = word_obj['word']
             meanings = word_obj.get('meanings', [])
             print(f"\n题目 {i+1}/{prepared_count}: {eng_word}")
+            # CLI user interaction - print is appropriate
             user_chinese = input("请输入您的中文翻译: ").strip()
             is_correct = False
             if not user_chinese:
+                # CLI user feedback - print is appropriate
                 print("提示：答案不能为空，计为错误。")
             else:
                 is_correct = self.check_answer_with_api(meanings, user_chinese)
             if is_correct:
+                # CLI user feedback - print is appropriate
                 print("回答正确！")
                 correct_answers += 1
             else:
+                # CLI user feedback - print is appropriate
                 print("回答错误或语义不符。")
             detailed_results_cli.append(
                 TestResult(
@@ -378,10 +381,11 @@ class IeltsTest(TestBase):
         print(f"回答正确: {correct_answers}")
         print(f"回答错误: {prepared_count - correct_answers}")
         accuracy = (correct_answers / prepared_count * 100) if prepared_count > 0 else 0
+        # CLI summary - print is appropriate
         print(f"准确率: {accuracy:.2f}%")
         print(f"(语义相似度阈值: {SIMILARITY_THRESHOLD})")
 
-        # Optionally, display wrong answers
+        # Optionally, display wrong answers - CLI output
         if correct_answers < prepared_count:
             print("\n--- 错误题目回顾 ---")
             for res in detailed_results_cli:
