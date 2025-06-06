@@ -18,7 +18,7 @@ api:
 semantic:
   # 語義相似度閾值 (0.0-1.0)
   # 數值越低，判定越寬鬆；數值越高，判定越嚴格
-  similarity_threshold: 0.40
+  similarity_threshold: 0.55
   
   # 是否啟用備用文字匹配（當API失敗時）
   enable_fallback_matching: true

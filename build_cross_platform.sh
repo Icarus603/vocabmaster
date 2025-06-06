@@ -103,11 +103,19 @@ PYINSTALLER_CMD="poetry run pyinstaller app.py --name VocabMaster --noconfirm --
 PYINSTALLER_CMD+=" --additional-hooks-dir=hooks"
 
 # 添加 Qt plugins 平台支持
-QT_PLUGIN_PATH="$($PY -c 'import PyQt6.QtCore as qc; print(qc.QLibraryInfo.path(qc.QLibraryInfo.LibraryPath.PluginsPath))' 2>/dev/null)"
+QT_PLUGIN_PATH="$(poetry run python -c 'import PyQt6.QtCore as qc; print(qc.QLibraryInfo.path(qc.QLibraryInfo.LibraryPath.PluginsPath))' 2>/dev/null)"
 
 if [ -z "$QT_PLUGIN_PATH" ] && [ -n "$CI" ]; then
     # 在CI环境下无法通过QLibraryInfo获得路径，尝试用find方式寻找PyQt6插件路径
-    QT_PLUGIN_PATH=$(find .venv -type d -path "*PyQt6/Qt6/plugins" | head -n 1)
+    # 先嘗试在poetry环境中查找
+    POETRY_VENV=$(poetry env info --path 2>/dev/null)
+    if [ -n "$POETRY_VENV" ]; then
+        QT_PLUGIN_PATH=$(find "$POETRY_VENV" -type d -path "*PyQt6/Qt6/plugins" 2>/dev/null | head -n 1)
+    fi
+    # 如果還找不到，嘗试在當前目錄查找
+    if [ -z "$QT_PLUGIN_PATH" ]; then
+        QT_PLUGIN_PATH=$(find . -type d -path "*PyQt6/Qt6/plugins" 2>/dev/null | head -n 1)
+    fi
 fi
 
 if [ -n "$QT_PLUGIN_PATH" ]; then
@@ -149,7 +157,7 @@ fi
 # PyInstaller路径分隔符: Windows用';', POSIX系统用':'。PyInstaller的--add-data会自动处理。
 PYINSTALLER_CMD+=" --add-data \"assets${DATA_SEP}assets\""
 PYINSTALLER_CMD+=" --add-data \"vocab${DATA_SEP}vocab\""
-PYINSTALLER_CMD+=" --add-data \"utils/api_config.py.template${DATA_SEP}utils\""
+PYINSTALLER_CMD+=" --add-data \"config.yaml.template${DATA_SEP}.\""
 
 # 明确指定需要的隐藏导入，虽然--collect-all PyQt6可能已覆盖部分
 PYINSTALLER_CMD+=" --hidden-import=PyQt6.sip"
