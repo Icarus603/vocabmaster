@@ -14,6 +14,9 @@ from utils.ielts import IeltsTest, SIMILARITY_THRESHOLD # <-- 新增导入 SIMIL
 from utils.base import TestResult # <-- 确保 TestResult 已导入
 # 导入 resource_path 用于查找资源文件
 from utils.resource_path import resource_path
+import logging
+
+logger = logging.getLogger(__name__)
 
 class MainWindow(QMainWindow):
     """VocabMaster GUI主窗口"""
@@ -30,7 +33,7 @@ class MainWindow(QMainWindow):
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
         else:
-            print(f"警告: 窗口图标文件未找到: {icon_path}")
+            logger.warning(f"窗口图标文件未找到: {icon_path}")
         
         # 初始化测试模块
         self.tests = {
@@ -828,7 +831,7 @@ class MainWindow(QMainWindow):
                 english_list = [english] if isinstance(english, str) else english
             else:
                 # 非预期格式，记录错误并跳过
-                print(f"错误：未知的词汇格式 - {current_question_data}")
+                logger.error(f"未知的词汇格式 - {current_question_data}")
                 self.current_word_index += 1
                 self.show_next_question()
                 return
@@ -1099,7 +1102,7 @@ class MainWindow(QMainWindow):
                         wrong_questions_for_review.append(self.test_words_backup_for_review[original_idx])
                     else:
                         # Fallback or error handling if original data can't be retrieved
-                        print(f"Warning: Could not retrieve original question data for review: {result_item.question}")
+                        logger.warning(f"Could not retrieve original question data for review: {result_item.question}")
                         # As a simple fallback, try to reconstruct if possible, though this might be imperfect
                         # For now, we might skip this item in review if original cannot be found reliably
                         pass 
@@ -1263,10 +1266,14 @@ class MainWindow(QMainWindow):
 
 def main():
     """主函数"""
-    import logging
-    logger = logging.getLogger("VocabMaster.GUI")
-    
+    # logger instance is already defined at the module level
+    # import logging # No need to re-import if already at top
+    # logger = logging.getLogger("VocabMaster.GUI") # Use module-level logger or this if specific name desired
+
     try:
+        # Use the module-level logger, or re-assign if a specific name like "VocabMaster.GUI" is strictly needed for this function's scope
+        # For this task, assuming module-level logger is sufficient. If not, uncomment the line below.
+        # logger = logging.getLogger("VocabMaster.GUI") # If this specific name is needed here.
         logger.info("初始化GUI界面")
         app = QApplication(sys.argv)
         
@@ -1286,7 +1293,8 @@ def main():
                 return
                 
             # 记录错误到日志
-            logger.error("GUI异常", exc_info=(exctype, value, traceback_obj))
+            # logger.error("GUI异常", exc_info=(exctype, value, traceback_obj)) # This is already good
+            logger.critical(f"程序错误: {str(value)}", exc_info=True) # Changed to critical and added exc_info
             
             # 显示错误对话框
             try:
@@ -1295,8 +1303,8 @@ def main():
                                     f"程序遇到了一个错误，需要关闭。\n\n"
                                     f"错误信息: {str(value)}")
             except:
-                # 如果无法显示Qt对话框，尝试使用标准错误输出
-                print(f"程序错误: {str(value)}", file=sys.stderr)
+                # If QMessageBox fails, this will be caught by the outer try-except in main
+                pass # Avoid print here as logger.critical should cover it.
                 
         # 保存原始异常处理器并设置新的
         sys._excepthook = sys.excepthook
@@ -1308,13 +1316,15 @@ def main():
         
         return app.exec()
     except Exception as e:
-        logger.exception("GUI初始化失败")
+        logger.critical(f"程序启动失败: {str(e)}", exc_info=True)
         # 尝试显示一个基本的错误对话框
         try:
             from PyQt6.QtWidgets import QMessageBox
             QMessageBox.critical(None, "启动错误", f"程序启动失败: {str(e)}")
         except:
-            print(f"程序启动失败: {str(e)}")
+            # If even basic QMessageBox fails, this indicates a severe issue.
+            # The logger.critical above should have logged it.
+            pass # Avoid print here.
         return 1
 
 if __name__ == "__main__":

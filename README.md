@@ -3,7 +3,7 @@
 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.10.16](https://img.shields.io/badge/Python-3.10.16-blue.svg)](https://www.python.org/downloads/)
+[![Python >=3.11,<3.12](https://img.shields.io/badge/Python-%3E%3D3.11%2C%3C3.12-blue.svg)](https://www.python.org/downloads/)
 [![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-brightgreen.svg)](https://github.com/)
 
 
@@ -184,7 +184,9 @@ VocabMaster/
 │   │   ├── terms_and_expressions_1.json
 │   │   └── terms_and_expressions_2.json
 ├── assets/                  # 图标和资源文件
-│   └── icon.ico             # 应用图标
+│   ├── icon.png             # 应用主图标 (用于GUI显示)
+│   ├── icon.ico             # Windows 应用图标 (用于打包)
+│   └── icon.icns            # macOS 应用图标 (用于打包)
 ├── build/                   # 构建目录（PyInstaller自动生成）
 ├── dist/                    # 分发目录（PyInstaller自动生成）
 ├── logs/                    # 日志目录（用于错误跟踪）
