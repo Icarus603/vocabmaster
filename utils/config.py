@@ -54,6 +54,8 @@ class Config:
             },
             'semantic': {
                 'similarity_threshold': 0.40,
+                'enable_keyword_matching': True,
+                'enable_dynamic_threshold': True,
                 'enable_fallback_matching': True,
                 'min_word_length': 2
             },
@@ -155,6 +157,16 @@ class Config:
     def min_word_length(self):
         """獲取最小詞長度"""
         return self.get('semantic.min_word_length', 2)
+    
+    @property
+    def enable_keyword_matching(self):
+        """是否啟用關鍵詞匹配"""
+        return self.get('semantic.enable_keyword_matching', True)
+    
+    @property
+    def enable_dynamic_threshold(self):
+        """是否啟用動態閾值"""
+        return self.get('semantic.enable_dynamic_threshold', True)
 
 # 全局配置實例
 config = Config() 

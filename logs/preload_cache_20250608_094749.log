@@ -1,0 +1,2 @@
+2025-06-08 09:47:49,522 - ERROR - ❌ 模塊導入失敗: No module named 'numpy'
+2025-06-08 09:47:49,522 - INFO - 請確保在Poetry環境中運行: poetry run python preload_cache.py

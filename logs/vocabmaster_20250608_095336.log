@@ -1,0 +1,2 @@
+2025-06-08 09:53:36,302 - VocabMaster - INFO - 启动VocabMaster
+2025-06-08 09:53:36,771 - utils.performance_monitor - ERROR - 保存性能數據失敗: name 'open' is not defined

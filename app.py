@@ -60,12 +60,70 @@ sys.excepthook = exception_handler
 def main():
     """主入口函数"""
     try:
+        import argparse
+        
         logger.info("启动VocabMaster")
         
-        # 确定是否使用命令行模式
-        cli_mode = len(sys.argv) > 1 and sys.argv[1] == "--cli"
+        # 检查命令行参数
+        parser = argparse.ArgumentParser(description='VocabMaster 词汇测试系统')
+        parser.add_argument('--cli', action='store_true', help='使用命令行模式')
+        parser.add_argument('--version', action='store_true', help='显示版本信息')
+        parser.add_argument('--debug', action='store_true', help='启用调试模式')
+        parser.add_argument('--cache-info', action='store_true', help='显示缓存信息')
+        parser.add_argument('--preload-cache', type=int, nargs='?', const=100, 
+                           help='预载入缓存（可选择数量，默认100个词汇）')
+        parser.add_argument('--performance-report', action='store_true', 
+                           help='生成性能报告')
         
-        if cli_mode:
+        args = parser.parse_args()
+        
+        # 处理版本信息
+        if args.version:
+            print("VocabMaster v1.0.0")
+            print("Python 词汇测试系统")
+            print("支持 IELTS、BEC、Terms 等多种测试模式")
+            return
+        
+        # 启用调试模式
+        if args.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+            logger.debug("调试模式已启用")
+        
+        # 处理缓存和性能相关命令
+        if args.cache_info or args.preload_cache is not None or args.performance_report:
+            from utils.ielts import IeltsTest
+            from utils.performance_monitor import get_performance_monitor
+            
+            if args.performance_report:
+                monitor = get_performance_monitor()
+                report = monitor.generate_performance_report()
+                print(report)
+                return
+            
+            ielts = IeltsTest()
+            ielts.load_vocabulary()
+            
+            if args.cache_info:
+                cache_info = ielts.get_cache_info()
+                print(f"📊 缓存统计信息:")
+                print(f"  缓存大小: {cache_info['cache_size']}")
+                print(f"  词汇表大小: {cache_info['vocabulary_size']}")
+                print(f"  覆盖率: {cache_info['coverage_rate']}")
+                print(f"  命中率: {cache_info['hit_rate']}")
+                print(f"  命中次数: {cache_info['hits']}")
+                print(f"  未命中次数: {cache_info['misses']}")
+                return
+            
+            if args.preload_cache is not None:
+                print(f"🚀 开始预载入缓存（{args.preload_cache} 个词汇）...")
+                success = ielts.preload_cache(max_words=args.preload_cache, batch_size=5)
+                if success:
+                    print("✅ 缓存预载入完成")
+                else:
+                    print("❌ 缓存预载入失败")
+                return
+        
+        if args.cli:
             # 命令行模式
             logger.info("使用命令行模式")
             from run import DictationApp

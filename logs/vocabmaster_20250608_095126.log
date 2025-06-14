@@ -1,0 +1,5 @@
+2025-06-08 09:51:26,108 - VocabMaster - INFO - 启动VocabMaster
+2025-06-08 09:51:26,108 - VocabMaster - INFO - 使用GUI模式
+2025-06-08 09:51:26,630 - gui - INFO - 初始化GUI界面
+2025-06-08 09:51:26,737 - gui - INFO - 启动主窗口
+2025-06-08 09:51:26,780 - utils.ielts_embedding_cache - INFO - 未找到現有緩存文件，創建新緩存

@@ -20,6 +20,10 @@ from utils.ielts import IeltsTest
 # 导入 resource_path 用于查找资源文件
 from utils.resource_path import resource_path
 from utils.terms import TermsTestUnit1to5, TermsTestUnit6to10
+from utils.config_wizard import ConfigWizard
+from utils.config_gui import show_config_dialog
+from utils.stats_gui import show_learning_stats
+from utils.ui_styles import apply_theme, get_button_style, COLORS
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +104,8 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout(self.central_widget)
         main_layout.addWidget(self.stacked_widget)
         
-        # 显示主菜单
+        # 检查配置并显示主菜单
+        self.check_initial_config()
         self.stacked_widget.setCurrentIndex(0)
     
     def setup_main_menu(self):
@@ -124,18 +129,38 @@ class MainWindow(QMainWindow):
         ielts_btn = QPushButton("IELTS 雅思英译中 (语义)") # <-- 新增 IELTS 按钮
         terms_btn = QPushButton("《理解当代中国》英汉互译")
         diy_btn = QPushButton("DIY自定义词汇测试")
+        
+        # 底部按钮
+        settings_btn = QPushButton("⚙️ 设置")
+        stats_btn = QPushButton("📊 统计")
         exit_btn = QPushButton("退出程序")
         
-        # 设置按钮样式和大小
-        for btn in [bec_btn, ielts_btn, terms_btn, diy_btn, exit_btn]: # <-- 将 ielts_btn 加入列表
+        # 设置主要按钮样式和大小
+        for btn in [bec_btn, ielts_btn, terms_btn, diy_btn]: # <-- 将 ielts_btn 加入列表
             btn.setMinimumSize(300, 50)
             btn.setFont(QFont("Arial", 12))
+            btn.setStyleSheet(get_button_style('primary'))
+        
+        # 设置底部按钮样式
+        settings_btn.setMinimumSize(120, 40)
+        settings_btn.setFont(QFont("Arial", 10))
+        settings_btn.setStyleSheet(get_button_style('outline'))
+        
+        stats_btn.setMinimumSize(120, 40)
+        stats_btn.setFont(QFont("Arial", 10))
+        stats_btn.setStyleSheet(get_button_style('secondary'))
+        
+        exit_btn.setMinimumSize(120, 40)
+        exit_btn.setFont(QFont("Arial", 10))
+        exit_btn.setStyleSheet(get_button_style('warning'))
         
         # 连接按钮点击事件
         bec_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(1))
         ielts_btn.clicked.connect(lambda: self.select_test("ielts")) # <-- 连接 IELTS 按钮事件
         terms_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(2))
         diy_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(3))
+        settings_btn.clicked.connect(self.show_settings)
+        stats_btn.clicked.connect(self.show_learning_stats)
         exit_btn.clicked.connect(self.close)
         
         # 添加部件到布局
@@ -150,8 +175,15 @@ class MainWindow(QMainWindow):
         layout.addWidget(terms_btn)
         layout.addSpacing(10)
         layout.addWidget(diy_btn)
-        layout.addSpacing(20)
-        layout.addWidget(exit_btn)
+        layout.addSpacing(30)
+        
+        # 底部按钮布局
+        bottom_layout = QHBoxLayout()
+        bottom_layout.addWidget(settings_btn)
+        bottom_layout.addWidget(stats_btn)
+        bottom_layout.addStretch()
+        bottom_layout.addWidget(exit_btn)
+        layout.addLayout(bottom_layout)
         layout.addStretch()
         
         # 将页面添加到堆叠部件
@@ -578,6 +610,89 @@ class MainWindow(QMainWindow):
         
         # 将页面添加到堆叠部件
         self.stacked_widget.addWidget(page)
+    
+    def check_initial_config(self):
+        """检查初始配置设置"""
+        try:
+            wizard = ConfigWizard()
+            
+            # 检查配置文件是否存在
+            if not wizard.check_config_exists():
+                self.show_first_time_setup()
+                return
+            
+            # 检查API密钥是否配置
+            is_configured, api_key = wizard.check_api_key_configured()
+            if not is_configured:
+                self.show_api_key_warning()
+                
+        except Exception as e:
+            logger.error(f"检查配置时出错: {e}")
+    
+    def show_first_time_setup(self):
+        """显示首次设置提示"""
+        reply = QMessageBox.question(
+            self, "首次运行设置",
+            "欢迎使用VocabMaster！\n\n"
+            "检测到这是您首次运行程序，需要进行一些基本设置。\n"
+            "特别是IELTS语义测试功能需要配置SiliconFlow API密钥。\n\n"
+            "是否现在进行设置？",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Later
+        )
+        
+        if reply == QMessageBox.StandardButton.Yes:
+            self.show_settings()
+    
+    def show_api_key_warning(self):
+        """显示API密钥未配置警告"""
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Icon.Warning)
+        msg.setWindowTitle("API配置提醒")
+        msg.setText("API密钥未配置")
+        msg.setInformativeText(
+            "检测到SiliconFlow API密钥尚未配置。\n\n"
+            "没有API密钥，IELTS语义测试功能将无法正常使用。\n"
+            "其他测试模式（BEC、Terms、DIY）可以正常使用。\n\n"
+            "您可以：\n"
+            "• 点击'现在设置'配置API密钥\n"
+            "• 点击'稍后设置'跳过（可在主菜单点击设置按钮）"
+        )
+        
+        now_btn = msg.addButton("现在设置", QMessageBox.ButtonRole.AcceptRole)
+        later_btn = msg.addButton("稍后设置", QMessageBox.ButtonRole.RejectRole)
+        
+        msg.exec()
+        
+        if msg.clickedButton() == now_btn:
+            self.show_settings()
+    
+    def show_settings(self):
+        """显示设置对话框"""
+        try:
+            if show_config_dialog(self):
+                # 配置已更新，重新载入配置
+                config.reload()
+                QMessageBox.information(
+                    self, "设置完成",
+                    "配置已更新！新的设置将在下次启动测试时生效。"
+                )
+        except Exception as e:
+            logger.error(f"显示设置对话框时出错: {e}")
+            QMessageBox.critical(
+                self, "错误",
+                f"无法打开设置对话框：{str(e)}"
+            )
+    
+    def show_learning_stats(self):
+        """显示学习统计对话框"""
+        try:
+            show_learning_stats(self)
+        except Exception as e:
+            logger.error(f"显示学习统计对话框时出错: {e}")
+            QMessageBox.critical(
+                self, "错误",
+                f"无法打开学习统计：{str(e)}"
+            )
     
     def select_test(self, test_type, module_key=None):
         """选择测试类型和模块，并设置测试模式页面"""
@@ -1296,6 +1411,9 @@ def main():
         
         # 设置应用程序样式
         app.setStyle('Fusion')
+        
+        # 应用自定义主题
+        apply_theme(app)
         
         # 确保数据目录存在
         data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")

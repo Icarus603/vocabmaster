@@ -7,15 +7,19 @@ for all test types in the Dictation system.
 import os
 import random
 import json
+import time
+import uuid
+from typing import List, Optional
 
 class TestResult:
-    def __init__(self, question_num, question, expected_answer, user_answer, is_correct, notes=""):
+    def __init__(self, question_num, question, expected_answer, user_answer, is_correct, notes="", response_time=0.0):
         self.question_num = question_num
         self.question = question
         self.expected_answer = expected_answer
         self.user_answer = user_answer
         self.is_correct = is_correct
         self.notes = notes
+        self.response_time = response_time  # 答题用时（秒）
 
 class TestBase:
     """词汇测试基类，提供所有测试模块共用的基础功能"""
@@ -24,6 +28,123 @@ class TestBase:
         self.name = name
         self.vocabulary = []
         self.wrong_answers = []
+        
+        # 统计相关
+        self.session_id = None
+        self.session_start_time = None
+        self.test_results: List[TestResult] = []
+        self.enable_stats = True  # 是否启用统计功能
+        
+    def _get_test_type(self) -> str:
+        """获取测试类型标识"""
+        # 根据类名推断测试类型
+        class_name = self.__class__.__name__.lower()
+        if 'bec' in class_name:
+            return 'bec'
+        elif 'ielts' in class_name:
+            return 'ielts'
+        elif 'terms' in class_name:
+            return 'terms'
+        elif 'diy' in class_name:
+            return 'diy'
+        else:
+            return 'unknown'
+    
+    def _get_test_module(self) -> str:
+        """获取测试模块标识（由子类覆盖）"""
+        return "default"
+    
+    def start_session(self, test_mode: str = "mixed"):
+        """开始新的测试会话"""
+        self.session_id = str(uuid.uuid4())
+        self.session_start_time = time.time()
+        self.test_results = []
+        self.wrong_answers = []
+        
+        # 可以在这里记录会话开始日志
+        if self.enable_stats:
+            print(f"📊 开始测试会话: {self.session_id[:8]}...")
+    
+    def record_answer(self, question: str, expected: str, user_answer: str, 
+                     is_correct: bool, response_time: float = 0.0, notes: str = ""):
+        """记录答题结果"""
+        result = TestResult(
+            question_num=len(self.test_results) + 1,
+            question=question,
+            expected_answer=expected,
+            user_answer=user_answer,
+            is_correct=is_correct,
+            notes=notes,
+            response_time=response_time
+        )
+        
+        self.test_results.append(result)
+        
+        if not is_correct:
+            self.wrong_answers.append((question, expected, user_answer))
+        
+        # 记录单词统计
+        if self.enable_stats:
+            try:
+                from .learning_stats import get_learning_stats_manager
+                stats_manager = get_learning_stats_manager()
+                
+                # 提取单词（简化处理）
+                word = question.strip()
+                stats_manager.record_word_attempt(
+                    word, is_correct, response_time, self._get_test_type()
+                )
+            except Exception as e:
+                # 忽略统计记录错误，不影响正常测试
+                pass
+    
+    def end_session(self):
+        """结束测试会话并记录统计"""
+        if not self.session_start_time or not self.enable_stats:
+            return
+        
+        try:
+            from .learning_stats import get_learning_stats_manager, TestSession
+            
+            end_time = time.time()
+            total_time = end_time - self.session_start_time
+            total_questions = len(self.test_results)
+            correct_answers = sum(1 for r in self.test_results if r.is_correct)
+            
+            if total_questions == 0:
+                return
+            
+            score_percentage = (correct_answers / total_questions) * 100
+            avg_time_per_question = total_time / total_questions
+            wrong_words = [r.question for r in self.test_results if not r.is_correct]
+            
+            # 创建会话记录
+            session = TestSession(
+                session_id=self.session_id,
+                test_type=self._get_test_type(),
+                test_module=self._get_test_module(),
+                start_time=self.session_start_time,
+                end_time=end_time,
+                total_questions=total_questions,
+                correct_answers=correct_answers,
+                score_percentage=score_percentage,
+                time_spent=total_time,
+                avg_time_per_question=avg_time_per_question,
+                wrong_words=wrong_words,
+                test_mode="mixed"  # 默认混合模式
+            )
+            
+            # 记录会话
+            stats_manager = get_learning_stats_manager()
+            stats_manager.record_test_session(session)
+            stats_manager.save_word_stats()
+            
+            print(f"✅ 测试会话已记录到学习统计")
+            
+        except Exception as e:
+            # 忽略统计记录错误，不影响正常测试
+            print(f"⚠️ 统计记录失败: {e}")
+            pass
     
     def clear_screen(self):
         """清屏函数"""
