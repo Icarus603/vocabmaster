@@ -3,29 +3,65 @@ UI Styles Module
 统一的界面样式定义
 """
 
-# 应用主题色彩
+# 现代化主题色彩方案
 COLORS = {
-    'primary': '#2196F3',      # 主色调 - 蓝色
-    'secondary': '#4CAF50',    # 次要色 - 绿色
-    'accent': '#FF9800',       # 强调色 - 橙色
-    'warning': '#F44336',      # 警告色 - 红色
-    'success': '#8BC34A',      # 成功色 - 浅绿
-    'info': '#2196F3',         # 信息色 - 蓝色
-    'light': '#F5F5F5',        # 浅色背景
-    'dark': '#424242',         # 深色文字
-    'border': '#E0E0E0',       # 边框色
-    'hover': '#1976D2'         # 悬停色
+    'primary': '#6366F1',      # 主色调 - 现代紫蓝
+    'primary_light': '#8B5CF6', # 主色调浅色
+    'primary_dark': '#4F46E5',  # 主色调深色
+    'secondary': '#10B981',    # 次要色 - 翠绿
+    'secondary_light': '#34D399',
+    'accent': '#F59E0B',       # 强调色 - 琥珀
+    'warning': '#EF4444',      # 警告色 - 现代红
+    'success': '#22C55E',      # 成功色 - 现代绿
+    'info': '#3B82F6',         # 信息色 - 现代蓝
+    'background': '#FAFAFA',   # 主背景
+    'surface': '#FFFFFF',      # 卡片背景
+    'surface_hover': '#F8FAFC', # 卡片悬停
+    'border': '#E2E8F0',       # 边框色
+    'border_focus': '#CBD5E1',  # 聚焦边框
+    'text_primary': '#1E293B', # 主要文字
+    'text_secondary': '#64748B', # 次要文字
+    'text_muted': '#94A3B8',   # 弱化文字
+    'hover': '#5B21B6',        # 悬停色
+    'dark': '#1E293B',         # 深色（兼容性）
+    'light': '#FAFAFA',        # 浅色（兼容性）
+    'shadow': 'rgba(0, 0, 0, 0.1)', # 阴影
+    'shadow_hover': 'rgba(99, 102, 241, 0.2)' # 悬停阴影
 }
 
 # 主窗口样式
 MAIN_WINDOW_STYLE = f"""
 QMainWindow {{
-    background-color: {COLORS['light']};
-    font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 {COLORS['background']}, 
+                                stop:1 #F1F5F9);
+    font-family: 'SF Pro Display', 'Microsoft YaHei', 'PingFang SC', system-ui, sans-serif;
+    font-size: 14px;
 }}
 
 QLabel {{
-    color: {COLORS['dark']};
+    color: {COLORS['text_primary']};
+    font-weight: 500;
+}}
+
+QLabel[class="heading"] {{
+    font-size: 20px;
+    font-weight: 700;
+    color: {COLORS['primary']};
+    margin: 16px 0;
+}}
+
+QLabel[class="subheading"] {{
+    font-size: 16px;
+    font-weight: 600;
+    color: {COLORS['text_primary']};
+    margin: 12px 0;
+}}
+
+QLabel[class="caption"] {{
+    font-size: 12px;
+    color: {COLORS['text_secondary']};
+    margin: 4px 0;
 }}
 """
 
@@ -33,41 +69,51 @@ QLabel {{
 BUTTON_STYLES = {
     'primary': f"""
         QPushButton {{
-            background-color: {COLORS['primary']};
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                       stop:0 {COLORS['primary']}, 
+                                       stop:1 {COLORS['primary_dark']});
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 12px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            min-height: 16px;
         }}
         QPushButton:hover {{
-            background-color: {COLORS['hover']};
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                       stop:0 {COLORS['primary_light']}, 
+                                       stop:1 {COLORS['primary']});
         }}
         QPushButton:pressed {{
-            background-color: #1565C0;
+            background: {COLORS['primary_dark']};
         }}
         QPushButton:disabled {{
-            background-color: #BDBDBD;
-            color: #757575;
+            background-color: #E2E8F0;
+            color: {COLORS['text_muted']};
         }}
     """,
     
     'secondary': f"""
         QPushButton {{
-            background-color: {COLORS['secondary']};
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                       stop:0 {COLORS['secondary']}, 
+                                       stop:1 #059669);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 12px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            min-height: 16px;
         }}
         QPushButton:hover {{
-            background-color: #388E3C;
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                       stop:0 {COLORS['secondary_light']}, 
+                                       stop:1 {COLORS['secondary']});
         }}
         QPushButton:pressed {{
-            background-color: #2E7D32;
+            background: #059669;
         }}
     """,
     
@@ -91,20 +137,41 @@ BUTTON_STYLES = {
     
     'outline': f"""
         QPushButton {{
-            background-color: transparent;
+            background-color: {COLORS['surface']};
             color: {COLORS['primary']};
-            border: 2px solid {COLORS['primary']};
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 11px;
+            border: 2px solid {COLORS['border']};
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            min-height: 16px;
         }}
         QPushButton:hover {{
             background-color: {COLORS['primary']};
             color: white;
+            border-color: {COLORS['primary']};
         }}
         QPushButton:pressed {{
-            background-color: {COLORS['hover']};
+            background-color: {COLORS['primary_dark']};
+        }}
+    """,
+    
+    'ghost': f"""
+        QPushButton {{
+            background-color: transparent;
+            color: {COLORS['text_secondary']};
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 13px;
+        }}
+        QPushButton:hover {{
+            background-color: {COLORS['surface_hover']};
+            color: {COLORS['primary']};
+        }}
+        QPushButton:pressed {{
+            background-color: {COLORS['border']};
         }}
     """
 }
@@ -112,16 +179,26 @@ BUTTON_STYLES = {
 # 卡片样式
 CARD_STYLE = f"""
 QFrame {{
-    background-color: white;
+    background-color: {COLORS['surface']};
     border: 1px solid {COLORS['border']};
-    border-radius: 8px;
-    padding: 15px;
-    margin: 5px;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 8px;
 }}
 
 QFrame:hover {{
     border-color: {COLORS['primary']};
-    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+}}
+
+QFrame[class="elevated"] {{
+    background-color: {COLORS['surface']};
+    border: none;
+    border-radius: 16px;
+    padding: 24px;
+    margin: 12px;
+}}
+
+QFrame[class="elevated"]:hover {{
 }}
 """
 
@@ -176,26 +253,36 @@ QTabBar::tab:hover:!selected {{
 INPUT_STYLE = f"""
 QLineEdit {{
     border: 2px solid {COLORS['border']};
-    border-radius: 6px;
-    padding: 8px 12px;
-    font-size: 12px;
-    background-color: white;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    background-color: {COLORS['surface']};
+    color: {COLORS['text_primary']};
+    font-weight: 500;
 }}
 
 QLineEdit:focus {{
     border-color: {COLORS['primary']};
+    background-color: white;
+}}
+
+QLineEdit:hover:!focus {{
+    border-color: {COLORS['border_focus']};
 }}
 
 QTextEdit {{
     border: 2px solid {COLORS['border']};
-    border-radius: 6px;
-    padding: 8px;
-    font-size: 12px;
-    background-color: white;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    background-color: {COLORS['surface']};
+    color: {COLORS['text_primary']};
+    line-height: 1.5;
 }}
 
 QTextEdit:focus {{
     border-color: {COLORS['primary']};
+    background-color: white;
 }}
 """
 
@@ -232,16 +319,27 @@ QHeaderView::section {{
 # 进度条样式
 PROGRESS_BAR_STYLE = f"""
 QProgressBar {{
-    border: 2px solid {COLORS['border']};
-    border-radius: 6px;
+    border: none;
+    border-radius: 8px;
     text-align: center;
-    font-weight: bold;
-    background-color: {COLORS['light']};
+    font-weight: 600;
+    font-size: 12px;
+    background-color: {COLORS['border']};
+    color: {COLORS['text_primary']};
+    height: 8px;
 }}
 
 QProgressBar::chunk {{
-    background-color: {COLORS['primary']};
-    border-radius: 4px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                               stop:0 {COLORS['primary']}, 
+                               stop:1 {COLORS['primary_light']});
+    border-radius: 8px;
+}}
+
+QProgressBar[class="success"]::chunk {{
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                               stop:0 {COLORS['success']}, 
+                               stop:1 {COLORS['secondary']});
 }}
 """
 
@@ -281,24 +379,59 @@ GLOBAL_STYLE = f"""
 
 QSpinBox {{
     border: 2px solid {COLORS['border']};
-    border-radius: 6px;
-    padding: 4px 8px;
-    background-color: white;
+    border-radius: 8px;
+    padding: 8px 12px;
+    background-color: {COLORS['surface']};
+    font-size: 14px;
+    font-weight: 500;
+    color: {COLORS['text_primary']};
+    min-height: 16px;
 }}
 
 QSpinBox:focus {{
     border-color: {COLORS['primary']};
+    background-color: white;
+}}
+
+QSpinBox:hover:!focus {{
+    border-color: {COLORS['border_focus']};
 }}
 
 QComboBox {{
     border: 2px solid {COLORS['border']};
-    border-radius: 6px;
-    padding: 4px 8px;
-    background-color: white;
+    border-radius: 8px;
+    padding: 8px 12px;
+    background-color: {COLORS['surface']};
+    font-size: 14px;
+    font-weight: 500;
+    color: {COLORS['text_primary']};
+    min-height: 16px;
 }}
 
 QComboBox:focus {{
     border-color: {COLORS['primary']};
+    background-color: white;
+}}
+
+QComboBox:hover:!focus {{
+    border-color: {COLORS['border_focus']};
+}}
+
+QComboBox::drop-down {{
+    border: none;
+    border-left: 1px solid {COLORS['border']};
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    background-color: {COLORS['surface_hover']};
+    width: 20px;
+}}
+
+QComboBox::down-arrow {{
+    image: none;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 6px solid {COLORS['text_secondary']};
+    margin: 0 4px;
 }}
 
 QCheckBox {{
@@ -307,34 +440,52 @@ QCheckBox {{
 }}
 
 QCheckBox::indicator {{
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     border: 2px solid {COLORS['border']};
-    border-radius: 3px;
-    background-color: white;
+    border-radius: 4px;
+    background-color: {COLORS['surface']};
+}}
+
+QCheckBox::indicator:hover {{
+    border-color: {COLORS['primary']};
 }}
 
 QCheckBox::indicator:checked {{
     background-color: {COLORS['primary']};
     border-color: {COLORS['primary']};
+    image: none;
+}}
+
+QCheckBox::indicator:checked:hover {{
+    background-color: {COLORS['primary_light']};
 }}
 
 QRadioButton {{
-    color: {COLORS['dark']};
-    font-size: 12px;
+    color: {COLORS['text_primary']};
+    font-size: 14px;
+    font-weight: 500;
 }}
 
 QRadioButton::indicator {{
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     border: 2px solid {COLORS['border']};
-    border-radius: 8px;
-    background-color: white;
+    border-radius: 9px;
+    background-color: {COLORS['surface']};
+}}
+
+QRadioButton::indicator:hover {{
+    border-color: {COLORS['primary']};
 }}
 
 QRadioButton::indicator:checked {{
     background-color: {COLORS['primary']};
     border-color: {COLORS['primary']};
+}}
+
+QRadioButton::indicator:checked:hover {{
+    background-color: {COLORS['primary_light']};
 }}
 """
 
@@ -352,3 +503,57 @@ def get_button_style(style_type='primary'):
 def get_card_style():
     """获取卡片样式"""
     return CARD_STYLE
+
+
+def get_success_style():
+    """获取成功状态样式"""
+    return f"""
+        QLabel {{
+            color: {COLORS['success']};
+            font-weight: 600;
+            font-size: 14px;
+        }}
+    """
+
+
+def get_error_style():
+    """获取错误状态样式"""
+    return f"""
+        QLabel {{
+            color: {COLORS['warning']};
+            font-weight: 600;
+            font-size: 14px;
+        }}
+    """
+
+
+def get_info_style():
+    """获取信息状态样式"""
+    return f"""
+        QLabel {{
+            color: {COLORS['info']};
+            font-weight: 500;
+            font-size: 14px;
+        }}
+    """
+
+
+def create_fade_effect():
+    """创建淡入淡出效果"""
+    from PyQt6.QtCore import QPropertyAnimation, QEasingCurve
+    from PyQt6.QtWidgets import QGraphicsOpacityEffect
+    
+    def apply_fade_in(widget, duration=300):
+        effect = QGraphicsOpacityEffect()
+        widget.setGraphicsEffect(effect)
+        
+        animation = QPropertyAnimation(effect, b"opacity")
+        animation.setDuration(duration)
+        animation.setStartValue(0.0)
+        animation.setEndValue(1.0)
+        animation.setEasingCurve(QEasingCurve.Type.OutCubic)
+        animation.start()
+        
+        return animation
+    
+    return apply_fade_in

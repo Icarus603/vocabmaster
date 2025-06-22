@@ -18,7 +18,7 @@ api:
 semantic:
   # 語義相似度閾值 (0.0-1.0)
   # 數值越低，判定越寬鬆；數值越高，判定越嚴格
-  similarity_threshold: 0.40
+  similarity_threshold: 0.30
   
   # 啟用關鍵詞匹配 (提高準確性，優先於語義匹配)
   enable_keyword_matching: true

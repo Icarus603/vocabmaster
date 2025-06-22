@@ -3,13 +3,14 @@ import os
 import random  # 新增导入
 import sys
 
-from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtCore import QSize, Qt, QPropertyAnimation, QEasingCurve, QTimer, pyqtSignal
 from PyQt6.QtGui import QFont, QIcon, QKeySequence, QPixmap, QShortcut
 from PyQt6.QtWidgets import (QApplication, QButtonGroup, QComboBox, QDialog,
                              QFileDialog, QGroupBox, QHBoxLayout, QLabel,
                              QLineEdit, QMainWindow, QMessageBox, QProgressBar,
                              QPushButton, QRadioButton, QScrollArea, QSpinBox,
-                             QStackedWidget, QTextEdit, QVBoxLayout, QWidget)
+                             QStackedWidget, QTextEdit, QVBoxLayout, QWidget,
+                             QGraphicsOpacityEffect, QFrame)
 
 from utils import BECTest, DIYTest, TermsTest
 from utils.base import TestResult  # <-- 确保 TestResult 已导入
@@ -23,7 +24,7 @@ from utils.terms import TermsTestUnit1to5, TermsTestUnit6to10
 from utils.config_wizard import ConfigWizard
 from utils.config_gui import show_config_dialog
 from utils.stats_gui import show_learning_stats
-from utils.ui_styles import apply_theme, get_button_style, COLORS
+from utils.ui_styles import apply_theme, get_button_style, COLORS, get_success_style, get_error_style, get_info_style
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +107,68 @@ class MainWindow(QMainWindow):
         
         # 检查配置并显示主菜单
         self.check_initial_config()
-        self.stacked_widget.setCurrentIndex(0)
+    
+    def create_fade_in_animation(self, widget, duration=300):
+        """创建淡入动画"""
+        effect = QGraphicsOpacityEffect()
+        widget.setGraphicsEffect(effect)
+        
+        self.animation = QPropertyAnimation(effect, b"opacity")
+        self.animation.setDuration(duration)
+        self.animation.setStartValue(0.0)
+        self.animation.setEndValue(1.0)
+        self.animation.setEasingCurve(QEasingCurve.Type.OutCubic)
+        self.animation.start()
+        
+        return self.animation
+    
+    def create_slide_animation(self, widget, start_pos, end_pos, duration=300):
+        """创建滑动动画"""
+        self.slide_animation = QPropertyAnimation(widget, b"geometry")
+        self.slide_animation.setDuration(duration)
+        self.slide_animation.setStartValue(start_pos)
+        self.slide_animation.setEndValue(end_pos)
+        self.slide_animation.setEasingCurve(QEasingCurve.Type.OutCubic)
+        self.slide_animation.start()
+        
+        return self.slide_animation
+    
+    def show_success_feedback(self, widget, message="正确！"):
+        """显示成功反馈"""
+        original_style = widget.styleSheet()
+        widget.setStyleSheet(get_success_style())
+        
+        # 添加一个定时器来恢复原样式
+        QTimer.singleShot(1500, lambda: widget.setStyleSheet(original_style))
+    
+    def show_error_feedback(self, widget, message="错误！"):
+        """显示错误反馈"""
+        original_style = widget.styleSheet()
+        widget.setStyleSheet(get_error_style())
+        
+        # 添加一个定时器来恢复原样式
+        QTimer.singleShot(1500, lambda: widget.setStyleSheet(original_style))
+    
+    def animate_button_click(self, button):
+        """按钮点击动画效果"""
+        original_size = button.size()
+        button.resize(int(original_size.width() * 0.95), int(original_size.height() * 0.95))
+        
+        QTimer.singleShot(100, lambda: button.resize(original_size))
+    
+    def create_enhanced_button(self, text, style_type='primary', click_handler=None):
+        """创建增强的按钮"""
+        button = QPushButton(text)
+        button.setStyleSheet(get_button_style(style_type))
+        
+        if click_handler:
+            button.clicked.connect(click_handler)
+        
+        # 添加点击动画
+        original_click = button.clicked
+        button.clicked.connect(lambda: self.animate_button_click(button))
+        
+        return button
     
     def setup_main_menu(self):
         """设置主菜单页面"""
@@ -117,48 +179,51 @@ class MainWindow(QMainWindow):
         # 标题
         title = QLabel("VocabMaster")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title.setFont(QFont("Arial", 24, QFont.Weight.Bold))
+        title.setFont(QFont("SF Pro Display", 32, QFont.Weight.Bold))
+        title.setStyleSheet(f"""
+            QLabel {{
+                color: {COLORS['primary']};
+                margin: 16px 0;
+            }}
+        """)
         
         # 副标题
-        subtitle = QLabel("词汇测试系统")
+        subtitle = QLabel("智能词汇测试系统")
         subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        subtitle.setFont(QFont("Arial", 16))
+        subtitle.setFont(QFont("SF Pro Display", 16, QFont.Weight.Normal))
+        subtitle.setStyleSheet(f"""
+            QLabel {{
+                color: {COLORS['text_secondary']};
+                margin-bottom: 32px;
+            }}
+        """)
         
         # 测试类型按钮
-        bec_btn = QPushButton("BEC高级词汇测试")
-        ielts_btn = QPushButton("IELTS 雅思英译中 (语义)") # <-- 新增 IELTS 按钮
-        terms_btn = QPushButton("《理解当代中国》英汉互译")
-        diy_btn = QPushButton("DIY自定义词汇测试")
+        bec_btn = self.create_enhanced_button("🎯 BEC高级词汇测试", 'primary')
+        ielts_btn = self.create_enhanced_button("🌟 IELTS 雅思英译中 (语义)", 'primary')
+        terms_btn = self.create_enhanced_button("📚 《理解当代中国》英汉互译", 'primary')
+        diy_btn = self.create_enhanced_button("🛠️ DIY自定义词汇测试", 'secondary')
         
         # 底部按钮
-        settings_btn = QPushButton("⚙️ 设置")
-        stats_btn = QPushButton("📊 统计")
-        exit_btn = QPushButton("退出程序")
+        settings_btn = self.create_enhanced_button("⚙️ 设置", 'ghost')
+        stats_btn = self.create_enhanced_button("📊 统计", 'ghost')
+        exit_btn = self.create_enhanced_button("❌ 退出", 'outline')
         
         # 设置主要按钮样式和大小
-        for btn in [bec_btn, ielts_btn, terms_btn, diy_btn]: # <-- 将 ielts_btn 加入列表
-            btn.setMinimumSize(300, 50)
-            btn.setFont(QFont("Arial", 12))
-            btn.setStyleSheet(get_button_style('primary'))
+        for btn in [bec_btn, ielts_btn, terms_btn, diy_btn]:
+            btn.setMinimumSize(360, 56)
+            btn.setFont(QFont("SF Pro Display", 14, QFont.Weight.Bold))
         
         # 设置底部按钮样式
-        settings_btn.setMinimumSize(120, 40)
-        settings_btn.setFont(QFont("Arial", 10))
-        settings_btn.setStyleSheet(get_button_style('outline'))
-        
-        stats_btn.setMinimumSize(120, 40)
-        stats_btn.setFont(QFont("Arial", 10))
-        stats_btn.setStyleSheet(get_button_style('secondary'))
-        
-        exit_btn.setMinimumSize(120, 40)
-        exit_btn.setFont(QFont("Arial", 10))
-        exit_btn.setStyleSheet(get_button_style('warning'))
+        for btn in [settings_btn, stats_btn, exit_btn]:
+            btn.setMinimumSize(110, 40)
+            btn.setFont(QFont("SF Pro Display", 12, QFont.Weight.Normal))
         
         # 连接按钮点击事件
-        bec_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(1))
-        ielts_btn.clicked.connect(lambda: self.select_test("ielts")) # <-- 连接 IELTS 按钮事件
-        terms_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(2))
-        diy_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(3))
+        bec_btn.clicked.connect(lambda: self.animate_page_transition(1))
+        ielts_btn.clicked.connect(lambda: self.select_test("ielts"))
+        terms_btn.clicked.connect(lambda: self.animate_page_transition(2))
+        diy_btn.clicked.connect(lambda: self.animate_page_transition(3))
         settings_btn.clicked.connect(self.show_settings)
         stats_btn.clicked.connect(self.show_learning_stats)
         exit_btn.clicked.connect(self.close)
@@ -186,8 +251,134 @@ class MainWindow(QMainWindow):
         layout.addLayout(bottom_layout)
         layout.addStretch()
         
+        # 应用淡入动画
+        self.create_fade_in_animation(page, 500)
+        
         # 将页面添加到堆叠部件
         self.stacked_widget.addWidget(page)
+    
+    def update_cache_status(self):
+        """更新IELTS缓存状态显示"""
+        try:
+            if hasattr(self, 'current_test') and self.current_test and hasattr(self.current_test, 'get_cache_stats'):
+                stats = self.current_test.get_cache_stats()
+                cache_size = stats.get('cache_size', 0)
+                hit_rate = stats.get('hit_rate', '0%')
+                
+                if cache_size > 0:
+                    self.cache_status_label.setText(f"缓存状态: {cache_size} 条目, 命中率: {hit_rate}")
+                    self.cache_status_label.setStyleSheet(f"color: {COLORS['success']};")
+                    self.preload_btn.setText("🔄 更新缓存")
+                else:
+                    self.cache_status_label.setText("缓存状态: 空缓存，建议预热")
+                    self.cache_status_label.setStyleSheet(f"color: {COLORS['warning']};")
+                    self.preload_btn.setText("🚀 预热embedding缓存")
+            else:
+                self.cache_status_label.setText("缓存状态: 不可用")
+                self.cache_status_label.setStyleSheet(f"color: {COLORS['text_muted']};")
+        except Exception as e:
+            logger.error(f"更新缓存状态失败: {e}")
+            self.cache_status_label.setText("缓存状态: 检查失败")
+    
+    def preload_ielts_cache(self):
+        """预热IELTS缓存"""
+        try:
+            if not hasattr(self, 'current_test') or not self.current_test:
+                QMessageBox.warning(self, "错误", "请先选择IELTS测试")
+                return
+            
+            from utils.ielts import IeltsTest
+            if not isinstance(self.current_test, IeltsTest):
+                QMessageBox.warning(self, "错误", "缓存预热仅适用于IELTS测试")
+                return
+            
+            # 检查API配置
+            from utils.config import config
+            if not config.api_key:
+                QMessageBox.warning(
+                    self, "API未配置", 
+                    "预热缓存需要API密钥。请先在设置中配置SiliconFlow API密钥。"
+                )
+                return
+            
+            # 确认对话框
+            reply = QMessageBox.question(
+                self, "确认预热缓存",
+                "预热缓存将调用API获取所有IELTS词汇的embedding向量。\n"
+                "这个过程可能需要几分钟时间并消耗一定的API配额。\n\n"
+                "确认继续？",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            
+            if reply != QMessageBox.StandardButton.Yes:
+                return
+            
+            # 创建进度对话框
+            progress_dialog = QMessageBox(self)
+            progress_dialog.setWindowTitle("预热缓存")
+            progress_dialog.setText("正在预热embedding缓存...")
+            progress_dialog.setStandardButtons(QMessageBox.StandardButton.NoButton)
+            progress_dialog.show()
+            
+            # 禁用按钮
+            self.preload_btn.setEnabled(False)
+            self.preload_btn.setText("⏳ 预热中...")
+            
+            # 预热缓存
+            try:
+                result = self.current_test.preload_cache()
+                if result:
+                    progress_dialog.close()
+                    QMessageBox.information(
+                        self, "预热完成",
+                        f"缓存预热完成！\n"
+                        f"已处理词汇数量: {result.get('total', 0)}\n"
+                        f"API调用次数: {result.get('api_calls', 0)}"
+                    )
+                    self.update_cache_status()
+                else:
+                    progress_dialog.close()
+                    QMessageBox.warning(self, "预热失败", "缓存预热失败，请检查网络连接和API配置")
+            except Exception as e:
+                progress_dialog.close()
+                QMessageBox.critical(self, "预热错误", f"预热过程中出现错误：\n{str(e)}")
+            finally:
+                # 恢复按钮
+                self.preload_btn.setEnabled(True)
+                self.update_cache_status()
+                
+        except Exception as e:
+            logger.error(f"预热缓存失败: {e}")
+            QMessageBox.critical(self, "错误", f"预热缓存时出现错误：\n{str(e)}")
+    
+    def animate_page_transition(self, page_index):
+        """带动画的页面切换"""
+        current_widget = self.stacked_widget.currentWidget()
+        
+        # 淡出当前页面
+        if current_widget:
+            effect = QGraphicsOpacityEffect()
+            current_widget.setGraphicsEffect(effect)
+            
+            fade_out = QPropertyAnimation(effect, b"opacity")
+            fade_out.setDuration(200)
+            fade_out.setStartValue(1.0)
+            fade_out.setEndValue(0.0)
+            fade_out.setEasingCurve(QEasingCurve.Type.InCubic)
+            
+            # 切换页面后淡入
+            fade_out.finished.connect(lambda: self.fade_in_new_page(page_index))
+            fade_out.start()
+        else:
+            self.stacked_widget.setCurrentIndex(page_index)
+    
+    def fade_in_new_page(self, page_index):
+        """淡入新页面"""
+        self.stacked_widget.setCurrentIndex(page_index)
+        new_widget = self.stacked_widget.currentWidget()
+        
+        if new_widget:
+            self.create_fade_in_animation(new_widget, 300)
     
     def setup_bec_menu(self):
         """设置BEC高级词汇测试菜单页面"""
@@ -431,6 +622,30 @@ class MainWindow(QMainWindow):
         test_direction_layout.addWidget(self.mixed_radio)
         self.test_direction_group.setLayout(test_direction_layout)
         
+        # IELTS缓存预热选项
+        self.cache_group = QGroupBox("⚡ 性能优化 (仅限IELTS)")
+        cache_layout = QVBoxLayout()
+        
+        cache_info = QLabel("首次运行IELTS测试时，预热缓存可大幅提升后续测试速度")
+        cache_info.setFont(QFont("Arial", 10))
+        cache_info.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        cache_info.setWordWrap(True)
+        
+        self.preload_btn = self.create_enhanced_button("🚀 预热embedding缓存", 'secondary')
+        self.preload_btn.setMinimumSize(250, 40)
+        self.preload_btn.setFont(QFont("SF Pro Display", 11, QFont.Weight.Normal))
+        self.preload_btn.clicked.connect(self.preload_ielts_cache)
+        
+        self.cache_status_label = QLabel("缓存状态: 检查中...")
+        self.cache_status_label.setFont(QFont("Arial", 9))
+        self.cache_status_label.setStyleSheet(f"color: {COLORS['text_muted']};")
+        
+        cache_layout.addWidget(cache_info)
+        cache_layout.addWidget(self.preload_btn)
+        cache_layout.addWidget(self.cache_status_label)
+        self.cache_group.setLayout(cache_layout)
+        self.cache_group.setVisible(False)  # 默认隐藏，只在IELTS测试时显示
+        
         # 题数选择
         question_count_layout = QHBoxLayout()
         question_count_label = QLabel("测试题数:")
@@ -465,6 +680,8 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.test_mode_title)
         layout.addSpacing(30)
         layout.addWidget(self.test_direction_group)
+        layout.addSpacing(20)
+        layout.addWidget(self.cache_group)
         layout.addSpacing(20)
         layout.addLayout(question_count_layout)
         layout.addSpacing(30)
@@ -703,19 +920,23 @@ class MainWindow(QMainWindow):
             self.e2c_radio.setChecked(True)
             self.c2e_radio.setVisible(False)
             self.mixed_radio.setVisible(False)
-            self.e2c_radio.setVisible(True) 
+            self.e2c_radio.setVisible(True)
+            self.cache_group.setVisible(True)
+            self.update_cache_status() 
         elif test_type == "bec":
             self.current_test = self.tests[test_type]["modules"][module_key]
             self.e2c_radio.setVisible(False)
             self.mixed_radio.setVisible(False)
             self.c2e_radio.setChecked(True)
             self.c2e_radio.setVisible(True)
+            self.cache_group.setVisible(False)
         elif test_type == "terms":
             self.current_test = self.tests[test_type]["modules"][module_key]
             self.e2c_radio.setVisible(True)
             self.c2e_radio.setVisible(True)
             self.mixed_radio.setVisible(True)
             self.e2c_radio.setChecked(True)
+            self.cache_group.setVisible(False)
         # DIY 测试通过 import_vocabulary 或 use_previous_vocabulary 设置 self.current_test
 
         if self.current_test: 
@@ -1046,11 +1267,15 @@ class MainWindow(QMainWindow):
             notes_for_result = "语义相似度判定"
             if is_correct:
                 self.correct_count += 1
-                self.result_label.setText("✓ 语义相近!")
-                self.result_label.setStyleSheet("color: green;")
+                self.result_label.setText("🎉 语义相近!")
+                self.result_label.setStyleSheet(get_success_style())
+                self.show_success_feedback(self.result_label)
+                self.create_fade_in_animation(self.result_label, 400)
             else:
-                self.result_label.setText(f"✗ 语义不符")
-                self.result_label.setStyleSheet("color: red;")
+                self.result_label.setText(f"❌ 语义不符")
+                self.result_label.setStyleSheet(get_error_style())
+                self.show_error_feedback(self.result_label)
+                self.create_fade_in_animation(self.result_label, 400)
         else:
             # 传统测试模式 (BEC, Terms, 传统DIY)
             is_correct = self.compare_answers(user_answer, self.expected_answer)
@@ -1059,11 +1284,15 @@ class MainWindow(QMainWindow):
 
             if is_correct:
                 self.correct_count += 1
-                self.result_label.setText("✓ 正确!")
-                self.result_label.setStyleSheet("color: green;")
+                self.result_label.setText("🎉 正确!")
+                self.result_label.setStyleSheet(get_success_style())
+                self.show_success_feedback(self.result_label)
+                self.create_fade_in_animation(self.result_label, 400)
             else:
-                self.result_label.setText(f"✗ 错误! 正确答案: {self.expected_answer}")
-                self.result_label.setStyleSheet("color: red;")
+                self.result_label.setText(f"❌ 错误! 正确答案: {self.expected_answer}")
+                self.result_label.setStyleSheet(get_error_style())
+                self.show_error_feedback(self.result_label)
+                self.create_fade_in_animation(self.result_label, 400)
         
         self.score_label.setText(f"得分: {self.correct_count}")
 
