@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """VocabMaster - 词汇测试系统
@@ -10,14 +10,24 @@
 1. 图形界面： python app.py (默认)
 2. 命令行界面： python app.py --cli
 """
+import logging
 import os
+import sys
+
+# 在导入PyQt6之前设置环境变量来防止macOS崩溃
+os.environ['QT_LOGGING_RULES'] = 'qt.qpa.permissions.debug=false;qt.permissions.debug=false'
+os.environ['QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM'] = '1'
+
+# 禁用Qt权限系统相关功能
+if sys.platform == 'darwin':  # macOS
+    os.environ['QT_QPA_PERMISSIONS'] = '0'
+    os.environ['QT_PERMISSIONS_DISABLE'] = '1'
+
 import PyQt6.QtCore as qc
 
+# 设置Qt插件路径（在导入PyQt6后）
 os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = qc.QLibraryInfo.path(qc.QLibraryInfo.LibraryPath.PluginsPath)
-import sys
-import os
 import traceback
-import logging
 from datetime import datetime
 
 # 配置日志

@@ -148,6 +148,15 @@ if [ "${OS_TYPE}" == "darwin" ]; then
     
     # macOS特定選項
     PYINSTALLER_CMD+=" --osx-bundle-identifier=com.icarus603.vocabmaster"
+    
+    # 修复Qt权限系统崩溃问题
+    PYINSTALLER_CMD+=" --exclude-module=PyQt6.QtPositioning"
+    PYINSTALLER_CMD+=" --exclude-module=PyQt6.QtLocation"
+    PYINSTALLER_CMD+=" --exclude-module=PyQt6.QtSensors"
+    PYINSTALLER_CMD+=" --exclude-module=PyQt6.QtBluetooth" 
+    PYINSTALLER_CMD+=" --exclude-module=PyQt6.QtNfc"
+    PYINSTALLER_CMD+=" --add-data \"qt.conf${DATA_SEP}.\""
+    PYINSTALLER_CMD+=" --additional-hooks-dir=hooks"
 elif [ "${OS_TYPE}" == "windows" ]; then
     PYINSTALLER_CMD+=" --windowed"
     PYINSTALLER_CMD+=" --icon=assets/icon.ico"
@@ -164,6 +173,9 @@ fi
 PYINSTALLER_CMD+=" --add-data \"assets${DATA_SEP}assets\""
 PYINSTALLER_CMD+=" --add-data \"vocab${DATA_SEP}vocab\""
 PYINSTALLER_CMD+=" --add-data \"config.yaml.template${DATA_SEP}.\""
+# 添加新增的工具脚本
+PYINSTALLER_CMD+=" --add-data \"preload_cache.py${DATA_SEP}.\""
+PYINSTALLER_CMD+=" --add-data \"performance_report.py${DATA_SEP}.\""
 
 # 明确指定需要的隐藏导入，虽然--collect-all PyQt6可能已覆盖部分
 PYINSTALLER_CMD+=" --hidden-import=PyQt6.sip"
@@ -172,13 +184,38 @@ PYINSTALLER_CMD+=" --hidden-import=PyQt6.QtGui"
 PYINSTALLER_CMD+=" --hidden-import=PyQt6.QtWidgets"
 PYINSTALLER_CMD+=" --hidden-import=PyQt6.QtNetwork"
 PYINSTALLER_CMD+=" --hidden-import=PyQt6.QtPrintSupport"
-# 如果用到其他PyQt6模块，也需要加入，例如 PyQt6.QtNetwork, PyQt6.QtPrintSupport 等
 
+# 科学计算和数据处理库
 PYINSTALLER_CMD+=" --hidden-import=sklearn"
 PYINSTALLER_CMD+=" --hidden-import=requests"
 PYINSTALLER_CMD+=" --hidden-import=pandas"
-# PYINSTALLER_CMD+=" --hidden-import=numpy" # sklearn通常会依赖numpy，PyInstaller应该能自动发现
 
+# 新增模块的隐藏导入
+PYINSTALLER_CMD+=" --hidden-import=utils.enhanced_cache"
+PYINSTALLER_CMD+=" --hidden-import=utils.cache_manager"
+PYINSTALLER_CMD+=" --hidden-import=utils.performance_monitor"
+PYINSTALLER_CMD+=" --hidden-import=utils.learning_stats"
+PYINSTALLER_CMD+=" --hidden-import=utils.stats_gui"
+PYINSTALLER_CMD+=" --hidden-import=utils.config_gui"
+PYINSTALLER_CMD+=" --hidden-import=utils.config_wizard"
+PYINSTALLER_CMD+=" --hidden-import=utils.ui_styles"
+PYINSTALLER_CMD+=" --hidden-import=utils.ielts_embedding_cache"
+
+# Python标准库模块（确保包含）
+PYINSTALLER_CMD+=" --hidden-import=sqlite3"
+PYINSTALLER_CMD+=" --hidden-import=pickle"
+PYINSTALLER_CMD+=" --hidden-import=threading"
+PYINSTALLER_CMD+=" --hidden-import=collections"
+PYINSTALLER_CMD+=" --hidden-import=dataclasses"
+PYINSTALLER_CMD+=" --hidden-import=contextlib"
+PYINSTALLER_CMD+=" --hidden-import=hashlib"
+PYINSTALLER_CMD+=" --hidden-import=json"
+PYINSTALLER_CMD+=" --hidden-import=time"
+PYINSTALLER_CMD+=" --hidden-import=datetime"
+
+# 数据文件和目录（运行时创建的目录不需要打包，但模板需要）
+# 注意：这些目录在运行时动态创建，不需要在这里添加
+# data/embedding_cache/, data/, logs/ 等会在运行时自动创建
 
 # 增加日志级别，方便调试打包过程中的问题
 PYINSTALLER_CMD+=" --log-level INFO"

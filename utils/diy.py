@@ -158,7 +158,7 @@ class DIYTest(TestBase):
         (Copied and adapted from IeltsTest)
         """
         if not config.api_key:
-            logger.error("API 金鑰未在 config.yaml 中配置。DIY 語義測試功能無法使用。")
+            logger.error("API 密钥未在 config.yaml 中配置。DIY 语义测试功能无法使用。")
             return None
 
         headers = {

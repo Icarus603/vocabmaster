@@ -1,0 +1,57 @@
+2025-06-22 11:10:02,100 - VocabMaster - INFO - 启动VocabMaster
+2025-06-22 11:10:02,102 - VocabMaster - INFO - 使用GUI模式
+2025-06-22 11:10:02,583 - gui - INFO - 初始化GUI界面
+2025-06-22 11:10:02,703 - gui - INFO - 启动主窗口
+2025-06-22 11:10:02,704 - utils.learning_stats - INFO - 载入了 0 个单词的统计数据
+2025-06-22 11:10:02,704 - gui - INFO - 學習統計管理器初始化成功
+2025-06-22 11:10:02,750 - utils.enhanced_cache - INFO - 载入缓存：139 条有效记录
+2025-06-22 11:10:11,655 - utils.ielts - INFO - Loaded 7046 IELTS words.
+2025-06-22 11:10:11,655 - utils.ielts - INFO - 當前緩存大小: 139, 詞彙表大小: 7046
+2025-06-22 11:10:11,655 - utils.ielts - INFO - 建議使用 preload_cache() 方法預熱緩存以提升性能
+2025-06-22 11:10:14,927 - utils.ielts - INFO - Prepared IELTS test session with 10 words.
+2025-06-22 11:10:14,927 - gui - INFO - 開始學習會話: eee0c471, 類型: ielts
+2025-06-22 11:10:17,633 - utils.ielts - WARNING - 答案檢查失敗：標準釋義或用戶答案為空
+2025-06-22 11:10:20,133 - utils.ielts - WARNING - 答案檢查失敗：標準釋義或用戶答案為空
+2025-06-22 11:10:23,771 - utils.ielts - WARNING - 答案檢查失敗：標準釋義或用戶答案為空
+2025-06-22 11:10:34,432 - utils.ielts - INFO - === 開始檢查答案 ===
+2025-06-22 11:10:34,432 - utils.ielts - INFO - 用戶答案: '女服务员'
+2025-06-22 11:10:34,433 - utils.ielts - INFO - 標準釋義: ['n. 女服务员；女侍者', 'vi. 做女服务生']
+2025-06-22 11:10:34,433 - utils.ielts - INFO - 原始釋義: 'n. 女服务员；女侍者'
+2025-06-22 11:10:34,433 - utils.ielts - INFO - 清理後釋義: '女服务员；女侍者'
+2025-06-22 11:10:34,433 - utils.ielts - INFO - 文字匹配成功: '女服务员' 直接包含在清理後釋義中
+2025-06-22 11:10:34,433 - utils.ielts - INFO - ✅ 文字匹配成功
+2025-06-22 11:10:50,385 - utils.ielts - INFO - === 開始檢查答案 ===
+2025-06-22 11:10:50,385 - utils.ielts - INFO - 用戶答案: '有理'
+2025-06-22 11:10:50,386 - utils.ielts - INFO - 標準釋義: ['adj. 有道理的，合情理的；（人）通情达理的，讲道理的；适度的，合适的；（价格）公道的；还算好的，尚可的；相当大的，（数量）不少的']
+2025-06-22 11:10:50,386 - utils.ielts - INFO - 原始釋義: 'adj. 有道理的，合情理的；（人）通情达理的，讲道理的；适度的，合适的；（价格）公道的；还算好的，尚可的；相当大的，（数量）不少的'
+2025-06-22 11:10:50,386 - utils.ielts - INFO - 清理後釋義: '有道理的，合情理的；通情达理的，讲道理的；适度的，合适的；公道的；还算好的，尚可的；相当大的，不少的'
+2025-06-22 11:10:50,386 - utils.ielts - INFO - 檢查分詞片段: '有道理的'
+2025-06-22 11:10:50,387 - utils.ielts - INFO - 檢查分詞片段: '合情理的'
+2025-06-22 11:10:50,387 - utils.ielts - INFO - 檢查分詞片段: '通情达理的'
+2025-06-22 11:10:50,387 - utils.ielts - INFO - 檢查分詞片段: '讲道理的'
+2025-06-22 11:10:50,387 - utils.ielts - INFO - 檢查分詞片段: '适度的'
+2025-06-22 11:10:50,387 - utils.ielts - INFO - 檢查分詞片段: '合适的'
+2025-06-22 11:10:50,387 - utils.ielts - INFO - 檢查分詞片段: '公道的'
+2025-06-22 11:10:50,387 - utils.ielts - INFO - 檢查分詞片段: '还算好的'
+2025-06-22 11:10:50,387 - utils.ielts - INFO - 檢查分詞片段: '尚可的'
+2025-06-22 11:10:50,387 - utils.ielts - INFO - 檢查分詞片段: '相当大的'
+2025-06-22 11:10:50,387 - utils.ielts - INFO - 檢查分詞片段: '不少的'
+2025-06-22 11:10:50,387 - utils.ielts - INFO - 文字匹配失敗: '有理' 在所有標準釋義中未找到匹配
+2025-06-22 11:10:50,389 - utils.ielts - INFO - 用戶答案關鍵詞: {'有理', '理', '有'}
+2025-06-22 11:10:50,389 - utils.ielts - INFO - 標準釋義 'adj. 有道理的，合情理的；（人）通情达理的，讲道理的；适度的，合适的；（价格）公道的；还算好的，尚可的；相当大的，（数量）不少的' 關鍵詞分數: 0.041
+2025-06-22 11:10:50,389 - utils.ielts - INFO - ❌ 關鍵詞匹配失敗: 最佳分數 0.041 < 閾值 0.600
+2025-06-22 11:10:50,389 - utils.ielts - INFO - 嘗試語義匹配...
+2025-06-22 11:10:50,389 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 11:10:50,389 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 11:10:50,390 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 11:10:50,390 - utils.ielts - INFO - Input text: '有理...'
+2025-06-22 11:10:50,768 - utils.ielts - INFO - Successfully retrieved embedding for '有理...' (dimension: 768)
+2025-06-22 11:10:50,769 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 11:10:50,769 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 11:10:50,769 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 11:10:50,769 - utils.ielts - INFO - Input text: 'adj. 有道理的，合情理的；（人）通情达理的，讲道理的；适度的，合适的；（价格）公道的；还算好的，...'
+2025-06-22 11:10:50,982 - utils.ielts - INFO - Successfully retrieved embedding for 'adj. 有道理的，合情理的；（人）通情达理的，讲道理的；适度的，合适的；（价格）公道的；还算好的，...' (dimension: 768)
+2025-06-22 11:10:50,984 - utils.ielts - INFO - 語義分析 - '有理' vs 'adj. 有道理的，合情理的；（人）通情达理的，讲道理的；适度的，合适的；（价格）公道的；还算好的，尚可的；相当大的，（数量）不少的'
+2025-06-22 11:10:50,984 - utils.ielts - INFO -   相似度: 0.3771, 信心分數: 0.2576, 組合分數: 0.3413
+2025-06-22 11:10:50,985 - gui - CRITICAL - 程序错误: name 'english_word' is not defined
+NoneType: None

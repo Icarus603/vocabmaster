@@ -5,9 +5,9 @@ UI Styles Module
 
 # 现代化主题色彩方案
 COLORS = {
-    'primary': '#6366F1',      # 主色调 - 现代紫蓝
-    'primary_light': '#8B5CF6', # 主色调浅色
-    'primary_dark': '#4F46E5',  # 主色调深色
+    'primary': '#1E90FF',      # 主色调 - 钻石蓝
+    'primary_light': '#4FC3F7', # 主色调浅色
+    'primary_dark': '#1976D2',  # 主色调深色
     'secondary': '#10B981',    # 次要色 - 翠绿
     'secondary_light': '#34D399',
     'accent': '#F59E0B',       # 强调色 - 琥珀
@@ -82,8 +82,8 @@ BUTTON_STYLES = {
         }}
         QPushButton:hover {{
             background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                       stop:0 {COLORS['primary_light']}, 
-                                       stop:1 {COLORS['primary']});
+                                       stop:0 #5BA3FF, 
+                                       stop:1 #4285F4);
         }}
         QPushButton:pressed {{
             background: {COLORS['primary_dark']};
@@ -109,8 +109,8 @@ BUTTON_STYLES = {
         }}
         QPushButton:hover {{
             background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                       stop:0 {COLORS['secondary_light']}, 
-                                       stop:1 {COLORS['secondary']});
+                                       stop:0 #4ADE80, 
+                                       stop:1 #16A085);
         }}
         QPushButton:pressed {{
             background: #059669;
@@ -128,7 +128,7 @@ BUTTON_STYLES = {
             font-size: 11px;
         }}
         QPushButton:hover {{
-            background-color: #D32F2F;
+            background-color: #F87171;
         }}
         QPushButton:pressed {{
             background-color: #C62828;
@@ -147,8 +147,8 @@ BUTTON_STYLES = {
             min-height: 16px;
         }}
         QPushButton:hover {{
-            background-color: {COLORS['primary']};
-            color: white;
+            background-color: #F1F5F9;
+            color: {COLORS['primary']};
             border-color: {COLORS['primary']};
         }}
         QPushButton:pressed {{
@@ -540,7 +540,7 @@ def get_info_style():
 
 def create_fade_effect():
     """创建淡入淡出效果"""
-    from PyQt6.QtCore import QPropertyAnimation, QEasingCurve
+    from PyQt6.QtCore import QEasingCurve, QPropertyAnimation
     from PyQt6.QtWidgets import QGraphicsOpacityEffect
     
     def apply_fade_in(widget, duration=300):

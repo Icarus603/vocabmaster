@@ -1,0 +1,5 @@
+2025-06-22 10:21:37,487 - VocabMaster - INFO - 启动VocabMaster
+2025-06-22 10:21:37,489 - VocabMaster - INFO - 使用GUI模式
+2025-06-22 10:21:38,029 - gui - INFO - 初始化GUI界面
+2025-06-22 10:21:38,154 - gui - INFO - 启动主窗口
+2025-06-22 10:21:41,009 - utils.learning_stats - INFO - 载入了 0 个单词的统计数据

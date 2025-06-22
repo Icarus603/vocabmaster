@@ -1,0 +1,8 @@
+2025-06-22 10:55:09,956 - VocabMaster - INFO - 启动VocabMaster
+2025-06-22 10:55:09,958 - VocabMaster - INFO - 使用GUI模式
+2025-06-22 10:55:10,446 - gui - INFO - 初始化GUI界面
+2025-06-22 10:55:10,564 - gui - INFO - 启动主窗口
+2025-06-22 10:55:10,565 - utils.learning_stats - INFO - 载入了 0 个单词的统计数据
+2025-06-22 10:55:10,565 - gui - INFO - 學習統計管理器初始化成功
+2025-06-22 10:55:10,612 - utils.enhanced_cache - INFO - 载入缓存：139 条有效记录
+2025-06-22 10:55:13,300 - utils.config_gui - ERROR - 加载配置失败: 'ConfigWizard' object has no attribute 'config'

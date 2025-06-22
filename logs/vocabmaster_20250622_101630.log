@@ -1,0 +1,11 @@
+2025-06-22 10:16:30,536 - VocabMaster - INFO - 启动VocabMaster
+2025-06-22 10:16:30,538 - VocabMaster - INFO - 使用GUI模式
+2025-06-22 10:16:31,052 - gui - INFO - 初始化GUI界面
+2025-06-22 10:16:31,169 - gui - INFO - 启动主窗口
+2025-06-22 10:16:34,373 - utils.learning_stats - INFO - 载入了 0 个单词的统计数据
+2025-06-22 10:17:04,227 - gui - CRITICAL - 程序错误: 'NoneType' object has no attribute 'setParent'
+NoneType: None
+2025-06-22 10:17:34,226 - gui - CRITICAL - 程序错误: 'NoneType' object has no attribute 'setParent'
+NoneType: None
+2025-06-22 10:18:04,226 - gui - CRITICAL - 程序错误: 'NoneType' object has no attribute 'setParent'
+NoneType: None

@@ -1,7 +1,7 @@
 """
-VocabMaster 配置設置向導
+VocabMaster 配置设置向导
 
-提供用戶友好的配置設置界面，包括API密鑰驗證和自動配置生成。
+提供用户友好的配置设置界面，包括API密钥验证和自动配置生成。
 """
 
 import logging
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class ConfigWizard:
-    """配置設置向導類"""
+    """配置设置向导类"""
     
     def __init__(self):
         self.project_root = Path(__file__).parent.parent
@@ -27,15 +27,15 @@ class ConfigWizard:
         self.template_path = self.project_root / "config.yaml.template"
         
     def check_config_exists(self) -> bool:
-        """檢查配置文件是否存在"""
+        """检查配置文件是否存在"""
         return self.config_path.exists()
     
     def check_api_key_configured(self) -> Tuple[bool, str]:
         """
-        檢查API密鑰是否已配置
+        检查API密钥是否已配置
         
         Returns:
-            Tuple[bool, str]: (是否已配置, API密鑰值)
+            Tuple[bool, str]: (是否已配置, API密钥值)
         """
         try:
             config = Config()
@@ -44,26 +44,26 @@ class ConfigWizard:
                 return True, api_key
             return False, ""
         except Exception as e:
-            logger.error(f"檢查API密鑰配置時出錯: {e}")
+            logger.error(f"检查API密钥配置时出错: {e}")
             return False, ""
     
     def validate_api_key(self, api_key: str) -> Tuple[bool, str]:
         """
-        驗證API密鑰是否有效
+        验证API密钥是否有效
         
         Args:
-            api_key: 要驗證的API密鑰
+            api_key: 要验证的API密钥
             
         Returns:
-            Tuple[bool, str]: (是否有效, 錯誤消息)
+            Tuple[bool, str]: (是否有效, 错误消息)
         """
         if not api_key or api_key.strip() == "":
-            return False, "API密鑰不能為空"
+            return False, "API密钥不能为空"
         
         if api_key == "your_siliconflow_api_key_here":
-            return False, "請輸入真實的API密鑰，不是模板值"
+            return False, "请输入真实的API密钥，不是模板值"
         
-        # 測試API連接
+        # 测试API连接
         try:
             url = "https://api.siliconflow.cn/v1/embeddings"
             headers = {
@@ -79,66 +79,66 @@ class ConfigWizard:
             response = requests.post(url, headers=headers, json=data, timeout=10)
             
             if response.status_code == 200:
-                return True, "API密鑰驗證成功"
+                return True, "API密钥验证成功"
             elif response.status_code == 401:
-                return False, "API密鑰無效或已過期"
+                return False, "API密钥无效或已过期"
             elif response.status_code == 429:
-                return False, "API調用頻率過高，請稍後再試"
+                return False, "API调用频率过高，请稍后再试"
             else:
-                return False, f"API調用失敗，狀態碼: {response.status_code}"
+                return False, f"API调用失败，状态码: {response.status_code}"
                 
         except requests.exceptions.Timeout:
-            return False, "API請求超時，請檢查網絡連接"
+            return False, "API请求超时，请检查网络连接"
         except requests.exceptions.ConnectionError:
-            return False, "無法連接到API服務器，請檢查網絡"
+            return False, "无法连接到API服务器，请检查网络"
         except Exception as e:
-            return False, f"驗證API密鑰時出錯: {str(e)}"
+            return False, f"验证API密钥时出错: {str(e)}"
     
     def create_config_from_template(self, api_key: str, custom_settings: Optional[Dict] = None) -> bool:
         """
-        從模板創建配置文件
+        从模板创建配置文件
         
         Args:
-            api_key: SiliconFlow API密鑰
-            custom_settings: 自定義設置（可選）
+            api_key: SiliconFlow API密钥
+            custom_settings: 自定义设置（可选）
             
         Returns:
-            bool: 是否創建成功
+            bool: 是否创建成功
         """
         try:
-            # 如果模板文件不存在，創建默認模板
+            # 如果模板文件不存在，创建默认模板
             if not self.template_path.exists():
                 self._create_default_template()
             
-            # 讀取模板文件
+            # 读取模板文件
             with open(self.template_path, 'r', encoding='utf-8') as f:
                 config_data = yaml.safe_load(f)
             
-            # 設置API密鑰
+            # 设置API密钥
             if config_data and 'api' in config_data:
                 config_data['api']['siliconflow_api_key'] = api_key
             
-            # 應用自定義設置
+            # 应用自定义设置
             if custom_settings:
                 self._merge_settings(config_data, custom_settings)
             
-            # 寫入配置文件
+            # 写入配置文件
             with open(self.config_path, 'w', encoding='utf-8') as f:
                 yaml.dump(config_data, f, default_flow_style=False, allow_unicode=True)
             
-            logger.info(f"配置文件已創建: {self.config_path}")
+            logger.info(f"配置文件已创建: {self.config_path}")
             return True
             
         except Exception as e:
-            logger.error(f"創建配置文件時出錯: {e}")
+            logger.error(f"创建配置文件时出错: {e}")
             return False
     
     def update_api_key(self, api_key: str) -> bool:
         """
-        更新配置文件中的API密鑰
+        更新配置文件中的API密钥
         
         Args:
-            api_key: 新的API密鑰
+            api_key: 新的API密钥
             
         Returns:
             bool: 是否更新成功
@@ -149,37 +149,34 @@ class ConfigWizard:
             config.save()
             return True
         except Exception as e:
-            logger.error(f"更新API密鑰時出錯: {e}")
+            logger.error(f"更新API密钥时出错: {e}")
             return False
     
     def get_api_setup_instructions(self) -> str:
-        """獲取API設置說明"""
+        """获取API配置说明"""
         return """
-🔑 SiliconFlow API 密鑰設置指南
+🔑 API 配置说明
 
-1. 訪問 SiliconFlow 官網
-   🌐 https://siliconflow.cn/
+VocabMaster 使用预配置的 SiliconFlow API 来提供语义匹配功能。
 
-2. 註冊並登錄賬號
-   📝 如果沒有賬號，請先註冊
+✅ API 密钥已预先配置，无需手动设置
+🚀 开箱即用，直接开始学习
+🔒 安全可靠，由开发者统一管理
 
-3. 創建API密鑰
-   🔑 在控制台中找到「API密鑰」或「API Keys」選項
-   ➕ 點擊「創建新密鑰」或「Create New Key」
-   💾 複製生成的密鑰（通常以 sk- 開頭）
+功能特点：
+📊 智能语义匹配 - 支持近义词和相似表达
+⚡ 高速缓存机制 - 重复答案瞬时响应  
+🎯 准确度优化 - 中文语言学特征增强
+💾 离线缓存 - 常用答案本地存储
 
-4. 在VocabMaster中配置
-   📋 將密鑰粘貼到下方輸入框
-   ✅ 點擊「驗證」按鈕確認密鑰有效性
-
-注意事項：
-⚠️  請妥善保管您的API密鑰，不要分享給他人
-💰 SiliconFlow 提供免費額度，超出後需要付費
-🔄 如需更改密鑰，可隨時在設置中修改
+注意事项：
+🌐 需要网络连接进行首次语义分析
+💰 API 调用已包含在软件中，用户无需付费
+📈 使用越多，缓存命中率越高，响应越快
         """
     
     def _create_default_template(self):
-        """創建默認配置模板"""
+        """创建默认配置模板"""
         default_config = {
             'api': {
                 'siliconflow_api_key': 'your_siliconflow_api_key_here',
@@ -202,7 +199,7 @@ class ConfigWizard:
             'ui': {
                 'window_width': 800,
                 'window_height': 600,
-                'font_family': 'Arial',
+                'font_family': 'Times New Roman',
                 'font_size': 12
             },
             'logging': {
@@ -216,7 +213,7 @@ class ConfigWizard:
             yaml.dump(default_config, f, default_flow_style=False, allow_unicode=True)
     
     def _merge_settings(self, config_data: dict, custom_settings: dict):
-        """合併自定義設置到配置數據"""
+        """合并自定义设置到配置数据"""
         for key, value in custom_settings.items():
             if isinstance(value, dict) and key in config_data:
                 config_data[key].update(value)
@@ -225,5 +222,5 @@ class ConfigWizard:
 
 
 def setup_config_wizard() -> ConfigWizard:
-    """創建並返回配置向導實例"""
+    """创建并返回配置向导实例"""
     return ConfigWizard()

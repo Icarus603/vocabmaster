@@ -3,11 +3,13 @@
 This module provides the implementation for testing professional terms and expressions.
 """
 
-import os
 import json
+import os
 import random
+
 from .base import TestBase
 from .resource_path import resource_path
+
 
 class TermsTest(TestBase):
     """《理解当代中国》英汉互译类"""
@@ -48,6 +50,24 @@ class TermsTest(TestBase):
         
         self.vocabulary = vocabulary
         return vocabulary
+    
+    def get_vocabulary_size(self):
+        """获取词汇表大小"""
+        if not hasattr(self, 'vocabulary') or not self.vocabulary:
+            self.load_vocabulary()
+        return len(self.vocabulary) if self.vocabulary else 0
+    
+    def select_random_words(self, count):
+        """随机选择指定数量的词汇"""
+        if not hasattr(self, 'vocabulary') or not self.vocabulary:
+            self.load_vocabulary()
+        
+        if not self.vocabulary:
+            return []
+        
+        # 确保不超过词汇表的总数
+        actual_count = min(count, len(self.vocabulary))
+        return random.sample(self.vocabulary, actual_count)
     
     def generate_test(self, words, balance=True):
         """生成测试题目，确保英译汉和汉译英两种题型数量平衡"""
@@ -188,6 +208,7 @@ class TermsTestUnit1to5(TermsTest):
     def __init__(self):
         # 使用相对于项目根目录的路径
         super().__init__("单元1-5", "terms_and_expressions/terms_and_expressions_1.json")
+        self.unit_range = "1-5"
 
 
 class TermsTestUnit6to10(TermsTest):
@@ -196,3 +217,4 @@ class TermsTestUnit6to10(TermsTest):
     def __init__(self):
         # 使用相对于项目根目录的路径
         super().__init__("单元6-10", "terms_and_expressions/terms_and_expressions_2.json")
+        self.unit_range = "6-10"

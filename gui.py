@@ -2,29 +2,37 @@ import logging
 import os
 import random  # 新增导入
 import sys
+import time
+import uuid
 
-from PyQt6.QtCore import QSize, Qt, QPropertyAnimation, QEasingCurve, QTimer, pyqtSignal
+from PyQt6.QtCore import (QEasingCurve, QPropertyAnimation, QSize, Qt, QTimer,
+                          pyqtSignal)
 from PyQt6.QtGui import QFont, QIcon, QKeySequence, QPixmap, QShortcut
 from PyQt6.QtWidgets import (QApplication, QButtonGroup, QComboBox, QDialog,
-                             QFileDialog, QGroupBox, QHBoxLayout, QLabel,
-                             QLineEdit, QMainWindow, QMessageBox, QProgressBar,
-                             QPushButton, QRadioButton, QScrollArea, QSpinBox,
-                             QStackedWidget, QTextEdit, QVBoxLayout, QWidget,
-                             QGraphicsOpacityEffect, QFrame)
+                             QFileDialog, QFrame, QGraphicsOpacityEffect,
+                             QGroupBox, QHBoxLayout, QLabel, QLineEdit,
+                             QMainWindow, QMessageBox, QProgressBar,
+                             QPushButton, QRadioButton, QScrollArea, QSlider,
+                             QSpinBox, QStackedWidget, QTextEdit, QVBoxLayout,
+                             QWidget)
 
-from utils import BECTest, DIYTest, TermsTest
+from utils import BECTest as BecTest
+from utils import DIYTest, TermsTest
 from utils.base import TestResult  # <-- 确保 TestResult 已导入
 from utils.bec import (BECTestModule1, BECTestModule2, BECTestModule3,
                        BECTestModule4)
 from utils.config import config
+from utils.config_gui import show_config_dialog
+from utils.config_wizard import ConfigWizard
 from utils.ielts import IeltsTest
+from utils.learning_stats import TestSession, get_learning_stats_manager
 # 导入 resource_path 用于查找资源文件
 from utils.resource_path import resource_path
-from utils.terms import TermsTestUnit1to5, TermsTestUnit6to10
-from utils.config_wizard import ConfigWizard
-from utils.config_gui import show_config_dialog
 from utils.stats_gui import show_learning_stats
-from utils.ui_styles import apply_theme, get_button_style, COLORS, get_success_style, get_error_style, get_info_style
+from utils.terms import TermsTestUnit1to5, TermsTestUnit6to10
+from utils.ui_styles import (COLORS, apply_theme, get_button_style,
+                             get_error_style, get_info_style,
+                             get_success_style)
 
 logger = logging.getLogger(__name__)
 
@@ -33,23 +41,90 @@ class MainWindow(QMainWindow):
     
     def __init__(self):
         super().__init__()
+        self.logger = logging.getLogger('gui')
         
-        # 设置窗口标题和大小
-        self.setWindowTitle("VocabMaster - 词汇测试系统")
-        self.setMinimumSize(800, 600)
+        # 学习统计相关
+        self.learning_stats_manager = None
+        self.current_session_id = None
+        self.session_start_time = None
+        self.detailed_results_for_session = []
+        
+        # 初始配置检查
+        self.check_initial_config()
+        
+        # 初始化学习统计
+        self.init_learning_stats()
+        
+        self.setup_ui()
+    
+    def init_learning_stats(self):
+        """初始化学习统计管理器"""
+        try:
+            from utils.learning_stats import LearningStatsManager
+            self.learning_stats_manager = LearningStatsManager()
+            self.logger.info("学习统计管理器初始化成功")
+        except Exception as e:
+            self.logger.error(f"学习统计管理器初始化失败: {e}")
+    
+    def setup_ui(self):
+        """设置用户界面"""
+        self.setWindowTitle("VocabMaster")
+        self.setMinimumSize(800, 600)  # 设置最小尺寸而不是固定尺寸
+        self.resize(1000, 700)  # 设置默认尺寸，但允许调整
         
         # 设置窗口图标
-        icon_path = resource_path(os.path.join("assets", "icon.png"))
+        icon_path = resource_path("assets/icon.png")
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
-        else:
-            logger.warning(f"窗口图标文件未找到: {icon_path}")
+        
+        # 启用全屏功能
+        self.is_fullscreen = False
+        self.normal_geometry = None
         
         # 初始化测试模块
+        self.test_modules = {
+            'ielts': {
+                'name': 'IELTS雅思词汇',
+                'test_class': IeltsTest,
+                'description': '雅思考试核心词汇'
+            },
+            'bec': {
+                'name': 'BEC高级词汇',
+                'test_class': BecTest,
+                'description': 'BEC商务英语高级词汇'
+            },
+            'terms': {
+                # 《理解当代中国》英汉互译
+                'name': '《理解当代中国》英汉互译',
+                'test_class': TermsTest,
+                'description': '理解当代中国英汉互译词汇',
+                'modules': {
+                    'unit1_5': {'name': 'Unit 1-5', 'test_class': TermsTestUnit1to5},
+                    'unit6_10': {'name': 'Unit 6-10', 'test_class': TermsTestUnit6to10}
+                }
+            },
+            'diy': {
+                'name': 'DIY自定义词汇',
+                'test_class': DIYTest,
+                'description': '自定义词汇表测试'
+            }
+        }
+        
+        # 初始化UI状态
+        self.current_test = None
+        self.diy_test = None  # 添加 diy_test 初始化
+        self.test_words = []
+        self.current_word_index = 0
+        self.correct_count = 0
+        self.expected_answer = ""
+        self.expected_alternatives = []
+        
+        # 初始化测试实例
         self.tests = {
-            # BEC高级词汇测试
+            "ielts": {
+                "instance": IeltsTest()
+            },
             "bec": {
-                "name": "BEC高级词汇测试",
                 "modules": {
                     "1": BECTestModule1(),
                     "2": BECTestModule2(),
@@ -57,56 +132,152 @@ class MainWindow(QMainWindow):
                     "4": BECTestModule4()
                 }
             },
-            # 《理解当代中国》英汉互译
             "terms": {
-                "name": "《理解当代中国》英汉互译",
                 "modules": {
                     "1-5": TermsTestUnit1to5(),
                     "6-10": TermsTestUnit6to10()
                 }
-            },
-            # 新增 IELTS 测试
-            "ielts": {
-                "name": "IELTS 雅思英译中 (语义)",
-                "instance": IeltsTest()
-            },
-            # DIY测试
-            "diy": {
-                "name": "DIY自定义词汇测试",
-                "modules": {}
             }
         }
-        self.current_test = None
-        self.diy_test = None
-        self.test_words = [] # 用于存储当前测试会话的题目列表
-        self.detailed_results_for_session = [] # 用于存储 TestResult 对象
-        self.current_word_index = 0
-        self.correct_count = 0
-        self.wrong_answers = []
         
-        # 设置中央窗口部件
-        self.central_widget = QWidget()
-        self.setCentralWidget(self.central_widget)
-        
-        # 创建堆叠部件，用于页面切换
+        # 创建堆叠窗口部件
         self.stacked_widget = QStackedWidget()
+        self.setCentralWidget(self.stacked_widget)
         
         # 创建页面
-        self.setup_main_menu()
-        self.setup_bec_menu()
-        self.setup_terms_menu()
-        self.setup_diy_menu()
-        self.setup_import_vocabulary()
-        self.setup_test_mode_menu()
-        self.setup_test_screen()
-        self.setup_results_screen()
+        self.setup_main_menu()      # 0
+        self.setup_bec_menu()       # 1
+        self.setup_terms_menu()     # 2
+        self.setup_diy_menu()       # 3
+        self.setup_import_vocabulary() # 4
+        self.setup_test_mode_menu() # 5
+        self.setup_test_screen()    # 6
+        self.setup_results_screen() # 7
         
-        # 设置布局
-        main_layout = QVBoxLayout(self.central_widget)
-        main_layout.addWidget(self.stacked_widget)
+        # 显示主菜单
+        self.stacked_widget.setCurrentIndex(0)
+    
+    def start_learning_session(self):
+        """开始学习会话记录"""
+        if not self.learning_stats_manager:
+            return
         
-        # 检查配置并显示主菜单
-        self.check_initial_config()
+        try:
+            import time
+            import uuid
+            
+            self.current_session_id = str(uuid.uuid4())
+            self.session_start_time = time.time()
+            self.detailed_results_for_session = []
+            
+            # 根据当前测试类型确定test_type
+            test_type = "unknown"
+            if isinstance(self.current_test, IeltsTest):
+                test_type = "ielts"
+            elif isinstance(self.current_test, DIYTest):
+                test_type = "diy"
+            elif hasattr(self.current_test, 'name'):
+                if 'BEC' in self.current_test.name:
+                    test_type = "bec"
+                elif 'Terms' in self.current_test.name:
+                    test_type = "terms"
+            
+            self.logger.info(f"开始学习会话: {self.current_session_id[:8]}, 类型: {test_type}")
+            
+        except Exception as e:
+            self.logger.error(f"开始学习会话失败: {e}")
+    
+    def record_learning_answer(self, question: str, expected: str, user_answer: str, is_correct: bool, response_time: float = 0):
+        """记录学习答案"""
+        if not self.learning_stats_manager:
+            return
+        
+        try:
+            # 根据当前测试类型确定test_type
+            test_type = "unknown"
+            if isinstance(self.current_test, IeltsTest):
+                test_type = "ielts"
+            elif isinstance(self.current_test, DIYTest):
+                test_type = "diy"
+            elif hasattr(self.current_test, 'name'):
+                if 'BEC' in self.current_test.name:
+                    test_type = "bec"
+                elif 'Terms' in self.current_test.name:
+                    test_type = "terms"
+            
+            # 提取单词进行统计（简化处理）
+            word = question.strip()
+            
+            self.learning_stats_manager.record_word_attempt(
+                word, is_correct, response_time, test_type
+            )
+            
+        except Exception as e:
+            self.logger.error(f"记录学习答案失败: {e}")
+    
+    def end_learning_session(self):
+        """结束学习会话"""
+        if not self.learning_stats_manager or not self.current_session_id:
+            return
+        
+        try:
+            end_time = time.time()
+            total_time = end_time - self.session_start_time if self.session_start_time else 0
+            total_questions = len(self.detailed_results_for_session)
+            correct_answers = sum(1 for r in self.detailed_results_for_session if r.is_correct)
+            
+            if total_questions == 0:
+                return
+            
+            score_percentage = (correct_answers / total_questions) * 100
+            avg_time_per_question = total_time / total_questions if total_questions > 0 else 0
+            wrong_words = [r.question for r in self.detailed_results_for_session if not r.is_correct]
+            
+            # 确定测试类型和模块
+            test_type = "unknown"
+            test_module = "default"
+            
+            if isinstance(self.current_test, IeltsTest):
+                test_type = "ielts"
+                test_module = "ielts_module"
+            elif isinstance(self.current_test, DIYTest):
+                test_type = "diy"
+                test_module = "diy_module"
+            elif hasattr(self.current_test, 'name'):
+                if 'BEC' in self.current_test.name:
+                    test_type = "bec"
+                    test_module = getattr(self.current_test, 'module_key', 'bec_module')
+                elif 'Terms' in self.current_test.name:
+                    test_type = "terms"
+                    test_module = getattr(self.current_test, 'module_key', 'terms_module')
+            
+            # 创建会话记录
+            session = TestSession(
+                session_id=self.current_session_id,
+                test_type=test_type,
+                test_module=test_module,
+                start_time=self.session_start_time,
+                end_time=end_time,
+                total_questions=total_questions,
+                correct_answers=correct_answers,
+                score_percentage=score_percentage,
+                time_spent=total_time,
+                avg_time_per_question=avg_time_per_question,
+                wrong_words=wrong_words,
+                test_mode="mixed"  # 默认混合模式
+            )
+            
+            # 记录会话
+            self.learning_stats_manager.record_test_session(session)
+            self.learning_stats_manager.save_word_stats()
+            
+            self.logger.info(f"学习会话已记录: {correct_answers}/{total_questions} ({score_percentage:.1f}%)")
+            
+        except Exception as e:
+            self.logger.error(f"结束学习会话失败: {e}")
+        finally:
+            self.current_session_id = None
+            self.session_start_time = None
     
     def create_fade_in_animation(self, widget, duration=300):
         """创建淡入动画"""
@@ -161,14 +332,80 @@ class MainWindow(QMainWindow):
         button = QPushButton(text)
         button.setStyleSheet(get_button_style(style_type))
         
+        # 先添加動畫效果
+        def enhanced_click():
+            self.animate_button_click(button)
+        
+        button.clicked.connect(enhanced_click)
+        
+        # 然後連接事件处理器
         if click_handler:
             button.clicked.connect(click_handler)
         
-        # 添加点击动画
-        original_click = button.clicked
-        button.clicked.connect(lambda: self.animate_button_click(button))
-        
         return button
+    
+    def create_modern_slider(self, min_val, max_val, default_val, suffix=""):
+        """創建現代化滑塊控件"""
+        container = QWidget()
+        layout = QHBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(16)
+        
+        # 滑塊
+        slider = QSlider(Qt.Orientation.Horizontal)
+        slider.setRange(min_val, max_val)
+        slider.setValue(default_val)
+        slider.setStyleSheet("""
+            QSlider::groove:horizontal {
+                border: 1px solid #e5e7eb;
+                height: 6px;
+                background: #f3f4f6;
+                border-radius: 3px;
+            }
+            QSlider::handle:horizontal {
+                background: #3b82f6;
+                border: 2px solid #3b82f6;
+                width: 20px;
+                height: 20px;
+                border-radius: 10px;
+                margin: -8px 0;
+            }
+            QSlider::handle:horizontal:hover {
+                background: #2563eb;
+                border-color: #2563eb;
+            }
+            QSlider::sub-page:horizontal {
+                background: #3b82f6;
+                border-radius: 3px;
+            }
+        """)
+        
+        # 數值顯示
+        value_label = QLabel(f"{default_val}{suffix}")
+        value_label.setStyleSheet("""
+            QLabel {
+                background-color: #3b82f6;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 8px;
+                font-weight: 600;
+                font-size: 14px;
+                min-width: 60px;
+            }
+        """)
+        value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        # 連接滑塊變化
+        slider.valueChanged.connect(lambda v: value_label.setText(f"{v}{suffix}"))
+        
+        layout.addWidget(slider, 1)
+        layout.addWidget(value_label)
+        
+        # 添加屬性以便外部訪問
+        container.slider = slider
+        container.value_label = value_label
+        
+        return container
     
     def setup_main_menu(self):
         """设置主菜单页面"""
@@ -179,7 +416,7 @@ class MainWindow(QMainWindow):
         # 标题
         title = QLabel("VocabMaster")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title.setFont(QFont("SF Pro Display", 32, QFont.Weight.Bold))
+        title.setFont(QFont("Times New Roman", 32, QFont.Weight.Bold))
         title.setStyleSheet(f"""
             QLabel {{
                 color: {COLORS['primary']};
@@ -190,7 +427,7 @@ class MainWindow(QMainWindow):
         # 副标题
         subtitle = QLabel("智能词汇测试系统")
         subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        subtitle.setFont(QFont("SF Pro Display", 16, QFont.Weight.Normal))
+        subtitle.setFont(QFont("Times New Roman", 16, QFont.Weight.Normal))
         subtitle.setStyleSheet(f"""
             QLabel {{
                 color: {COLORS['text_secondary']};
@@ -212,18 +449,18 @@ class MainWindow(QMainWindow):
         # 设置主要按钮样式和大小
         for btn in [bec_btn, ielts_btn, terms_btn, diy_btn]:
             btn.setMinimumSize(360, 56)
-            btn.setFont(QFont("SF Pro Display", 14, QFont.Weight.Bold))
+            btn.setFont(QFont("Times New Roman", 14, QFont.Weight.Bold))
         
         # 设置底部按钮样式
         for btn in [settings_btn, stats_btn, exit_btn]:
             btn.setMinimumSize(110, 40)
-            btn.setFont(QFont("SF Pro Display", 12, QFont.Weight.Normal))
+            btn.setFont(QFont("Times New Roman", 12, QFont.Weight.Normal))
         
         # 连接按钮点击事件
-        bec_btn.clicked.connect(lambda: self.animate_page_transition(1))
+        bec_btn.clicked.connect(lambda: self.handle_bec_click())
         ielts_btn.clicked.connect(lambda: self.select_test("ielts"))
-        terms_btn.clicked.connect(lambda: self.animate_page_transition(2))
-        diy_btn.clicked.connect(lambda: self.animate_page_transition(3))
+        terms_btn.clicked.connect(lambda: self.handle_terms_click())
+        diy_btn.clicked.connect(lambda: self.handle_diy_click())
         settings_btn.clicked.connect(self.show_settings)
         stats_btn.clicked.connect(self.show_learning_stats)
         exit_btn.clicked.connect(self.close)
@@ -235,7 +472,7 @@ class MainWindow(QMainWindow):
         layout.addSpacing(40)
         layout.addWidget(bec_btn)
         layout.addSpacing(10)
-        layout.addWidget(ielts_btn) # <-- 新增 IELTS 按钮到布局
+        layout.addWidget(ielts_btn)
         layout.addSpacing(10)
         layout.addWidget(terms_btn)
         layout.addSpacing(10)
@@ -353,24 +590,32 @@ class MainWindow(QMainWindow):
     
     def animate_page_transition(self, page_index):
         """带动画的页面切换"""
-        current_widget = self.stacked_widget.currentWidget()
-        
-        # 淡出当前页面
-        if current_widget:
-            effect = QGraphicsOpacityEffect()
-            current_widget.setGraphicsEffect(effect)
-            
-            fade_out = QPropertyAnimation(effect, b"opacity")
-            fade_out.setDuration(200)
-            fade_out.setStartValue(1.0)
-            fade_out.setEndValue(0.0)
-            fade_out.setEasingCurve(QEasingCurve.Type.InCubic)
-            
-            # 切换页面后淡入
-            fade_out.finished.connect(lambda: self.fade_in_new_page(page_index))
-            fade_out.start()
-        else:
+        try:
+            # 直接切换页面，暫時不用動畫避免問題
             self.stacked_widget.setCurrentIndex(page_index)
+            
+            # 记录切换日志
+            self.logger.info(f"切换到页面索引: {page_index}")
+            
+        except Exception as e:
+            self.logger.error(f"页面切换失败: {e}")
+            # 如果出错，直接设置页面索引
+            self.stacked_widget.setCurrentIndex(page_index)
+    
+    def handle_bec_click(self):
+        """处理BEC按钮点击"""
+        self.logger.info("BEC按钮被点击")
+        self.animate_page_transition(1)
+    
+    def handle_terms_click(self):
+        """处理Terms按钮点击"""
+        self.logger.info("Terms按钮被点击")
+        self.animate_page_transition(2)
+    
+    def handle_diy_click(self):
+        """处理DIY按钮点击"""
+        self.logger.info("DIY按钮被点击")
+        self.animate_page_transition(3)
     
     def fade_in_new_page(self, page_index):
         """淡入新页面"""
@@ -389,26 +634,28 @@ class MainWindow(QMainWindow):
         # 标题
         title = QLabel("BEC高级词汇测试")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        title.setFont(QFont("Times New Roman", 24, QFont.Weight.Bold))
+        title.setStyleSheet(f"""
+            QLabel {{
+                color: {COLORS['primary']};
+                margin: 20px 0;
+            }}
+        """)
         
         # 模块按钮
-        module1_btn = QPushButton("模块1")
-        module2_btn = QPushButton("模块2")
-        module3_btn = QPushButton("模块3")
-        module4_btn = QPushButton("模块4")
-        back_btn = QPushButton("返回主菜单")
+        module1_btn = self.create_enhanced_button("📘 模块1", 'primary', lambda: self.select_test("bec", "1"))
+        module2_btn = self.create_enhanced_button("📗 模块2", 'primary', lambda: self.select_test("bec", "2"))
+        module3_btn = self.create_enhanced_button("📙 模块3", 'primary', lambda: self.select_test("bec", "3"))
+        module4_btn = self.create_enhanced_button("📕 模块4", 'primary', lambda: self.select_test("bec", "4"))
+        back_btn = self.create_enhanced_button("🔙 返回主菜单", 'outline', lambda: self.animate_page_transition(0))
         
-        # 设置按钮样式和大小
-        for btn in [module1_btn, module2_btn, module3_btn, module4_btn, back_btn]:
-            btn.setMinimumSize(300, 50)
-            btn.setFont(QFont("Arial", 12))
+        # 设置按钮大小
+        for btn in [module1_btn, module2_btn, module3_btn, module4_btn]:
+            btn.setMinimumSize(300, 56)
+            btn.setFont(QFont("Times New Roman", 14, QFont.Weight.Bold))
         
-        # 连接按钮点击事件
-        module1_btn.clicked.connect(lambda: self.select_test("bec", "1"))
-        module2_btn.clicked.connect(lambda: self.select_test("bec", "2"))
-        module3_btn.clicked.connect(lambda: self.select_test("bec", "3"))
-        module4_btn.clicked.connect(lambda: self.select_test("bec", "4"))
-        back_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(0))
+        back_btn.setMinimumSize(200, 44)
+        back_btn.setFont(QFont("Times New Roman", 12, QFont.Weight.Normal))
         
         # 添加部件到布局
         layout.addStretch()
@@ -437,22 +684,26 @@ class MainWindow(QMainWindow):
         # 标题
         title = QLabel("《理解当代中国》英汉互译")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        title.setFont(QFont("Times New Roman", 24, QFont.Weight.Bold))
+        title.setStyleSheet(f"""
+            QLabel {{
+                color: {COLORS['primary']};
+                margin: 20px 0;
+            }}
+        """)
         
         # 单元按钮
-        unit1_5_btn = QPushButton("单元1-5")
-        unit6_10_btn = QPushButton("单元6-10")
-        back_btn = QPushButton("返回主菜单")
+        unit1_5_btn = self.create_enhanced_button("📚 单元1-5", 'primary', lambda: self.select_test("terms", "1-5"))
+        unit6_10_btn = self.create_enhanced_button("📖 单元6-10", 'primary', lambda: self.select_test("terms", "6-10"))
+        back_btn = self.create_enhanced_button("🔙 返回主菜单", 'outline', lambda: self.animate_page_transition(0))
         
-        # 设置按钮样式和大小
-        for btn in [unit1_5_btn, unit6_10_btn, back_btn]:
-            btn.setMinimumSize(300, 50)
-            btn.setFont(QFont("Arial", 12))
+        # 设置按钮大小
+        for btn in [unit1_5_btn, unit6_10_btn]:
+            btn.setMinimumSize(300, 56)
+            btn.setFont(QFont("Times New Roman", 14, QFont.Weight.Bold))
         
-        # 连接按钮点击事件
-        unit1_5_btn.clicked.connect(lambda: self.select_test("terms", "1-5"))
-        unit6_10_btn.clicked.connect(lambda: self.select_test("terms", "6-10"))
-        back_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(0))
+        back_btn.setMinimumSize(200, 44)
+        back_btn.setFont(QFont("Times New Roman", 12, QFont.Weight.Normal))
         
         # 添加部件到布局
         layout.addStretch()
@@ -477,22 +728,26 @@ class MainWindow(QMainWindow):
         # 标题
         title = QLabel("DIY自定义词汇测试")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        title.setFont(QFont("Times New Roman", 24, QFont.Weight.Bold))
+        title.setStyleSheet(f"""
+            QLabel {{
+                color: {COLORS['primary']};
+                margin: 20px 0;
+            }}
+        """)
         
         # 操作按钮
-        import_btn = QPushButton("导入新的词汇表")
-        use_prev_btn = QPushButton("使用上次导入的词汇表")
-        back_btn = QPushButton("返回主菜单")
+        import_btn = self.create_enhanced_button("📥 导入新的词汇表", 'primary', lambda: self.animate_page_transition(4))
+        use_prev_btn = self.create_enhanced_button("📋 使用上次导入的词汇表", 'secondary', self.use_previous_vocabulary)
+        back_btn = self.create_enhanced_button("🔙 返回主菜单", 'outline', lambda: self.animate_page_transition(0))
         
-        # 设置按钮样式和大小
-        for btn in [import_btn, use_prev_btn, back_btn]:
-            btn.setMinimumSize(300, 50)
-            btn.setFont(QFont("Arial", 12))
+        # 设置按钮大小
+        for btn in [import_btn, use_prev_btn]:
+            btn.setMinimumSize(320, 56)
+            btn.setFont(QFont("Times New Roman", 14, QFont.Weight.Bold))
         
-        # 连接按钮点击事件
-        import_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(4))
-        use_prev_btn.clicked.connect(self.use_previous_vocabulary)
-        back_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(0))
+        back_btn.setMinimumSize(200, 44)
+        back_btn.setFont(QFont("Times New Roman", 12, QFont.Weight.Normal))
         
         # 添加部件到布局
         layout.addStretch()
@@ -509,86 +764,116 @@ class MainWindow(QMainWindow):
         self.stacked_widget.addWidget(page)
     
     def setup_import_vocabulary(self):
-        """设置导入词汇表页面"""
+        """设置DIY词汇表导入页面"""
         page = QWidget()
-        layout = QVBoxLayout(page)
-        # page.setStyleSheet("background-color: #2d2d2d; color: #e0e0e0;") # 移除深色背景，使用默认
         
-        # 标题
-        title = QLabel("导入DIY词汇表") # 更新标题
+        # 主容器 - 调整大小和间距
+        main_container = QWidget()
+        main_container.setFixedSize(600, 400)  # 进一步减小高度
+        main_container.setStyleSheet("""
+            QWidget {
+                background-color: white;
+                border-radius: 16px;
+                border: 1px solid #e5e7eb;
+            }
+        """)
+        
+        layout = QVBoxLayout(main_container)
+        layout.setContentsMargins(30, 25, 30, 25)  # 稍微减小垂直边距
+        layout.setSpacing(18)  # 稍微减小间距
+        
+        # 标题区域 - 简化
+        title = QLabel("📥 导入DIY词汇表")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title.setFont(QFont("Arial", 20, QFont.Weight.Bold))
-        # title.setStyleSheet("color: #ffffff;") # 移除特定颜色
+        title.setFont(QFont("Times New Roman", 22, QFont.Weight.Bold))  # 稍微减小字体
+        title.setStyleSheet("color: #1f2937;")
         
-        # 文件格式说明
-        info_text = ("支持的文件格式: 仅支持.json格式\n\n"
-                     "JSON格式要求:\n"
-                     "1. 传统模式 (英汉词对):\n"
-                     "   - JSON文件应为一个列表 (array)，每个元素是一个字典 (object)。\n"
-                     "   - 每个字典必须包含 \"english\" 和 \"chinese\" 键。\n"
-                     "   - 这两个键的值可以是字符串或字符串列表。\n"
-                     "   - 可选 \"alternatives\" 键 (字符串列表) 提供更多英文备选。\n"
-                     "2. 语义模式 (纯英文词汇):\n"
-                     "   - JSON文件应为一个简单的字符串列表 (array of strings)。\n"
-                     "   - 每个字符串代表一个英文单词或短语。\n"
-                     "   - 此模式下，将通过API进行英译中语义相似度判断。\n\n"
-                     "导入时，系统会自动检测文件格式。")
-        info = QLabel(info_text)
-        info.setAlignment(Qt.AlignmentFlag.AlignLeft) # 左对齐
-        info.setWordWrap(True) # 自动换行
-        info.setFont(QFont("Arial", 11))
-        # info.setStyleSheet("color: #e0e0e0;") # 移除特定颜色
+        subtitle = QLabel("支持JSON格式的自定义词汇表")
+        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        subtitle.setFont(QFont("Times New Roman", 13))
+        subtitle.setStyleSheet("color: #6b7280;")
         
-        # 查看示例按钮
-        view_examples_btn = QPushButton("查看JSON格式详细示例")
-        view_examples_btn.setMinimumSize(300, 40)
-        view_examples_btn.setFont(QFont("Arial", 12))
-        # view_examples_btn.setStyleSheet("background-color: #404040; color: #8cf26e;") # 移除特定样式
-        view_examples_btn.clicked.connect(self.show_json_examples_diy) # 连接到新的示例函数
+        # 查看示例按钮 - 更突出
+        view_examples_btn = self.create_enhanced_button("📖 查看JSON格式示例", 'secondary')
+        view_examples_btn.setMinimumHeight(40)
+        view_examples_btn.clicked.connect(self.show_json_examples_diy)
         
-        # 文件路径输入
-        file_layout = QHBoxLayout()
+        # 文件选择区域 - 简化版本
+        file_card = QWidget()
+        file_card.setStyleSheet("""
+            QWidget {
+                background-color: #f8fafc;
+                border: 2px dashed #cbd5e1;
+                border-radius: 8px;
+            }
+        """)
+        file_layout = QVBoxLayout(file_card)
+        file_layout.setContentsMargins(16, 16, 16, 16)
+        file_layout.setSpacing(8)
+        
+        # 文件路径输入框
+        path_layout = QHBoxLayout()
+        path_layout.setSpacing(10)
+        
         self.file_path_input = QLineEdit()
         self.file_path_input.setPlaceholderText("请选择JSON词汇表文件...")
-        self.file_path_input.setMinimumHeight(30)
-        # self.file_path_input.setStyleSheet("background-color: #3a3a3a; color: #ffffff; border: 1px solid #555555; padding: 5px;") # 移除特定样式
-        browse_btn = QPushButton("浏览...")
-        browse_btn.setMinimumSize(100, 30)
-        # browse_btn.setStyleSheet("background-color: #4a4a4a; color: white;") # 移除特定样式
-        file_layout.addWidget(self.file_path_input)
-        file_layout.addWidget(browse_btn)
+        self.file_path_input.setMinimumHeight(40)
+        self.file_path_input.setStyleSheet("""
+            QLineEdit {
+                padding: 10px 14px;
+                border: 2px solid #e2e8f0;
+                border-radius: 6px;
+                font-size: 14px;
+                background-color: #ffffff;
+                color: #334155;
+            }
+            QLineEdit:focus {
+                border-color: #3b82f6;
+                outline: none;
+            }
+        """)
         
-        # 导入按钮
-        import_btn = QPushButton("导入词汇表")
-        import_btn.setMinimumSize(300, 50)
-        import_btn.setFont(QFont("Arial", 12))
-        # import_btn.setStyleSheet("background-color: #007acc; color: white;") # 移除特定样式
-        
-        # 返回按钮
-        back_btn = QPushButton("返回DIY菜单") # 更新按钮文本
-        back_btn.setMinimumSize(300, 50)
-        back_btn.setFont(QFont("Arial", 12))
-        # back_btn.setStyleSheet("background-color: #4a4a4a; color: white;") # 移除特定样式
-        
-        # 连接按钮点击事件
+        browse_btn = self.create_enhanced_button("🗂️ 浏览", 'primary')
+        browse_btn.setMinimumSize(90, 40)
         browse_btn.clicked.connect(self.browse_vocabulary_file)
-        import_btn.clicked.connect(self.import_vocabulary)
-        back_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(3))
         
-        # 添加部件到布局
-        layout.addSpacing(20)
+        path_layout.addWidget(self.file_path_input, 1)
+        path_layout.addWidget(browse_btn)
+        
+        file_layout.addLayout(path_layout)
+        
+        # 操作按钮区域
+        button_layout = QHBoxLayout()
+        button_layout.setSpacing(15)
+        
+        back_btn = self.create_enhanced_button("🔙 返回", 'secondary')
+        back_btn.setMinimumSize(100, 44)
+        back_btn.clicked.connect(lambda: self.animate_page_transition(3))
+        
+        import_btn = self.create_enhanced_button("📥 导入词汇表", 'primary')
+        import_btn.setMinimumSize(120, 44)
+        import_btn.clicked.connect(self.import_vocabulary)
+        
+        button_layout.addWidget(back_btn)
+        button_layout.addStretch()
+        button_layout.addWidget(import_btn)
+        
+        # 组装布局 - 更緊湊
         layout.addWidget(title)
-        layout.addSpacing(20)
-        layout.addWidget(info)
-        layout.addSpacing(10)
-        layout.addWidget(view_examples_btn, alignment=Qt.AlignmentFlag.AlignCenter)
-        layout.addSpacing(10)
-        layout.addLayout(file_layout) # Changed from addWidget to addLayout
-        layout.addSpacing(20)
-        layout.addWidget(import_btn, alignment=Qt.AlignmentFlag.AlignCenter)
-        layout.addSpacing(20)
-        layout.addWidget(back_btn, alignment=Qt.AlignmentFlag.AlignCenter)
-        layout.addStretch()
+        layout.addWidget(subtitle)
+        layout.addSpacing(10)  # 小间距
+        layout.addWidget(view_examples_btn, 0, Qt.AlignmentFlag.AlignCenter)
+        layout.addSpacing(10)  # 小间距
+        layout.addWidget(file_card)
+        layout.addSpacing(10)  # 小间距
+        layout.addLayout(button_layout)
+        
+        # 页面布局 - 垂直居中
+        page_layout = QVBoxLayout(page)
+        page_layout.setContentsMargins(20, 20, 20, 20)
+        page_layout.addStretch()
+        page_layout.addWidget(main_container, 0, Qt.AlignmentFlag.AlignCenter)
+        page_layout.addStretch()
         
         # 将页面添加到堆叠部件
         self.stacked_widget.addWidget(page)
@@ -602,7 +887,7 @@ class MainWindow(QMainWindow):
         # 标题
         self.test_mode_title = QLabel("测试模式")
         self.test_mode_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.test_mode_title.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        self.test_mode_title.setFont(QFont("Times New Roman", 20, QFont.Weight.Bold))
         
         # 测试模式选择
         self.test_direction_group = QGroupBox("测试方向")
@@ -613,9 +898,9 @@ class MainWindow(QMainWindow):
         self.mixed_radio = QRadioButton("混合模式")
         
         self.e2c_radio.setChecked(True)  # 默认选择英译中
-        self.e2c_radio.setFont(QFont("Arial", 12))
-        self.c2e_radio.setFont(QFont("Arial", 12))
-        self.mixed_radio.setFont(QFont("Arial", 12))
+        self.e2c_radio.setFont(QFont("Times New Roman", 12))
+        self.c2e_radio.setFont(QFont("Times New Roman", 12))
+        self.mixed_radio.setFont(QFont("Times New Roman", 12))
         
         test_direction_layout.addWidget(self.e2c_radio)
         test_direction_layout.addWidget(self.c2e_radio)
@@ -627,17 +912,17 @@ class MainWindow(QMainWindow):
         cache_layout = QVBoxLayout()
         
         cache_info = QLabel("首次运行IELTS测试时，预热缓存可大幅提升后续测试速度")
-        cache_info.setFont(QFont("Arial", 10))
+        cache_info.setFont(QFont("Times New Roman", 10))
         cache_info.setStyleSheet(f"color: {COLORS['text_secondary']};")
         cache_info.setWordWrap(True)
         
         self.preload_btn = self.create_enhanced_button("🚀 预热embedding缓存", 'secondary')
         self.preload_btn.setMinimumSize(250, 40)
-        self.preload_btn.setFont(QFont("SF Pro Display", 11, QFont.Weight.Normal))
+        self.preload_btn.setFont(QFont("Times New Roman", 11, QFont.Weight.Normal))
         self.preload_btn.clicked.connect(self.preload_ielts_cache)
         
         self.cache_status_label = QLabel("缓存状态: 检查中...")
-        self.cache_status_label.setFont(QFont("Arial", 9))
+        self.cache_status_label.setFont(QFont("Times New Roman", 9))
         self.cache_status_label.setStyleSheet(f"color: {COLORS['text_muted']};")
         
         cache_layout.addWidget(cache_info)
@@ -646,30 +931,40 @@ class MainWindow(QMainWindow):
         self.cache_group.setLayout(cache_layout)
         self.cache_group.setVisible(False)  # 默认隐藏，只在IELTS测试时显示
         
-        # 题数选择
-        question_count_layout = QHBoxLayout()
-        question_count_label = QLabel("测试题数:")
-        question_count_label.setFont(QFont("Arial", 12))
-        self.question_count_spinbox = QSpinBox()
-        self.question_count_spinbox.setMinimum(1)
-        self.question_count_spinbox.setMaximum(1000)  # 将在加载词汇表后调整
-        self.question_count_spinbox.setValue(10)
-        self.question_count_spinbox.setMinimumHeight(30)
-        self.question_count_spinbox.setMinimumWidth(100)
-        self.question_count_spinbox.setFont(QFont("Arial", 12))
-        question_count_layout.addWidget(question_count_label)
-        question_count_layout.addWidget(self.question_count_spinbox)
-        question_count_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # 题数选择 - 现代化滑塊控件
+        question_card = QWidget()
+        question_card.setStyleSheet("""
+            QWidget {
+                background-color: #f8fafc;
+                border: 2px solid #e5e7eb;
+                border-radius: 12px;
+                padding: 20px;
+            }
+        """)
+        question_layout = QVBoxLayout(question_card)
+        question_layout.setContentsMargins(20, 20, 20, 20)
+        question_layout.setSpacing(12)
+        
+        question_title = QLabel("🎯 测试题数")
+        question_title.setFont(QFont("Times New Roman", 16, QFont.Weight.Bold))
+        question_title.setStyleSheet("color: #374151;")
+        question_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        # 創建現代化滑塊
+        self.question_count_slider = self.create_modern_slider(1, 100, 10, " 题")
+        
+        question_layout.addWidget(question_title)
+        question_layout.addWidget(self.question_count_slider)
         
         # 开始测试按钮
         start_btn = QPushButton("开始测试")
         start_btn.setMinimumSize(300, 50)
-        start_btn.setFont(QFont("Arial", 12))
+        start_btn.setFont(QFont("Times New Roman", 12))
         
         # 返回按钮
         back_btn = QPushButton("返回")
         back_btn.setMinimumSize(300, 50)
-        back_btn.setFont(QFont("Arial", 12))
+        back_btn.setFont(QFont("Times New Roman", 12))
         
         # 连接按钮点击事件
         start_btn.clicked.connect(self.start_test)
@@ -683,7 +978,7 @@ class MainWindow(QMainWindow):
         layout.addSpacing(20)
         layout.addWidget(self.cache_group)
         layout.addSpacing(20)
-        layout.addLayout(question_count_layout)
+        layout.addWidget(question_card)
         layout.addSpacing(30)
         layout.addWidget(start_btn)
         layout.addSpacing(10)
@@ -701,9 +996,9 @@ class MainWindow(QMainWindow):
         # 测试信息
         info_layout = QHBoxLayout()
         self.progress_label = QLabel("进度: 0/0")
-        self.progress_label.setFont(QFont("Arial", 12))
+        self.progress_label.setFont(QFont("Times New Roman", 12))
         self.score_label = QLabel("得分: 0")
-        self.score_label.setFont(QFont("Arial", 12))
+        self.score_label.setFont(QFont("Times New Roman", 12))
         info_layout.addWidget(self.progress_label)
         info_layout.addStretch()
         info_layout.addWidget(self.score_label)
@@ -716,25 +1011,25 @@ class MainWindow(QMainWindow):
         # 问题显示
         self.question_label = QLabel("问题")
         self.question_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.question_label.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        self.question_label.setFont(QFont("Times New Roman", 20, QFont.Weight.Bold))
         self.question_label.setWordWrap(True)
         self.question_label.setMinimumHeight(100)
         
         # 答案输入
         self.answer_input = QLineEdit()
         self.answer_input.setPlaceholderText("请输入答案...")
-        self.answer_input.setFont(QFont("Arial", 14))
+        self.answer_input.setFont(QFont("Times New Roman", 14))
         self.answer_input.setMinimumHeight(40)
         
         # 提交按钮
         self.submit_btn = QPushButton("提交答案")
         self.submit_btn.setMinimumSize(200, 50)
-        self.submit_btn.setFont(QFont("Arial", 12))
+        self.submit_btn.setFont(QFont("Times New Roman", 12))
         
         # 下一题按钮
         self.next_btn = QPushButton("下一题")
         self.next_btn.setMinimumSize(200, 50)
-        self.next_btn.setFont(QFont("Arial", 12))
+        self.next_btn.setFont(QFont("Times New Roman", 12))
         self.next_btn.setVisible(False)  # 初始时隐藏
         self.next_btn.setStyleSheet("background-color: #4CAF50; color: white;")  # 绿色按钮
         
@@ -745,7 +1040,7 @@ class MainWindow(QMainWindow):
         # 结果信息
         self.result_label = QLabel("")
         self.result_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.result_label.setFont(QFont("Arial", 14))
+        self.result_label.setFont(QFont("Times New Roman", 14))
         
         # 连接事件
         self.answer_input.returnPressed.connect(self.check_answer)
@@ -777,31 +1072,31 @@ class MainWindow(QMainWindow):
         # 标题
         title = QLabel("测试结果")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title.setFont(QFont("Arial", 20, QFont.Weight.Bold))
+        title.setFont(QFont("Times New Roman", 20, QFont.Weight.Bold))
         
         # 结果统计
         self.result_stats = QLabel("统计信息")
         self.result_stats.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.result_stats.setFont(QFont("Arial", 14))
+        self.result_stats.setFont(QFont("Times New Roman", 14))
         
         # 错题列表
         wrong_answers_label = QLabel("错误题目")
         wrong_answers_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        wrong_answers_label.setFont(QFont("Arial", 16, QFont.Weight.Bold))
+        wrong_answers_label.setFont(QFont("Times New Roman", 16, QFont.Weight.Bold))
         
         self.wrong_answers_text = QTextEdit()
         self.wrong_answers_text.setReadOnly(True)
-        self.wrong_answers_text.setFont(QFont("Arial", 12))
+        self.wrong_answers_text.setFont(QFont("Times New Roman", 12))
         self.wrong_answers_text.setMinimumHeight(200)
         
         # 按钮
         self.review_btn = QPushButton("复习错题")
         self.review_btn.setMinimumSize(200, 50)
-        self.review_btn.setFont(QFont("Arial", 12))
+        self.review_btn.setFont(QFont("Times New Roman", 12))
         
         self.back_to_menu_btn = QPushButton("返回主菜单")
         self.back_to_menu_btn.setMinimumSize(200, 50)
-        self.back_to_menu_btn.setFont(QFont("Arial", 12))
+        self.back_to_menu_btn.setFont(QFont("Times New Roman", 12))
         
         # 连接按钮点击事件
         self.review_btn.clicked.connect(self.review_wrong_answers)
@@ -946,8 +1241,8 @@ class MainWindow(QMainWindow):
                 self.current_test.load_vocabulary()
             
             max_words = self.current_test.get_vocabulary_size()
-            self.question_count_spinbox.setMaximum(max_words if max_words > 0 else 1)
-            self.question_count_spinbox.setValue(min(10, max_words) if max_words > 0 else 1)
+            self.question_count_slider.slider.setMaximum(max_words if max_words > 0 else 1)
+            self.question_count_slider.slider.setValue(min(10, max_words) if max_words > 0 else 1)
             
             self.stacked_widget.setCurrentIndex(5)  # 导航到测试模式选择页面
         elif test_type != "diy": # 如果 current_test 未设置且不是DIY（DIY有自己的流程）
@@ -993,8 +1288,8 @@ class MainWindow(QMainWindow):
             
             # 更新题数选择器的最大值
             max_count = len(vocabulary)
-            self.question_count_spinbox.setMaximum(max_count)
-            self.question_count_spinbox.setValue(min(10, max_count))
+            self.question_count_slider.slider.setMaximum(max_count)
+            self.question_count_slider.slider.setValue(min(10, max_count))
 
             # 根据DIY测试的类型 (传统 vs 语义) 设置测试方向选项
             if hasattr(self.current_test, 'is_semantic_diy') and self.current_test.is_semantic_diy:
@@ -1027,8 +1322,8 @@ class MainWindow(QMainWindow):
             self.test_mode_title.setText(self.current_test.name)
             
             max_count = len(self.current_test.vocabulary)
-            self.question_count_spinbox.setMaximum(max_count)
-            self.question_count_spinbox.setValue(min(10, max_count))
+            self.question_count_slider.slider.setMaximum(max_count)
+            self.question_count_slider.slider.setValue(min(10, max_count))
             
             # 根据DIY测试的类型 (传统 vs 语义) 设置测试方向选项
             if hasattr(self.current_test, 'is_semantic_diy') and self.current_test.is_semantic_diy:
@@ -1078,7 +1373,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "警告", "未选择测试模块")
             return
         
-        count = self.question_count_spinbox.value()
+        count = self.question_count_slider.slider.value()
         self.test_words = [] 
 
         is_semantic_diy_test = (isinstance(self.current_test, DIYTest) and 
@@ -1114,7 +1409,10 @@ class MainWindow(QMainWindow):
         self.test_words_backup_for_review = list(self.test_words) 
         self.current_word_index = 0
         self.correct_count = 0
-        self.detailed_results_for_session = [] 
+        self.detailed_results_for_session = []
+        
+        # 开始学习统计会话
+        self.start_learning_session()
         
         self.progress_bar.setMaximum(len(self.test_words))
         self.progress_bar.setValue(0)
@@ -1156,7 +1454,7 @@ class MainWindow(QMainWindow):
                     # IELTS使用 "word" 欄位
                     self.question_label.setText(current_question_data.get("word", "未知问题"))
                 else:
-                    # DIY語義測試使用 "english" 欄位
+                    # DIY语义测试使用 "english" 欄位
                     self.question_label.setText(current_question_data.get("english", "未知问题"))
             else:
                 self.question_label.setText(str(current_question_data))
@@ -1214,7 +1512,7 @@ class MainWindow(QMainWindow):
                 # IELTS使用 "word" 欄位
                 question_content_for_result = raw_question_data.get("word", str(raw_question_data))
             else:
-                # 其他測試使用 "english" 欄位
+                # 其他测试使用 "english" 欄位
                 question_content_for_result = raw_question_data.get("english", str(raw_question_data)) 
         elif isinstance(raw_question_data, str):
             question_content_for_result = raw_question_data 
@@ -1230,12 +1528,12 @@ class MainWindow(QMainWindow):
 
         if isinstance(self.current_test, IeltsTest) or is_semantic_diy_test:
             if isinstance(self.current_test, IeltsTest):
-                # 獲取當前單詞的中文釋義列表
+                # 获取当前單詞的中文释义列表
                 current_word_data = raw_question_data
                 meanings = current_word_data.get("meanings", []) if isinstance(current_word_data, dict) else []
                 is_correct = self.current_test.check_answer_with_api(meanings, user_answer)
             else:
-                # DIY語義測試的處理邏輯（保持原來的邏輯）
+                # DIY语义测试的处理邏輯（保持原來的邏輯）
                 is_correct = self.current_test.check_answer_with_api(question_content_for_result, user_answer)
             similarity_threshold_display = config.similarity_threshold
 
@@ -1267,12 +1565,12 @@ class MainWindow(QMainWindow):
             notes_for_result = "语义相似度判定"
             if is_correct:
                 self.correct_count += 1
-                self.result_label.setText("🎉 语义相近!")
+                self.result_label.setText("🎉 正确!")
                 self.result_label.setStyleSheet(get_success_style())
                 self.show_success_feedback(self.result_label)
                 self.create_fade_in_animation(self.result_label, 400)
             else:
-                self.result_label.setText(f"❌ 语义不符")
+                self.result_label.setText(f"❌ 错误")
                 self.result_label.setStyleSheet(get_error_style())
                 self.show_error_feedback(self.result_label)
                 self.create_fade_in_animation(self.result_label, 400)
@@ -1306,6 +1604,15 @@ class MainWindow(QMainWindow):
             notes=notes_for_result
         )
         self.detailed_results_for_session.append(result_entry)
+        
+        # 记录学习统计
+        self.record_learning_answer(
+            question_content_for_result,
+            expected_answer_for_result,
+            user_answer,
+            is_correct,
+            0  # response_time placeholder  
+        )
 
         self.submit_btn.setVisible(False)
         # 显示下一题按钮，隐藏提交按钮
@@ -1427,6 +1734,9 @@ class MainWindow(QMainWindow):
         else:
             self.review_btn.setEnabled(True)
         
+        # 结束学习统计会话
+        self.end_learning_session()
+        
         # 显示结果页面
         self.stacked_widget.setCurrentIndex(7)
     
@@ -1514,17 +1824,17 @@ class MainWindow(QMainWindow):
         
         title = QLabel("DIY词汇表JSON格式示例")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title.setFont(QFont("Arial", 18, QFont.Weight.Bold))
+        title.setFont(QFont("Times New Roman", 18, QFont.Weight.Bold))
         # title.setStyleSheet("color: #ffffff; margin-bottom: 10px;")
 
         # 模式选择提示
         mode_intro = QLabel("VocabMaster的DIY模式支持两种JSON文件格式：")
-        mode_intro.setFont(QFont("Arial", 12))
+        mode_intro.setFont(QFont("Times New Roman", 12))
         mode_intro.setWordWrap(True)
 
         # 示例1：传统模式 (英汉词对)
         example1_title = QLabel("1. 传统模式: 英汉词对 (用于精确匹配测试)")
-        example1_title.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        example1_title.setFont(QFont("Times New Roman", 14, QFont.Weight.Bold))
         # example1_title.setStyleSheet("color: #8cf26e; margin-top: 15px;")
         
         example1_desc = QLabel(
@@ -1532,11 +1842,11 @@ class MainWindow(QMainWindow):
             "这些键的值可以是单个字符串，也可以是字符串数组，以支持多对多释义。\n"
             "可选的 \"alternatives\" 键 (字符串数组) 可以为英文提供更多备选答案。"
         )
-        example1_desc.setFont(QFont("Arial", 11))
+        example1_desc.setFont(QFont("Times New Roman", 11))
         example1_desc.setWordWrap(True)
 
         example1_code = QTextEdit()
-        example1_code.setFont(QFont("Consolas", 11))
+        example1_code.setFont(QFont("Times New Roman", 11))
         # example1_code.setStyleSheet("background-color: #3a3a3a; color: #f8f8f8; padding: 10px; border-radius: 5px; border: 1px solid #555;")
         example1_code.setReadOnly(True)
         example1_code.setPlainText(
@@ -1560,18 +1870,18 @@ class MainWindow(QMainWindow):
 
         # 示例2：语义模式 (纯英文词汇)
         example2_title = QLabel("2. 语义模式: 纯英文词汇列表 (用于英译中语义相似度测试)")
-        example2_title.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        example2_title.setFont(QFont("Times New Roman", 14, QFont.Weight.Bold))
         # example2_title.setStyleSheet("color: #61dafb; margin-top: 20px;") # 不同的颜色以区分
 
         example2_desc = QLabel(
             "文件内容是一个简单的JSON数组，其中每个元素都是一个表示英文单词或短语的字符串。\n"
             "导入后，测试将以英译中方式进行，答案通过与SiliconFlow API (netease-youdao模型) 计算的语义相似度进行判断。"
         )
-        example2_desc.setFont(QFont("Arial", 11))
+        example2_desc.setFont(QFont("Times New Roman", 11))
         example2_desc.setWordWrap(True)
 
         example2_code = QTextEdit()
-        example2_code.setFont(QFont("Consolas", 11))
+        example2_code.setFont(QFont("Times New Roman", 11))
         # example2_code.setStyleSheet("background-color: #3a3a3a; color: #f8f8f8; padding: 10px; border-radius: 5px; border: 1px solid #555;")
         example2_code.setReadOnly(True)
         example2_code.setPlainText(
@@ -1587,7 +1897,7 @@ class MainWindow(QMainWindow):
 
         # 关闭按钮
         close_btn = QPushButton("关闭")
-        close_btn.setFont(QFont("Arial", 12))
+        close_btn.setFont(QFont("Times New Roman", 12))
         # close_btn.setStyleSheet("background-color: #4a4a4a; color: white; padding: 8px 16px;")
         close_btn.setMinimumHeight(40)
         close_btn.clicked.connect(examples_dialog.accept)
@@ -1616,6 +1926,42 @@ class MainWindow(QMainWindow):
         
         examples_dialog.exec()
     
+    def toggle_fullscreen(self):
+        """切换全屏模式"""
+        if self.is_fullscreen:
+            # 退出全屏
+            self.showNormal()
+            if self.normal_geometry:
+                self.setGeometry(self.normal_geometry)
+            self.is_fullscreen = False
+            self.logger.info("退出全屏模式")
+        else:
+            # 进入全屏
+            self.normal_geometry = self.geometry()
+            self.showFullScreen()
+            self.is_fullscreen = True
+            self.logger.info("进入全屏模式")
+    
+    
+    
+    def changeEvent(self, event):
+        """处理窗口状态变化事件"""
+        from PyQt6.QtCore import QEvent
+        from PyQt6.QtWidgets import QWidget
+        
+        if event.type() == QEvent.Type.WindowStateChange:
+            # 检测原生全屏按钮操作
+            if self.windowState() & Qt.WindowState.WindowFullScreen:
+                if not self.is_fullscreen:
+                    self.is_fullscreen = True
+                    self.logger.info("通过原生按钮进入全屏模式")
+            else:
+                if self.is_fullscreen:
+                    self.is_fullscreen = False
+                    self.logger.info("通过原生按钮退出全屏模式")
+        
+        super().changeEvent(event)
+
     def on_enter_key_pressed(self):
         """处理Enter键按下事件，根据当前界面状态决定触发提交答案或下一题"""
         # 如果下一题按钮可见，则触发下一题

@@ -6,13 +6,13 @@ Learning Statistics Module
 import json
 import logging
 import os
-import time
-from collections import defaultdict, Counter
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
 import sqlite3
+import time
+from collections import Counter, defaultdict
 from contextlib import contextmanager
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
 
 from .resource_path import resource_path
 
@@ -369,8 +369,10 @@ class LearningStatsManager:
                     'total_questions': session_stats[1] or 0,
                     'total_correct': session_stats[2] or 0,
                     'overall_accuracy': (session_stats[2] / session_stats[1] * 100) if session_stats[1] else 0,
-                    'avg_score': session_stats[3] or 0,
-                    'total_study_time': session_stats[4] or 0,
+                    'average_score': session_stats[3] or 0,  # 修复键名
+                    'total_time_hours': (session_stats[4] or 0) / 3600,  # 转换为小时并修复键名
+                    'recent_7_days_accuracy': (recent_stats[2] / recent_stats[1] * 100) if recent_stats and recent_stats[1] else 0,  # 添加最近7天准确率
+                    'vocabulary_mastery': min(100, len(self._word_stats_cache) / 100 * 100) if self._word_stats_cache else 0,  # 添加词汇熟练度
                     'recent_7_days': {
                         'sessions': recent_stats[0] or 0,
                         'questions': recent_stats[1] or 0,

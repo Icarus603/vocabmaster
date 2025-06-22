@@ -1,0 +1,19 @@
+2025-06-22 10:31:37,806 - VocabMaster - INFO - 启动VocabMaster
+2025-06-22 10:31:37,808 - VocabMaster - INFO - 使用GUI模式
+2025-06-22 10:31:38,342 - gui - INFO - 初始化GUI界面
+2025-06-22 10:31:38,460 - gui - INFO - 启动主窗口
+2025-06-22 10:31:38,461 - utils.learning_stats - INFO - 载入了 0 个单词的统计数据
+2025-06-22 10:31:38,462 - gui - INFO - 學習統計管理器初始化成功
+2025-06-22 10:31:41,177 - gui - INFO - 切換到頁面索引: 1
+2025-06-22 10:31:49,130 - gui - INFO - 切換到頁面索引: 0
+2025-06-22 10:33:07,438 - gui - INFO - 切換到頁面索引: 3
+2025-06-22 10:33:09,741 - gui - INFO - 切換到頁面索引: 4
+2025-06-22 10:33:24,720 - gui - INFO - 切換到頁面索引: 0
+2025-06-22 10:33:28,133 - gui - INFO - 切換到頁面索引: 2
+2025-06-22 10:33:29,124 - gui - CRITICAL - 程序错误: 'TermsTestUnit1to5' object has no attribute 'unit_range'
+NoneType: None
+2025-06-22 10:33:31,090 - gui - CRITICAL - 程序错误: 'TermsTestUnit1to5' object has no attribute 'unit_range'
+NoneType: None
+2025-06-22 10:33:34,511 - gui - CRITICAL - 程序错误: 'TermsTestUnit6to10' object has no attribute 'unit_range'
+NoneType: None
+2025-06-22 10:33:50,754 - gui - INFO - 切換到頁面索引: 0

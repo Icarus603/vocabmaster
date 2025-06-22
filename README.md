@@ -1,19 +1,14 @@
 # VocabMaster 词汇测试系统 📚
 
-
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python >=3.11,<3.12](https://img.shields.io/badge/Python-%3E%3D3.11%2C%3C3.12-blue.svg)](https://www.python.org/downloads/)
 [![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-brightgreen.svg)](https://github.com/)
-
 
 # 📖 项目简介
 
 VocabMaster 是一个用于词汇测试和记忆的应用程序，专为英语学习者设计。它提供了多种测试模式，帮助用户有效地记忆和复习英语词汇。系统支持 BEC 高级词汇测试、《理解当代中国》英汉互译以及自定义词汇测试，满足不同用户的学习需求。
 
 > 🌟 **开源项目**：VocabMaster 是一个开源项目，欢迎所有人参与贡献！
-
-
 
 # ✨ 功能特点
 
@@ -31,19 +26,30 @@ VocabMaster 是一个用于词汇测试和记忆的应用程序，专为英语�
 - **智能文件导入**：自动识别 JSON 词汇表文件中的多种表达方式
 - **便捷导航**：提供"下一题"按钮和键盘快捷键，使测试过程更高效
 
-## 🚀 新增功能 (v1.1)
+## 🚀 最新功能更新 (v2.0)
 
-- **智能语义匹配**：IELTS测试使用多层判断算法，包括文字匹配、关键词匹配和语义相似度
-- **动态阈值调整**：根据答案长度和复杂度自动调整相似度阈值，提高判断准确性
-- **高效缓存系统**：自动缓存API调用结果，大幅提升响应速度
-- **缓存预热功能**：支持批量预载入词汇embedding，优化用户体验
-- **性能监控**：实时监控API调用、缓存命中率、测试统计等性能指标
-- **详细配置选项**：支持灵活配置各种匹配策略和性能参数
+### 增强缓存系统
+- **智能缓存管理**：支持TTL（生存时间）和LRU（最近最少使用）策略
+- **高效存储**：embedding向量本地缓存，大幅减少API调用次数
+- **自动保存**：缓存自动保存和定期清理，优化存储空间
+- **性能统计**：详细的缓存命中率和性能指标监控
 
+### 完整IELTS词汇库
+- **1057个完整词汇**：所有IELTS词汇都已配备完整的中文释义
+- **多层语义匹配**：结合精确匹配、关键词匹配和语义相似度的智能判断
+- **动态阈值调整**：根据答案长度和复杂度自动调整相似度阈值
 
+### 性能监控系统
+- **实时性能跟踪**：监控API调用时间、缓存命中率、测试统计
+- **性能报告**：详细的性能分析和优化建议
+- **资源使用监控**：内存和存储使用情况实时监控
+
+### 用户体验改进
+- **缓存预热功能**：支持批量预载入词汇embedding，首次使用体验更佳
+- **智能错误处理**：更完善的异常处理和用户提示
+- **多线程优化**：缓存操作线程安全，支持并发访问
 
 # 🔧 安装方法
-
 
 此方法适合大多数用户，无需安装 Python 环境，直接运行即可体验完整功能。
 
@@ -71,13 +77,9 @@ VocabMaster 是一个用于词汇测试和记忆的应用程序，专为英语�
 
 ---
 
----
-
-
-
 # ⚙️ 配置设置
 
-在使用 IELTS 语义测试和 DIY 语义测试功能之前，您需要配置 API 金钥。
+在使用 IELTS 语义测试和 DIY 语义测试功能之前，您需要配置 API 密钥。
 
 ## 快速配置
 
@@ -92,15 +94,31 @@ VocabMaster 是一个用于词汇测试和记忆的应用程序，专为英语�
    ```yaml
    # API 配置
    api:
-     # SiliconFlow API 金钥 (用于 IELTS 和 DIY 语义测试)
-     # 获取方式：访问 https://siliconflow.cn/ 注册并创建 API 金钥
-     siliconflow_api_key: "您的API金钥"
+     # SiliconFlow API 密钥 (用于 IELTS 和 DIY 语义测试)
+     # 获取方式：访问 https://siliconflow.cn/ 注册并创建 API 密钥
+     siliconflow_api_key: "您的API密钥"
    
    # 语义相似度配置
    semantic:
      # 语义相似度阈值 (0.0-1.0)
      # 数值越低，判定越宽松；数值越高，判定越严格
      similarity_threshold: 0.40
+   
+   # 缓存配置
+   cache:
+     # 缓存最大条目数
+     max_size: 10000
+     # 缓存生存时间（秒，604800=7天，0表示永不过期）
+     ttl: 604800
+     # 自动保存间隔
+     auto_save_interval: 50
+   
+   # 性能监控配置
+   performance:
+     # 是否启用性能监控
+     enabled: true
+     # 性能报告生成间隔（次数）
+     report_interval: 100
    ```
 
 3. **保存文件**
@@ -112,8 +130,10 @@ VocabMaster 是一个用于词汇测试和记忆的应用程序，专为英语�
 
 配置文件支持以下选项：
 
-- **API 配置**: API 金钥、超时时间、API 端点
+- **API 配置**: API 密钥、超时时间、API 端点
 - **语义相似度**: 阈值设置、备用匹配选项
+- **缓存管理**: 缓存大小、TTL策略、LRU策略
+- **性能监控**: 监控开关、报告频率、统计选项
 - **测试设置**: 默认题数、日志等级
 - **UI 设置**: 窗口大小、字体配置
 - **日志配置**: 日志等级和文件设置
@@ -130,7 +150,6 @@ python app.py
 
 或直接双击可执行文件 `VocabMaster.exe`
 
-
 ## 命令行模式启动
 
 在项目根目录下运行：
@@ -139,16 +158,16 @@ python app.py
 python app.py --cli
 ```
 
-
 ## 测试类型
 
 1. **BEC 高级词汇测试**：包含 4 个模块的 BEC 商务英语词汇
 2. **《理解当代中国》英汉互译**：包含两个部分的《理解当代中国》英汉互译词汇
 3. **IELTS 雅思词汇测试**：基于语义相似度的英译中测试 (需要配置 API 密钥)
+   - **完整词汇库**：1057个词汇，全部配备完整中文释义
+   - **智能匹配**：多层语义分析，准确率更高
 4. **DIY 自定义词汇测试**：
    - **传统模式**：导入包含英文和中文词对的 JSON 文件。
    - **新增语义模式**：导入仅包含英文单词列表的 JSON 文件，进行英译中语义测试 (需要配置 API 密钥)。
-
 
 ## 测试模式
 
@@ -161,6 +180,19 @@ python app.py --cli
   - 默认题数模式：使用词汇表中的所有词汇进行测试
   - 自选题数模式：用户可以自定义测试题目数量
 
+## 缓存预热功能
+
+为了获得最佳性能，建议在首次使用IELTS或DIY语义测试前进行缓存预热：
+
+```python
+# 在Python环境中运行
+python preload_cache.py
+
+# 或在应用内使用
+from utils.ielts import IeltsTest
+test = IeltsTest()
+test.preload_cache(max_words=500)  # 预热前500个词汇
+```
 
 ## DIY 词汇表格式要求
 
@@ -211,8 +243,6 @@ VocabMaster 支持两种 JSON 格式的词汇表文件：
 - 中文表达如果有多个，会以`/`符号连接展示，但输入任一表达均可
 - 不再支持 CSV 或 Excel 格式
 
-
-
 # 📁 项目结构
 
 ```
@@ -220,48 +250,86 @@ VocabMaster/
 ├── app.py                   # 主程序入口（GUI和CLI模式）
 ├── gui.py                   # 图形界面实现
 ├── run.py                   # 命令行模式实现
+├── preload_cache.py         # 缓存预热工具 (新增)
+├── performance_report.py    # 性能报告生成器 (新增)
 ├── config.yaml.template     # 配置文件模板 (用户需复制为 config.yaml)
-├── config.yaml              # 实际配置文件 (包含 API 金钥，被 .gitignore 忽略)
+├── config.yaml              # 实际配置文件 (包含 API 密钥，被 .gitignore 忽略)
+├── config_test.yaml         # 测试配置文件 (新增)
 ├── utils/                   # 核心工具库
 │   ├── __init__.py          # 包初始化文件
-│   ├── config.py            # 统一配置管理模块 (新增)
+│   ├── config.py            # 统一配置管理模块
 │   ├── base.py              # 基础测试类
 │   ├── bec.py               # BEC测试实现
 │   ├── diy.py               # DIY测试实现
-│   ├── ielts.py             # IELTS测试实现 (新增)
-│   └── terms.py             # 《理解当代中国》英汉互译实现
-├── vocab/                   # 词汇文件目录 (新增)
-│   ├── bec_higher_cufe.json # BEC 高级词汇 (从根目录移动)
-│   ├── ielts_vocab.json     # IELTS 词汇 (新增)
-│   ├── terms_and_expressions/   # 《理解当代中国》英汉互译 (从根目录移动)
-│   │   ├── terms_and_expressions_1.json
-│   │   └── terms_and_expressions_2.json
+│   ├── ielts.py             # IELTS测试实现 (大幅更新)
+│   ├── terms.py             # 《理解当代中国》英汉互译实现
+│   ├── enhanced_cache.py    # 增强缓存系统 (新增)
+│   ├── ielts_embedding_cache.py  # IELTS专用缓存 (已整合)
+│   ├── cache_manager.py     # 缓存管理器 (新增)
+│   ├── performance_monitor.py    # 性能监控系统 (新增)
+│   ├── learning_stats.py    # 学习统计系统 (新增)
+│   ├── stats_gui.py         # 统计界面 (新增)
+│   ├── config_gui.py        # 配置界面 (新增)
+│   ├── config_wizard.py     # 配置向导 (新增)
+│   ├── ui_styles.py         # UI样式定义 (新增)
+│   └── resource_path.py     # 资源路径工具
+├── vocab/                   # 词汇文件目录
+│   ├── bec_higher_cufe.json # BEC 高级词汇
+│   ├── ielts_vocab.json     # IELTS 词汇 (完整版，1057个词汇)
+│   └── terms_and_expressions/   # 《理解当代中国》英汉互译
+│       ├── terms_and_expressions_1.json
+│       └── terms_and_expressions_2.json
+├── data/                    # 数据目录
+│   ├── embedding_cache/     # embedding缓存目录 (新增)
+│   │   ├── enhanced_cache.pkl    # 缓存数据文件
+│   │   └── enhanced_metadata.json  # 缓存元数据
+│   ├── learning_stats.db    # 学习统计数据库 (新增)
+│   └── examples/            # 示例数据
+│       └── everyday_vocab.json  # 日常词汇示例
+├── logs/                    # 日志目录（用于错误跟踪和性能分析）
 ├── assets/                  # 图标和资源文件
 │   ├── icon.png             # 应用主图标 (用于GUI显示)
 │   ├── icon.ico             # Windows 应用图标 (用于打包)
 │   └── icon.icns            # macOS 应用图标 (用于打包)
-├── build/                   # 构建目录（PyInstaller自动生成）
-├── dist/                    # 分发目录（PyInstaller自动生成）
-├── logs/                    # 日志目录（用于错误跟踪）
-├── data/                    # 数据目录（用于应用数据）
-│   └── examples/            # 示例数据
-│       └── everyday_vocab.json  # 日常词汇示例
+├── docs/                    # 文档目录
+│   └── cross_platform_build_guide.md  # 跨平台构建指南
+├── vocab_repo/              # 词汇资源文件（PDF等）
 ├── .github/                 # GitHub Actions 工作流程
 │   └── workflows/
 │       └── build.yml        # 跨平台构建工作流程
 ├── build_cross_platform.sh  # 跨平台本地构建脚本
 ├── pyproject.toml           # Poetry 项目配置文件
 ├── poetry.lock              # Poetry 依赖锁定文件
+├── .python-version          # Python版本文件 (pyenv)
 ├── LICENSE                  # 许可证文件
-├── README.md                # 项目说明（中文）
+├── README.md                # 项目说明（简体中文）
 ├── DEV_INSTALL.md           # 开发者安装指南
+├── CLAUDE.md                # 开发记录 (新增)
 ├── .gitignore               # Git忽略文件
-├── .dockerignore            # Docker忽略文件 (如果将来使用Docker)
-├── __pycache__/             # Python缓存目录（自动生成）
-# requirements.txt         # (已由Poetry取代)
+└── .dockerignore            # Docker忽略文件
 ```
 
+# 📊 性能优化
 
+## 缓存系统特性
+
+- **TTL策略**：7天自动过期，确保数据新鲜度
+- **LRU策略**：最近最少使用条目自动淘汰
+- **命中率统计**：实时监控缓存效率
+- **自动保存**：每50次新增自动保存，防止数据丢失
+
+## 性能监控
+
+- **API调用统计**：调用次数、响应时间、成功率
+- **缓存性能**：命中率、存储使用情况
+- **测试统计**：答题速度、正确率趋势
+
+## 优化建议
+
+1. **首次使用前进行缓存预热**，提升测试体验
+2. **定期清理日志文件**，节省存储空间
+3. **合理设置相似度阈值**，平衡准确性和宽松度
+4. **使用高质量网络连接**，确保API调用稳定
 
 # 🤝 贡献指南
 
@@ -275,7 +343,6 @@ VocabMaster/
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 打开一个 Pull Request
 
-
 ## 贡献类型
 
 - 报告 Bug 或提出功能建议
@@ -285,12 +352,9 @@ VocabMaster/
 - 完善文档和注释
 - 修复拼写或格式错误
 
-
 ## 行为准则
 
 💡 请确保您的贡献遵循开源社区的行为准则，保持尊重和包容的态度。
-
-
 
 # 📄 许可证
 
@@ -302,6 +366,6 @@ VocabMaster/
 
 **VocabMaster** ©2025 开发者。
 
-<sub>最后更新: 2025 年 5 月 16 日</sub>
+<sub>最后更新: 2025 年 1 月 8 日</sub>
 
 </div>

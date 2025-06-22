@@ -1,0 +1,728 @@
+2025-06-22 10:41:59,524 - VocabMaster - INFO - 启动VocabMaster
+2025-06-22 10:41:59,526 - VocabMaster - INFO - 使用GUI模式
+2025-06-22 10:42:00,086 - gui - INFO - 初始化GUI界面
+2025-06-22 10:42:00,221 - gui - INFO - 启动主窗口
+2025-06-22 10:42:00,222 - utils.learning_stats - INFO - 载入了 0 个单词的统计数据
+2025-06-22 10:42:00,222 - gui - INFO - 學習統計管理器初始化成功
+2025-06-22 10:42:24,463 - gui - INFO - Terms按鈕被點擊
+2025-06-22 10:42:24,467 - gui - INFO - 切換到頁面索引: 2
+2025-06-22 10:42:25,516 - gui - CRITICAL - 程序错误: 'TermsTestUnit1to5' object has no attribute 'get_vocabulary_size'
+NoneType: None
+2025-06-22 10:42:31,205 - gui - INFO - 切換到頁面索引: 0
+2025-06-22 10:42:32,046 - gui - INFO - BEC按鈕被點擊
+2025-06-22 10:42:32,047 - gui - INFO - 切換到頁面索引: 1
+2025-06-22 10:42:46,543 - gui - INFO - 切換到頁面索引: 0
+2025-06-22 10:42:47,750 - utils.ielts - INFO - Loaded 7046 IELTS words.
+2025-06-22 10:42:47,750 - utils.ielts - INFO - 當前緩存大小: 0, 詞彙表大小: 7046
+2025-06-22 10:42:47,750 - utils.ielts - INFO - 建議使用 preload_cache() 方法預熱緩存以提升性能
+2025-06-22 10:42:57,250 - utils.ielts - INFO - 開始預熱緩存：7046 個詞彙
+2025-06-22 10:42:57,250 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:42:57,250 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:42:57,250 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:42:57,250 - utils.ielts - INFO - Input text: 'projector...'
+2025-06-22 10:42:57,459 - utils.ielts - INFO - Successfully retrieved embedding for 'projector...' (dimension: 768)
+2025-06-22 10:42:57,460 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:42:57,460 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:42:57,460 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:42:57,460 - utils.ielts - INFO - Input text: 'n. 放映机，投影仪；探照灯；计划者，规划者...'
+2025-06-22 10:42:57,638 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 放映机，投影仪；探照灯；计划者，规划者...' (dimension: 768)
+2025-06-22 10:42:57,638 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:42:57,639 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:42:57,639 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:42:57,639 - utils.ielts - INFO - Input text: '【名】 （Projector）（英）普罗杰克特（人名）...'
+2025-06-22 10:42:57,807 - utils.ielts - INFO - Successfully retrieved embedding for '【名】 （Projector）（英）普罗杰克特（人名）...' (dimension: 768)
+2025-06-22 10:42:57,808 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:42:57,808 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:42:57,808 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:42:57,808 - utils.ielts - INFO - Input text: 'dissatisfy...'
+2025-06-22 10:42:58,048 - utils.ielts - INFO - Successfully retrieved embedding for 'dissatisfy...' (dimension: 768)
+2025-06-22 10:42:58,048 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:42:58,048 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:42:58,049 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:42:58,049 - utils.ielts - INFO - Input text: 'v. 使不满，使失望...'
+2025-06-22 10:42:58,219 - utils.ielts - INFO - Successfully retrieved embedding for 'v. 使不满，使失望...' (dimension: 768)
+2025-06-22 10:42:58,220 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:42:58,220 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:42:58,220 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:42:58,220 - utils.ielts - INFO - Input text: 'implore...'
+2025-06-22 10:42:58,384 - utils.ielts - INFO - Successfully retrieved embedding for 'implore...' (dimension: 768)
+2025-06-22 10:42:58,385 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:42:58,385 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:42:58,385 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:42:58,385 - utils.ielts - INFO - Input text: 'vt. 恳求或乞求...'
+2025-06-22 10:42:58,564 - utils.ielts - INFO - Successfully retrieved embedding for 'vt. 恳求或乞求...' (dimension: 768)
+2025-06-22 10:42:58,565 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:42:58,565 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:42:58,565 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:42:58,565 - utils.ielts - INFO - Input text: 'vi. 恳求或乞求...'
+2025-06-22 10:42:58,742 - utils.ielts - INFO - Successfully retrieved embedding for 'vi. 恳求或乞求...' (dimension: 768)
+2025-06-22 10:42:58,743 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:42:58,743 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:42:58,743 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:42:58,743 - utils.ielts - INFO - Input text: 'depletion...'
+2025-06-22 10:42:58,938 - utils.ielts - INFO - Successfully retrieved embedding for 'depletion...' (dimension: 768)
+2025-06-22 10:42:58,938 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:42:58,938 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:42:58,938 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:42:58,939 - utils.ielts - INFO - Input text: 'n. 损耗，耗尽...'
+2025-06-22 10:42:59,134 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 损耗，耗尽...' (dimension: 768)
+2025-06-22 10:42:59,134 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:42:59,134 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:42:59,134 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:42:59,135 - utils.ielts - INFO - Input text: 'puppet...'
+2025-06-22 10:42:59,307 - utils.ielts - INFO - Successfully retrieved embedding for 'puppet...' (dimension: 768)
+2025-06-22 10:42:59,308 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:42:59,308 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:42:59,308 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:42:59,308 - utils.ielts - INFO - Input text: 'n. 木偶；傀儡...'
+2025-06-22 10:42:59,468 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 木偶；傀儡...' (dimension: 768)
+2025-06-22 10:42:59,469 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:42:59,469 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:42:59,469 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:42:59,469 - utils.ielts - INFO - Input text: 'uranium...'
+2025-06-22 10:42:59,652 - utils.ielts - INFO - Successfully retrieved embedding for 'uranium...' (dimension: 768)
+2025-06-22 10:42:59,652 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:42:59,652 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:42:59,652 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:42:59,653 - utils.ielts - INFO - Input text: 'n. （化学元素）铀...'
+2025-06-22 10:42:59,810 - utils.ielts - INFO - Successfully retrieved embedding for 'n. （化学元素）铀...' (dimension: 768)
+2025-06-22 10:42:59,810 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:42:59,811 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:42:59,811 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:42:59,811 - utils.ielts - INFO - Input text: 'lodge...'
+2025-06-22 10:42:59,994 - utils.ielts - INFO - Successfully retrieved embedding for 'lodge...' (dimension: 768)
+2025-06-22 10:42:59,995 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:42:59,995 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:42:59,995 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:42:59,995 - utils.ielts - INFO - Input text: 'v. （使）固定，（使）卡住；（通常付住宿费地）借住，寄住，（为某人）提供住宿；存放，寄放（贵重物品...'
+2025-06-22 10:43:00,168 - utils.ielts - INFO - Successfully retrieved embedding for 'v. （使）固定，（使）卡住；（通常付住宿费地）借住，寄住，（为某人）提供住宿；存放，寄放（贵重物品...' (dimension: 768)
+2025-06-22 10:43:00,168 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:00,168 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:00,168 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:00,169 - utils.ielts - INFO - Input text: 'n. （公园或宅第的）门口小屋，门房；（大学、机构等的）门房，管理员室；（乡村或山间供狩猎者等使用的...'
+2025-06-22 10:43:00,352 - utils.ielts - INFO - Successfully retrieved embedding for 'n. （公园或宅第的）门口小屋，门房；（大学、机构等的）门房，管理员室；（乡村或山间供狩猎者等使用的...' (dimension: 768)
+2025-06-22 10:43:00,353 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:00,353 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:00,353 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:00,353 - utils.ielts - INFO - Input text: '【名】 （Lodge）（美）洛奇（人名）...'
+2025-06-22 10:43:00,533 - utils.ielts - INFO - Successfully retrieved embedding for '【名】 （Lodge）（美）洛奇（人名）...' (dimension: 768)
+2025-06-22 10:43:00,533 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:00,533 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:00,533 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:00,533 - utils.ielts - INFO - Input text: 'pitcher...'
+2025-06-22 10:43:00,715 - utils.ielts - INFO - Successfully retrieved embedding for 'pitcher...' (dimension: 768)
+2025-06-22 10:43:00,715 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:00,715 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:00,716 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:00,716 - utils.ielts - INFO - Input text: 'n. 投手；大水罐...'
+2025-06-22 10:43:00,890 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 投手；大水罐...' (dimension: 768)
+2025-06-22 10:43:00,891 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:00,891 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:00,891 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:00,892 - utils.ielts - INFO - Input text: 'n. （Pitcher）人名；（英）皮彻...'
+2025-06-22 10:43:01,076 - utils.ielts - INFO - Successfully retrieved embedding for 'n. （Pitcher）人名；（英）皮彻...' (dimension: 768)
+2025-06-22 10:43:01,077 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:01,077 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:01,077 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:01,077 - utils.ielts - INFO - Input text: 'claw...'
+2025-06-22 10:43:01,273 - utils.ielts - INFO - Successfully retrieved embedding for 'claw...' (dimension: 768)
+2025-06-22 10:43:01,274 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:01,274 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:01,274 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:01,274 - utils.ielts - INFO - Input text: 'n. （动物的）爪，爪子；（水生有壳动物的）螯，钳；爪形器具，钳形工具...'
+2025-06-22 10:43:01,473 - utils.ielts - INFO - Successfully retrieved embedding for 'n. （动物的）爪，爪子；（水生有壳动物的）螯，钳；爪形器具，钳形工具...' (dimension: 768)
+2025-06-22 10:43:01,473 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:01,474 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:01,474 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:01,474 - utils.ielts - INFO - Input text: 'v. （用爪）撕，抓；挠痒；（帆船）迎风而行...'
+2025-06-22 10:43:01,646 - utils.ielts - INFO - Successfully retrieved embedding for 'v. （用爪）撕，抓；挠痒；（帆船）迎风而行...' (dimension: 768)
+2025-06-22 10:43:01,647 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:01,647 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:01,647 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:01,647 - utils.ielts - INFO - Input text: 'rib...'
+2025-06-22 10:43:01,819 - utils.ielts - INFO - Successfully retrieved embedding for 'rib...' (dimension: 768)
+2025-06-22 10:43:01,819 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:01,820 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:01,820 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:01,820 - utils.ielts - INFO - Input text: 'n. 肋骨；排骨（肉），肋条（肉）；肋骨状物（构成船、房顶等骨架的金属或木质等）；（编织）罗纹，罗纹...'
+2025-06-22 10:43:01,991 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 肋骨；排骨（肉），肋条（肉）；肋骨状物（构成船、房顶等骨架的金属或木质等）；（编织）罗纹，罗纹...' (dimension: 768)
+2025-06-22 10:43:01,992 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:01,992 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:01,992 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:01,992 - utils.ielts - INFO - Input text: 'v. <旧，非正式>（友善地）开……的玩笑，取笑；形成拢起的条纹（或脊坡）；装肋于...'
+2025-06-22 10:43:02,166 - utils.ielts - INFO - Successfully retrieved embedding for 'v. <旧，非正式>（友善地）开……的玩笑，取笑；形成拢起的条纹（或脊坡）；装肋于...' (dimension: 768)
+2025-06-22 10:43:02,167 - utils.ielts - INFO - 進度 0.1% - 已處理 10/7046 個詞彙
+2025-06-22 10:43:02,167 - utils.ielts - INFO -   新增: 27, 已存在: 0, API調用: 27
+2025-06-22 10:43:02,170 - utils.enhanced_cache - INFO - 缓存已保存：27 条记录
+2025-06-22 10:43:02,671 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:02,671 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:02,671 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:02,671 - utils.ielts - INFO - Input text: 'symmetry...'
+2025-06-22 10:43:02,856 - utils.ielts - INFO - Successfully retrieved embedding for 'symmetry...' (dimension: 768)
+2025-06-22 10:43:02,856 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:02,856 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:02,857 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:02,857 - utils.ielts - INFO - Input text: 'n. 对称（性）；相似，相等；（物理，数） 对称...'
+2025-06-22 10:43:03,034 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 对称（性）；相似，相等；（物理，数） 对称...' (dimension: 768)
+2025-06-22 10:43:03,035 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:03,035 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:03,035 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:03,035 - utils.ielts - INFO - Input text: 'impurity...'
+2025-06-22 10:43:03,220 - utils.ielts - INFO - Successfully retrieved embedding for 'impurity...' (dimension: 768)
+2025-06-22 10:43:03,221 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:03,221 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:03,221 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:03,221 - utils.ielts - INFO - Input text: 'n. 杂质；不纯；不洁...'
+2025-06-22 10:43:03,377 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 杂质；不纯；不洁...' (dimension: 768)
+2025-06-22 10:43:03,377 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:03,377 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:03,377 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:03,377 - utils.ielts - INFO - Input text: 'puff...'
+2025-06-22 10:43:03,550 - utils.ielts - INFO - Successfully retrieved embedding for 'puff...' (dimension: 768)
+2025-06-22 10:43:03,550 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:03,550 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:03,551 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:03,551 - utils.ielts - INFO - Input text: 'v. 吸，抽（烟、烟斗等）；吹，喷出；（尤指跑步、攀登之后）气喘吁吁，喘息；喷着汽（或烟）移动；（尤...'
+2025-06-22 10:43:03,713 - utils.ielts - INFO - Successfully retrieved embedding for 'v. 吸，抽（烟、烟斗等）；吹，喷出；（尤指跑步、攀登之后）气喘吁吁，喘息；喷着汽（或烟）移动；（尤...' (dimension: 768)
+2025-06-22 10:43:03,714 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:03,714 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:03,714 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:03,714 - utils.ielts - INFO - Input text: 'n. 吸烟；（烟、气等的）一缕；（空气或蒸汽突然喷射发出的）噗的一声；（蒸汽，烟雾的）一喷；吐气，喘...'
+2025-06-22 10:43:03,901 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 吸烟；（烟、气等的）一缕；（空气或蒸汽突然喷射发出的）噗的一声；（蒸汽，烟雾的）一喷；吐气，喘...' (dimension: 768)
+2025-06-22 10:43:03,902 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:03,902 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:03,902 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:03,902 - utils.ielts - INFO - Input text: '【名】 （Puff）（德）普夫（人名）...'
+2025-06-22 10:43:04,097 - utils.ielts - INFO - Successfully retrieved embedding for '【名】 （Puff）（德）普夫（人名）...' (dimension: 768)
+2025-06-22 10:43:04,097 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:04,097 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:04,098 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:04,098 - utils.ielts - INFO - Input text: 'wink...'
+2025-06-22 10:43:04,271 - utils.ielts - INFO - Successfully retrieved embedding for 'wink...' (dimension: 768)
+2025-06-22 10:43:04,272 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:04,272 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:04,272 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:04,272 - utils.ielts - INFO - Input text: 'v. 眨眼示意，使眼色；（灯光）闪烁，明灭...'
+2025-06-22 10:43:04,453 - utils.ielts - INFO - Successfully retrieved embedding for 'v. 眨眼示意，使眼色；（灯光）闪烁，明灭...' (dimension: 768)
+2025-06-22 10:43:04,453 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:04,453 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:04,453 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:04,453 - utils.ielts - INFO - Input text: 'n. 眨眼（示意），眼色；<非正式>一会儿，一瞬间；小憩；闪烁；弹塑料片游戏中用的塑料圆片...'
+2025-06-22 10:43:04,634 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 眨眼（示意），眼色；<非正式>一会儿，一瞬间；小憩；闪烁；弹塑料片游戏中用的塑料圆片...' (dimension: 768)
+2025-06-22 10:43:04,635 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:04,635 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:04,635 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:04,635 - utils.ielts - INFO - Input text: '【名】 （Wink）（美、德、英、荷、巴、加、瑞）温克（人名）...'
+2025-06-22 10:43:04,834 - utils.ielts - INFO - Successfully retrieved embedding for '【名】 （Wink）（美、德、英、荷、巴、加、瑞）温克（人名）...' (dimension: 768)
+2025-06-22 10:43:04,835 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:04,835 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:04,835 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:04,835 - utils.ielts - INFO - Input text: 'mislead...'
+2025-06-22 10:43:05,038 - utils.ielts - INFO - Successfully retrieved embedding for 'mislead...' (dimension: 768)
+2025-06-22 10:43:05,038 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:05,038 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:05,038 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:05,039 - utils.ielts - INFO - Input text: 'v. 误导，将……引入歧途...'
+2025-06-22 10:43:05,313 - utils.ielts - INFO - Successfully retrieved embedding for 'v. 误导，将……引入歧途...' (dimension: 768)
+2025-06-22 10:43:05,314 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:05,314 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:05,314 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:05,314 - utils.ielts - INFO - Input text: 'insufficient...'
+2025-06-22 10:43:05,462 - utils.ielts - INFO - Successfully retrieved embedding for 'insufficient...' (dimension: 768)
+2025-06-22 10:43:05,462 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:05,463 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:05,463 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:05,463 - utils.ielts - INFO - Input text: 'adj. 不充分的，不够重要的...'
+2025-06-22 10:43:05,675 - utils.ielts - INFO - Successfully retrieved embedding for 'adj. 不充分的，不够重要的...' (dimension: 768)
+2025-06-22 10:43:05,676 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:05,676 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:05,676 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:05,676 - utils.ielts - INFO - Input text: 'snap...'
+2025-06-22 10:43:05,853 - utils.ielts - INFO - Successfully retrieved embedding for 'snap...' (dimension: 768)
+2025-06-22 10:43:05,854 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:05,854 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:05,854 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:05,854 - utils.ielts - INFO - Input text: 'v. （使咔嚓）断裂，绷断；（使啪地）打开，关上，移动；厉声说，怒气冲冲地说；突然失控，精神崩溃；（...'
+2025-06-22 10:43:06,009 - utils.ielts - INFO - Successfully retrieved embedding for 'v. （使咔嚓）断裂，绷断；（使啪地）打开，关上，移动；厉声说，怒气冲冲地说；突然失控，精神崩溃；（...' (dimension: 768)
+2025-06-22 10:43:06,010 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:06,010 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:06,010 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:06,010 - utils.ielts - INFO - Input text: 'n. 喀嚓声，啪嗒声；快照，照片；<美>摁扣，搭扣；呼“同”牌游戏；<美，非正式>容易的事；某种短时...'
+2025-06-22 10:43:06,179 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 喀嚓声，啪嗒声；快照，照片；<美>摁扣，搭扣；呼“同”牌游戏；<美，非正式>容易的事；某种短时...' (dimension: 768)
+2025-06-22 10:43:06,180 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:06,180 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:06,180 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:06,180 - utils.ielts - INFO - Input text: 'adj. 突然的，仓促的...'
+2025-06-22 10:43:06,351 - utils.ielts - INFO - Successfully retrieved embedding for 'adj. 突然的，仓促的...' (dimension: 768)
+2025-06-22 10:43:06,352 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:06,352 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:06,352 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:06,352 - utils.ielts - INFO - Input text: 'int. <英>真巧啊，一模一样；（呼“同”牌游戏中的）“同！”...'
+2025-06-22 10:43:06,519 - utils.ielts - INFO - Successfully retrieved embedding for 'int. <英>真巧啊，一模一样；（呼“同”牌游戏中的）“同！”...' (dimension: 768)
+2025-06-22 10:43:06,520 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:06,520 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:06,520 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:06,520 - utils.ielts - INFO - Input text: 'memorandum...'
+2025-06-22 10:43:06,703 - utils.ielts - INFO - Successfully retrieved embedding for 'memorandum...' (dimension: 768)
+2025-06-22 10:43:06,703 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:06,703 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:06,703 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:06,704 - utils.ielts - INFO - Input text: 'n. 公务便条，备忘录；协议备忘录；建议书，报告；合同书，（法律文件细节的）摘要...'
+2025-06-22 10:43:06,896 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 公务便条，备忘录；协议备忘录；建议书，报告；合同书，（法律文件细节的）摘要...' (dimension: 768)
+2025-06-22 10:43:06,896 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:06,897 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:06,897 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:06,897 - utils.ielts - INFO - Input text: 'organic...'
+2025-06-22 10:43:07,073 - utils.ielts - INFO - Successfully retrieved embedding for 'organic...' (dimension: 768)
+2025-06-22 10:43:07,073 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:07,074 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:07,074 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:07,074 - utils.ielts - INFO - Input text: 'adj. 有机的，绿色的；有机物的，生物的；构成有机整体的，不可分割的；（发生、发展过程）自然的，演...'
+2025-06-22 10:43:07,259 - utils.ielts - INFO - Successfully retrieved embedding for 'adj. 有机的，绿色的；有机物的，生物的；构成有机整体的，不可分割的；（发生、发展过程）自然的，演...' (dimension: 768)
+2025-06-22 10:43:07,260 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:07,260 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:07,260 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:07,260 - utils.ielts - INFO - Input text: 'n. 有机物质；有机食品...'
+2025-06-22 10:43:07,430 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 有机物质；有机食品...' (dimension: 768)
+2025-06-22 10:43:07,431 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:07,431 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:07,431 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:07,431 - utils.ielts - INFO - Input text: 'receiver...'
+2025-06-22 10:43:07,612 - utils.ielts - INFO - Successfully retrieved embedding for 'receiver...' (dimension: 768)
+2025-06-22 10:43:07,613 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:07,613 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:07,613 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:07,613 - utils.ielts - INFO - Input text: 'n. （电话）听筒；（无线电或电视）接收器，接收机；（法庭指定的）破产接管人；收受者，收件人；买卖赃...'
+2025-06-22 10:43:07,797 - utils.ielts - INFO - Successfully retrieved embedding for 'n. （电话）听筒；（无线电或电视）接收器，接收机；（法庭指定的）破产接管人；收受者，收件人；买卖赃...' (dimension: 768)
+2025-06-22 10:43:07,797 - utils.ielts - INFO - 進度 0.3% - 已處理 20/7046 個詞彙
+2025-06-22 10:43:07,797 - utils.ielts - INFO -   新增: 55, 已存在: 0, API調用: 55
+2025-06-22 10:43:07,799 - utils.enhanced_cache - INFO - 缓存已保存：55 条记录
+2025-06-22 10:43:08,301 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:08,301 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:08,301 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:08,301 - utils.ielts - INFO - Input text: 'beneficial...'
+2025-06-22 10:43:08,499 - utils.ielts - INFO - Successfully retrieved embedding for 'beneficial...' (dimension: 768)
+2025-06-22 10:43:08,500 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:08,500 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:08,500 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:08,500 - utils.ielts - INFO - Input text: 'adj. 有益的，有利的；<法律>（与）权益（有关）的，有财产使用权的...'
+2025-06-22 10:43:08,694 - utils.ielts - INFO - Successfully retrieved embedding for 'adj. 有益的，有利的；<法律>（与）权益（有关）的，有财产使用权的...' (dimension: 768)
+2025-06-22 10:43:08,695 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:08,695 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:08,695 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:08,695 - utils.ielts - INFO - Input text: 'legislate...'
+2025-06-22 10:43:08,875 - utils.ielts - INFO - Successfully retrieved embedding for 'legislate...' (dimension: 768)
+2025-06-22 10:43:08,876 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:08,876 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:08,876 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:08,876 - utils.ielts - INFO - Input text: 'v. 通过立法实施；制定法律，立法...'
+2025-06-22 10:43:09,041 - utils.ielts - INFO - Successfully retrieved embedding for 'v. 通过立法实施；制定法律，立法...' (dimension: 768)
+2025-06-22 10:43:09,042 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:09,042 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:09,042 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:09,042 - utils.ielts - INFO - Input text: 'permanent...'
+2025-06-22 10:43:09,228 - utils.ielts - INFO - Successfully retrieved embedding for 'permanent...' (dimension: 768)
+2025-06-22 10:43:09,229 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:09,229 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:09,229 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:09,229 - utils.ielts - INFO - Input text: 'adj. 永久的，永恒的；（尤指问题或困难）不断出现的，一直存在的；（员工）终生的，长期的；（家庭住...'
+2025-06-22 10:43:09,421 - utils.ielts - INFO - Successfully retrieved embedding for 'adj. 永久的，永恒的；（尤指问题或困难）不断出现的，一直存在的；（员工）终生的，长期的；（家庭住...' (dimension: 768)
+2025-06-22 10:43:09,421 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:09,421 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:09,421 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:09,421 - utils.ielts - INFO - Input text: 'n. <美>烫发...'
+2025-06-22 10:43:09,613 - utils.ielts - INFO - Successfully retrieved embedding for 'n. <美>烫发...' (dimension: 768)
+2025-06-22 10:43:09,614 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:09,614 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:09,614 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:09,614 - utils.ielts - INFO - Input text: 'verse...'
+2025-06-22 10:43:09,797 - utils.ielts - INFO - Successfully retrieved embedding for 'verse...' (dimension: 768)
+2025-06-22 10:43:09,798 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:09,798 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:09,798 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:09,798 - utils.ielts - INFO - Input text: 'n. 诗，韵文；诗节，（歌曲的）节；（《圣经》或其他经文的）节，句；（赞美诗的）独唱部，小组唱部...'
+2025-06-22 10:43:09,979 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 诗，韵文；诗节，（歌曲的）节；（《圣经》或其他经文的）节，句；（赞美诗的）独唱部，小组唱部...' (dimension: 768)
+2025-06-22 10:43:09,979 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:09,980 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:09,980 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:09,980 - utils.ielts - INFO - Input text: 'v. <古>作诗...'
+2025-06-22 10:43:10,174 - utils.ielts - INFO - Successfully retrieved embedding for 'v. <古>作诗...' (dimension: 768)
+2025-06-22 10:43:10,175 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:10,175 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:10,175 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:10,175 - utils.ielts - INFO - Input text: '【名】 （Verse）（德）费尔泽（人名）...'
+2025-06-22 10:43:10,345 - utils.ielts - INFO - Successfully retrieved embedding for '【名】 （Verse）（德）费尔泽（人名）...' (dimension: 768)
+2025-06-22 10:43:10,346 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:10,346 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:10,346 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:10,346 - utils.ielts - INFO - Input text: 'venerable...'
+2025-06-22 10:43:10,514 - utils.ielts - INFO - Successfully retrieved embedding for 'venerable...' (dimension: 768)
+2025-06-22 10:43:10,515 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:10,515 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:10,515 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:10,515 - utils.ielts - INFO - Input text: 'adj. 庄严的，值得尊敬的；珍贵的...'
+2025-06-22 10:43:10,691 - utils.ielts - INFO - Successfully retrieved embedding for 'adj. 庄严的，值得尊敬的；珍贵的...' (dimension: 768)
+2025-06-22 10:43:10,692 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:10,692 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:10,692 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:10,692 - utils.ielts - INFO - Input text: 'adversity...'
+2025-06-22 10:43:10,881 - utils.ielts - INFO - Successfully retrieved embedding for 'adversity...' (dimension: 768)
+2025-06-22 10:43:10,882 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:10,882 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:10,882 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:10,882 - utils.ielts - INFO - Input text: 'n. 逆境，厄运...'
+2025-06-22 10:43:11,037 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 逆境，厄运...' (dimension: 768)
+2025-06-22 10:43:11,037 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:11,038 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:11,038 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:11,038 - utils.ielts - INFO - Input text: 'vegetarian...'
+2025-06-22 10:43:11,210 - utils.ielts - INFO - Successfully retrieved embedding for 'vegetarian...' (dimension: 768)
+2025-06-22 10:43:11,211 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:11,211 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:11,211 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:11,211 - utils.ielts - INFO - Input text: 'n. 素食者，素食主义者；食草动物...'
+2025-06-22 10:43:11,376 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 素食者，素食主义者；食草动物...' (dimension: 768)
+2025-06-22 10:43:11,377 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:11,377 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:11,377 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:11,377 - utils.ielts - INFO - Input text: 'adj.  素食的，素的...'
+2025-06-22 10:43:11,556 - utils.ielts - INFO - Successfully retrieved embedding for 'adj.  素食的，素的...' (dimension: 768)
+2025-06-22 10:43:11,557 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:11,557 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:11,557 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:11,558 - utils.ielts - INFO - Input text: 'plump...'
+2025-06-22 10:43:11,734 - utils.ielts - INFO - Successfully retrieved embedding for 'plump...' (dimension: 768)
+2025-06-22 10:43:11,734 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:11,734 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:11,735 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:11,735 - utils.ielts - INFO - Input text: 'adj. 胖乎乎的，丰满的；圆鼓鼓的，又大又圆的...'
+2025-06-22 10:43:11,902 - utils.ielts - INFO - Successfully retrieved embedding for 'adj. 胖乎乎的，丰满的；圆鼓鼓的，又大又圆的...' (dimension: 768)
+2025-06-22 10:43:11,903 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:11,903 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:11,903 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:11,904 - utils.ielts - INFO - Input text: 'v. 使更软，使更圆（plump up）；（随意地）放置；（随意地）坐下，躺下；专意于，特意选定（p...'
+2025-06-22 10:43:12,057 - utils.ielts - INFO - Successfully retrieved embedding for 'v. 使更软，使更圆（plump up）；（随意地）放置；（随意地）坐下，躺下；专意于，特意选定（p...' (dimension: 768)
+2025-06-22 10:43:12,057 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:12,057 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:12,057 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:12,058 - utils.ielts - INFO - Input text: 'adv. 突然地，重重地；直接地...'
+2025-06-22 10:43:12,241 - utils.ielts - INFO - Successfully retrieved embedding for 'adv. 突然地，重重地；直接地...' (dimension: 768)
+2025-06-22 10:43:12,242 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:12,242 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:12,242 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:12,242 - utils.ielts - INFO - Input text: 'n. <古>突然前冲，重重坠落；一群...'
+2025-06-22 10:43:12,405 - utils.ielts - INFO - Successfully retrieved embedding for 'n. <古>突然前冲，重重坠落；一群...' (dimension: 768)
+2025-06-22 10:43:12,406 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:12,406 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:12,406 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:12,406 - utils.ielts - INFO - Input text: '【名】 （Plump）（美、英）普伦普（人名）...'
+2025-06-22 10:43:12,566 - utils.ielts - INFO - Successfully retrieved embedding for '【名】 （Plump）（美、英）普伦普（人名）...' (dimension: 768)
+2025-06-22 10:43:12,567 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:12,567 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:12,567 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:12,567 - utils.ielts - INFO - Input text: 'canoe...'
+2025-06-22 10:43:12,756 - utils.ielts - INFO - Successfully retrieved embedding for 'canoe...' (dimension: 768)
+2025-06-22 10:43:12,756 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:12,756 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:12,756 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:12,756 - utils.ielts - INFO - Input text: 'n. 独木舟，小划子...'
+2025-06-22 10:43:12,910 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 独木舟，小划子...' (dimension: 768)
+2025-06-22 10:43:12,911 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:12,911 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:12,911 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:12,911 - utils.ielts - INFO - Input text: 'v. 划独木舟，乘独木舟...'
+2025-06-22 10:43:13,074 - utils.ielts - INFO - Successfully retrieved embedding for 'v. 划独木舟，乘独木舟...' (dimension: 768)
+2025-06-22 10:43:13,074 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:13,075 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:13,075 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:13,075 - utils.ielts - INFO - Input text: 'expressive...'
+2025-06-22 10:43:13,255 - utils.ielts - INFO - Successfully retrieved embedding for 'expressive...' (dimension: 768)
+2025-06-22 10:43:13,256 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:13,256 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:13,256 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:13,256 - utils.ielts - INFO - Input text: 'adj. 富于表情的，富于表现力的；表现的，表达的...'
+2025-06-22 10:43:13,429 - utils.ielts - INFO - Successfully retrieved embedding for 'adj. 富于表情的，富于表现力的；表现的，表达的...' (dimension: 768)
+2025-06-22 10:43:13,429 - utils.ielts - INFO - 進度 0.4% - 已處理 30/7046 個詞彙
+2025-06-22 10:43:13,429 - utils.ielts - INFO -   新增: 84, 已存在: 0, API調用: 84
+2025-06-22 10:43:13,432 - utils.enhanced_cache - INFO - 缓存已保存：84 条记录
+2025-06-22 10:43:13,933 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:13,933 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:13,933 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:13,933 - utils.ielts - INFO - Input text: 'introductory...'
+2025-06-22 10:43:14,125 - utils.ielts - INFO - Successfully retrieved embedding for 'introductory...' (dimension: 768)
+2025-06-22 10:43:14,126 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:14,126 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:14,126 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:14,126 - utils.ielts - INFO - Input text: 'adj. 引导的，介绍的；入门的，初步的；（新产品）试销的...'
+2025-06-22 10:43:14,311 - utils.ielts - INFO - Successfully retrieved embedding for 'adj. 引导的，介绍的；入门的，初步的；（新产品）试销的...' (dimension: 768)
+2025-06-22 10:43:14,311 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:14,311 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:14,311 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:14,311 - utils.ielts - INFO - Input text: 'pipeline...'
+2025-06-22 10:43:14,487 - utils.ielts - INFO - Successfully retrieved embedding for 'pipeline...' (dimension: 768)
+2025-06-22 10:43:14,488 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:14,488 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:14,488 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:14,488 - utils.ielts - INFO - Input text: 'n. （常指地下的）输送管道；（供应货物、信息等的）渠道，途径；研发生产系统（the pipelin...'
+2025-06-22 10:43:14,670 - utils.ielts - INFO - Successfully retrieved embedding for 'n. （常指地下的）输送管道；（供应货物、信息等的）渠道，途径；研发生产系统（the pipelin...' (dimension: 768)
+2025-06-22 10:43:14,670 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:14,671 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:14,671 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:14,671 - utils.ielts - INFO - Input text: 'v. 用管道输送；（计算机）运用流水线技术设计...'
+2025-06-22 10:43:14,870 - utils.ielts - INFO - Successfully retrieved embedding for 'v. 用管道输送；（计算机）运用流水线技术设计...' (dimension: 768)
+2025-06-22 10:43:14,871 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:14,871 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:14,871 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:14,871 - utils.ielts - INFO - Input text: 'novelist...'
+2025-06-22 10:43:15,116 - utils.ielts - INFO - Successfully retrieved embedding for 'novelist...' (dimension: 768)
+2025-06-22 10:43:15,116 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:15,116 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:15,116 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:15,117 - utils.ielts - INFO - Input text: 'n. 小说家...'
+2025-06-22 10:43:15,274 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 小说家...' (dimension: 768)
+2025-06-22 10:43:15,275 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:15,275 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:15,275 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:15,275 - utils.ielts - INFO - Input text: 'retailer...'
+2025-06-22 10:43:15,437 - utils.ielts - INFO - Successfully retrieved embedding for 'retailer...' (dimension: 768)
+2025-06-22 10:43:15,438 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:15,438 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:15,438 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:15,438 - utils.ielts - INFO - Input text: 'n. 零售商，零售店；讲述者...'
+2025-06-22 10:43:15,629 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 零售商，零售店；讲述者...' (dimension: 768)
+2025-06-22 10:43:15,629 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:15,630 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:15,630 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:15,630 - utils.ielts - INFO - Input text: 'vision...'
+2025-06-22 10:43:15,797 - utils.ielts - INFO - Successfully retrieved embedding for 'vision...' (dimension: 768)
+2025-06-22 10:43:15,798 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:15,798 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:15,798 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:15,798 - utils.ielts - INFO - Input text: 'n. 幻想，想象；幻觉，幻象；构想，展望；眼力，远见卓识；视力，视觉；视野；美好的人（或事物）；（电...'
+2025-06-22 10:43:16,089 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 幻想，想象；幻觉，幻象；构想，展望；眼力，远见卓识；视力，视觉；视野；美好的人（或事物）；（电...' (dimension: 768)
+2025-06-22 10:43:16,090 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:16,090 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:16,090 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:16,090 - utils.ielts - INFO - Input text: 'v. <罕>想像...'
+2025-06-22 10:43:16,282 - utils.ielts - INFO - Successfully retrieved embedding for 'v. <罕>想像...' (dimension: 768)
+2025-06-22 10:43:16,282 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:16,282 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:16,282 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:16,283 - utils.ielts - INFO - Input text: 'equip...'
+2025-06-22 10:43:16,465 - utils.ielts - INFO - Successfully retrieved embedding for 'equip...' (dimension: 768)
+2025-06-22 10:43:16,465 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:16,465 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:16,465 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:16,465 - utils.ielts - INFO - Input text: 'v. 装备，配备；使有所准备，使能够胜任...'
+2025-06-22 10:43:16,657 - utils.ielts - INFO - Successfully retrieved embedding for 'v. 装备，配备；使有所准备，使能够胜任...' (dimension: 768)
+2025-06-22 10:43:16,658 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:16,658 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:16,658 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:16,658 - utils.ielts - INFO - Input text: 'phonetic...'
+2025-06-22 10:43:16,829 - utils.ielts - INFO - Successfully retrieved embedding for 'phonetic...' (dimension: 768)
+2025-06-22 10:43:16,830 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:16,830 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:16,830 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:16,830 - utils.ielts - INFO - Input text: 'adj. 音标的；语音的，语音学的；（拼写系统）表音的，与发音近似的...'
+2025-06-22 10:43:17,016 - utils.ielts - INFO - Successfully retrieved embedding for 'adj. 音标的；语音的，语音学的；（拼写系统）表音的，与发音近似的...' (dimension: 768)
+2025-06-22 10:43:17,017 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:17,017 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:17,017 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:17,017 - utils.ielts - INFO - Input text: 'quaint...'
+2025-06-22 10:43:17,215 - utils.ielts - INFO - Successfully retrieved embedding for 'quaint...' (dimension: 768)
+2025-06-22 10:43:17,216 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:17,216 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:17,217 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:17,217 - utils.ielts - INFO - Input text: 'adj. 奇特有趣的，古色古香的；做得很精巧的...'
+2025-06-22 10:43:17,410 - utils.ielts - INFO - Successfully retrieved embedding for 'adj. 奇特有趣的，古色古香的；做得很精巧的...' (dimension: 768)
+2025-06-22 10:43:17,411 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:17,411 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:17,411 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:17,412 - utils.ielts - INFO - Input text: 'wavelength...'
+2025-06-22 10:43:17,572 - utils.ielts - INFO - Successfully retrieved embedding for 'wavelength...' (dimension: 768)
+2025-06-22 10:43:17,572 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:17,572 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:17,572 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:17,573 - utils.ielts - INFO - Input text: 'n. [物] 波长...'
+2025-06-22 10:43:17,742 - utils.ielts - INFO - Successfully retrieved embedding for 'n. [物] 波长...' (dimension: 768)
+2025-06-22 10:43:17,743 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:17,743 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:17,743 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:17,743 - utils.ielts - INFO - Input text: 'brighten...'
+2025-06-22 10:43:17,916 - utils.ielts - INFO - Successfully retrieved embedding for 'brighten...' (dimension: 768)
+2025-06-22 10:43:17,917 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:17,917 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:17,917 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:17,917 - utils.ielts - INFO - Input text: 'v. 使明亮，使鲜艳；开颜，高兴；（使）好转，（使）变得乐观；使生色，为……增辉添彩；放晴...'
+2025-06-22 10:43:18,093 - utils.ielts - INFO - Successfully retrieved embedding for 'v. 使明亮，使鲜艳；开颜，高兴；（使）好转，（使）变得乐观；使生色，为……增辉添彩；放晴...' (dimension: 768)
+2025-06-22 10:43:18,093 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:18,093 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:18,093 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:18,093 - utils.ielts - INFO - Input text: '【名】 （Brighten）（英）布赖滕（人名）...'
+2025-06-22 10:43:18,293 - utils.ielts - INFO - Successfully retrieved embedding for '【名】 （Brighten）（英）布赖滕（人名）...' (dimension: 768)
+2025-06-22 10:43:18,293 - utils.ielts - INFO - 進度 0.6% - 已處理 40/7046 個詞彙
+2025-06-22 10:43:18,293 - utils.ielts - INFO -   新增: 107, 已存在: 0, API調用: 107
+2025-06-22 10:43:18,294 - utils.enhanced_cache - INFO - 缓存已保存：107 条记录
+2025-06-22 10:43:18,795 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:18,795 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:18,795 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:18,795 - utils.ielts - INFO - Input text: 'lid...'
+2025-06-22 10:43:18,950 - utils.ielts - INFO - Successfully retrieved embedding for 'lid...' (dimension: 768)
+2025-06-22 10:43:18,951 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:18,951 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:18,951 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:18,951 - utils.ielts - INFO - Input text: 'n. （容器的）盖，盖子；眼睑；抑制，隐瞒；（对开支的）控制，封顶；馅饼的硬皮；蒴盖...'
+2025-06-22 10:43:19,117 - utils.ielts - INFO - Successfully retrieved embedding for 'n. （容器的）盖，盖子；眼睑；抑制，隐瞒；（对开支的）控制，封顶；馅饼的硬皮；蒴盖...' (dimension: 768)
+2025-06-22 10:43:19,117 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:19,117 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:19,117 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:19,117 - utils.ielts - INFO - Input text: 'v. 给……盖盖子...'
+2025-06-22 10:43:19,327 - utils.ielts - INFO - Successfully retrieved embedding for 'v. 给……盖盖子...' (dimension: 768)
+2025-06-22 10:43:19,328 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:19,328 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:19,328 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:19,328 - utils.ielts - INFO - Input text: '【名】 （Lid）（捷、挪）利德（人名）...'
+2025-06-22 10:43:19,527 - utils.ielts - INFO - Successfully retrieved embedding for '【名】 （Lid）（捷、挪）利德（人名）...' (dimension: 768)
+2025-06-22 10:43:19,528 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:19,528 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:19,528 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:19,528 - utils.ielts - INFO - Input text: 'miracle...'
+2025-06-22 10:43:19,724 - utils.ielts - INFO - Successfully retrieved embedding for 'miracle...' (dimension: 768)
+2025-06-22 10:43:19,725 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:19,725 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:19,725 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:19,725 - utils.ielts - INFO - Input text: 'n. 奇迹，不可思议的事；杰出例子，精品...'
+2025-06-22 10:43:19,919 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 奇迹，不可思议的事；杰出例子，精品...' (dimension: 768)
+2025-06-22 10:43:19,920 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:19,920 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:19,920 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:19,920 - utils.ielts - INFO - Input text: 'adj. （药物或产品）神奇的，不可思议的...'
+2025-06-22 10:43:20,095 - utils.ielts - INFO - Successfully retrieved embedding for 'adj. （药物或产品）神奇的，不可思议的...' (dimension: 768)
+2025-06-22 10:43:20,096 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:20,096 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:20,096 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:20,096 - utils.ielts - INFO - Input text: '【名】 （Miracle）（英）米勒克尔，（意、西）米拉克莱（人名）...'
+2025-06-22 10:43:20,259 - utils.ielts - INFO - Successfully retrieved embedding for '【名】 （Miracle）（英）米勒克尔，（意、西）米拉克莱（人名）...' (dimension: 768)
+2025-06-22 10:43:20,259 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:20,259 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:20,259 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:20,259 - utils.ielts - INFO - Input text: 'probe...'
+2025-06-22 10:43:20,418 - utils.ielts - INFO - Successfully retrieved embedding for 'probe...' (dimension: 768)
+2025-06-22 10:43:20,418 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:20,418 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:20,418 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:20,418 - utils.ielts - INFO - Input text: 'v. 调查，打探，探究；（用手指、细长工具等）探查，查看；搜寻，探索；侦察，侦探（敌情）...'
+2025-06-22 10:43:20,592 - utils.ielts - INFO - Successfully retrieved embedding for 'v. 调查，打探，探究；（用手指、细长工具等）探查，查看；搜寻，探索；侦察，侦探（敌情）...' (dimension: 768)
+2025-06-22 10:43:20,593 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:20,593 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:20,593 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:20,593 - utils.ielts - INFO - Input text: 'n. 探究，详尽调查；（医生和科学家用的）探针； 航天探测器，太空探测器（=space probe）...'
+2025-06-22 10:43:20,787 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 探究，详尽调查；（医生和科学家用的）探针； 航天探测器，太空探测器（=space probe）...' (dimension: 768)
+2025-06-22 10:43:20,787 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:20,788 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:20,788 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:20,788 - utils.ielts - INFO - Input text: '【名】 （Probe）（法）普罗布（人名）...'
+2025-06-22 10:43:20,986 - utils.ielts - INFO - Successfully retrieved embedding for '【名】 （Probe）（法）普罗布（人名）...' (dimension: 768)
+2025-06-22 10:43:20,987 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:20,987 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:20,987 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:20,987 - utils.ielts - INFO - Input text: 'invalid...'
+2025-06-22 10:43:21,154 - utils.ielts - INFO - Successfully retrieved embedding for 'invalid...' (dimension: 768)
+2025-06-22 10:43:21,155 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:21,155 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:21,155 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:21,155 - utils.ielts - INFO - Input text: 'adj. （法律上）无效的，作废的；（论据、理由等）站不住脚的，错误的；（计算机）不能识别的；残疾的...'
+2025-06-22 10:43:21,321 - utils.ielts - INFO - Successfully retrieved embedding for 'adj. （法律上）无效的，作废的；（论据、理由等）站不住脚的，错误的；（计算机）不能识别的；残疾的...' (dimension: 768)
+2025-06-22 10:43:21,322 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:21,322 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:21,322 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:21,322 - utils.ielts - INFO - Input text: 'n.  病弱者，伤残者...'
+2025-06-22 10:43:21,506 - utils.ielts - INFO - Successfully retrieved embedding for 'n.  病弱者，伤残者...' (dimension: 768)
+2025-06-22 10:43:21,506 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:21,507 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:21,507 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:21,507 - utils.ielts - INFO - Input text: 'vt. 使（因伤或病）退役；使伤残，使病弱...'
+2025-06-22 10:43:21,704 - utils.ielts - INFO - Successfully retrieved embedding for 'vt. 使（因伤或病）退役；使伤残，使病弱...' (dimension: 768)
+2025-06-22 10:43:21,704 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:21,705 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:21,705 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:21,705 - utils.ielts - INFO - Input text: 'fruition...'
+2025-06-22 10:43:21,879 - utils.ielts - INFO - Successfully retrieved embedding for 'fruition...' (dimension: 768)
+2025-06-22 10:43:21,880 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:21,880 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:21,880 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:21,880 - utils.ielts - INFO - Input text: 'n. 完成，成就；结果实...'
+2025-06-22 10:43:22,050 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 完成，成就；结果实...' (dimension: 768)
+2025-06-22 10:43:22,051 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:22,051 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:22,051 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:22,051 - utils.ielts - INFO - Input text: 'depict...'
+2025-06-22 10:43:22,227 - utils.ielts - INFO - Successfully retrieved embedding for 'depict...' (dimension: 768)
+2025-06-22 10:43:22,228 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:22,228 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:22,228 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:22,228 - utils.ielts - INFO - Input text: 'v. 描述，描绘...'
+2025-06-22 10:43:22,390 - utils.ielts - INFO - Successfully retrieved embedding for 'v. 描述，描绘...' (dimension: 768)
+2025-06-22 10:43:22,390 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:22,391 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:22,391 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:22,391 - utils.ielts - INFO - Input text: 'certificate...'
+2025-06-22 10:43:22,564 - utils.ielts - INFO - Successfully retrieved embedding for 'certificate...' (dimension: 768)
+2025-06-22 10:43:22,564 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:22,565 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:22,565 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:22,565 - utils.ielts - INFO - Input text: 'n. 证明，证书；文凭，成绩合格证书；电影放映许可证...'
+2025-06-22 10:43:22,768 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 证明，证书；文凭，成绩合格证书；电影放映许可证...' (dimension: 768)
+2025-06-22 10:43:22,768 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:22,768 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:22,768 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:22,768 - utils.ielts - INFO - Input text: 'v. 发证书给……，用证书证明...'
+2025-06-22 10:43:22,931 - utils.ielts - INFO - Successfully retrieved embedding for 'v. 发证书给……，用证书证明...' (dimension: 768)
+2025-06-22 10:43:22,932 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:22,932 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:22,932 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:22,932 - utils.ielts - INFO - Input text: 'administrative...'
+2025-06-22 10:43:23,121 - utils.ielts - INFO - Successfully retrieved embedding for 'administrative...' (dimension: 768)
+2025-06-22 10:43:23,122 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:23,122 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:23,122 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:23,122 - utils.ielts - INFO - Input text: 'adj. 管理的，行政的...'
+2025-06-22 10:43:23,284 - utils.ielts - INFO - Successfully retrieved embedding for 'adj. 管理的，行政的...' (dimension: 768)
+2025-06-22 10:43:23,284 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:23,284 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:23,284 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:23,284 - utils.ielts - INFO - Input text: 'shot...'
+2025-06-22 10:43:23,446 - utils.ielts - INFO - Successfully retrieved embedding for 'shot...' (dimension: 768)
+2025-06-22 10:43:23,446 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:23,447 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:23,447 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:23,447 - utils.ielts - INFO - Input text: 'n. 射击，开枪（或炮），枪声；射手，枪手；弹丸；批评的话；尝试，努力；击球，射门；铅球；发射；照片...'
+2025-06-22 10:43:23,613 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 射击，开枪（或炮），枪声；射手，枪手；弹丸；批评的话；尝试，努力；击球，射门；铅球；发射；照片...' (dimension: 768)
+2025-06-22 10:43:23,613 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:23,613 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:23,614 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:23,614 - utils.ielts - INFO - Input text: 'adj. 杂色的，闪色的；破烂不堪，筋疲力尽；充满（某种特质或情感）；<美，澳新>醉的...'
+2025-06-22 10:43:23,784 - utils.ielts - INFO - Successfully retrieved embedding for 'adj. 杂色的，闪色的；破烂不堪，筋疲力尽；充满（某种特质或情感）；<美，澳新>醉的...' (dimension: 768)
+2025-06-22 10:43:23,784 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:23,784 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:23,784 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:23,784 - utils.ielts - INFO - Input text: 'v. 开（枪），射击；射出（弓箭等）；狩猎（shoot 的过去式和过去分词形式）...'
+2025-06-22 10:43:23,958 - utils.ielts - INFO - Successfully retrieved embedding for 'v. 开（枪），射击；射出（弓箭等）；狩猎（shoot 的过去式和过去分词形式）...' (dimension: 768)
+2025-06-22 10:43:23,959 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:23,959 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:23,959 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:23,959 - utils.ielts - INFO - Input text: 'memo...'
+2025-06-22 10:43:24,118 - utils.ielts - INFO - Successfully retrieved embedding for 'memo...' (dimension: 768)
+2025-06-22 10:43:24,119 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:24,119 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:24,119 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:24,119 - utils.ielts - INFO - Input text: 'n. 备忘录...'
+2025-06-22 10:43:24,307 - utils.ielts - INFO - Successfully retrieved embedding for 'n. 备忘录...' (dimension: 768)
+2025-06-22 10:43:24,308 - utils.ielts - INFO - --- 調用 Embedding API (緩存未命中) ---
+2025-06-22 10:43:24,308 - utils.ielts - INFO - URL: https://api.siliconflow.cn/v1/embeddings
+2025-06-22 10:43:24,308 - utils.ielts - INFO - Model: netease-youdao/bce-embedding-base_v1
+2025-06-22 10:43:24,308 - utils.ielts - INFO - Input text: '【名】 （Memo）（土、意）梅莫（人名）...'
+2025-06-22 10:43:24,488 - utils.ielts - INFO - Successfully retrieved embedding for '【名】 （Memo）（土、意）梅莫（人名）...' (dimension: 768)
+2025-06-22 10:43:24,488 - utils.ielts - INFO - 進度 0.7% - 已處理 50/7046 個詞彙
+2025-06-22 10:43:24,488 - utils.ielts - INFO -   新增: 139, 已存在: 0, API調用: 139
+2025-06-22 10:43:24,489 - utils.enhanced_cache - INFO - 缓存已保存：139 条记录

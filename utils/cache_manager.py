@@ -165,7 +165,7 @@ class CacheManagerDialog(QDialog):
         self.detailed_stats = QTextEdit()
         self.detailed_stats.setReadOnly(True)
         self.detailed_stats.setMaximumHeight(200)
-        self.detailed_stats.setFont(QFont("Consolas", 9))
+        self.detailed_stats.setFont(QFont("Times New Roman", 9))
         
         layout.addWidget(basic_group)
         layout.addWidget(perf_group)

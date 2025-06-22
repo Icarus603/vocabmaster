@@ -1,65 +1,65 @@
 # VocabMaster 配置文件模板
-# 請將此文件複製為 config.yaml 並根據需要修改配置項
+# 请将此文件复制为 config.yaml 并根据需要修改配置项
 
 # API 配置
 api:
-  # SiliconFlow API 金鑰 (用於 IELTS 和 DIY 語義測試)
-  # 獲取方式：訪問 https://siliconflow.cn/ 註冊並創建 API 金鑰
+  # SiliconFlow API 密钥 (用于 IELTS 和 DIY 语义测试)
+  # 获取方式：访问 https://siliconflow.cn/ 注册并创建 API 密钥
   siliconflow_api_key: "your_siliconflow_api_key_here"
   
-  # API 請求超時時間（秒）
+  # API 请求超时时间（秒）
   timeout: 20
   
-  # API 端點配置
+  # API 端点配置
   embedding_url: "https://api.siliconflow.cn/v1/embeddings"
   model_name: "netease-youdao/bce-embedding-base_v1"
 
-# 語義相似度配置
+# 语义相似度配置
 semantic:
-  # 語義相似度閾值 (0.0-1.0)
-  # 數值越低，判定越寬鬆；數值越高，判定越嚴格
+  # 语义相似度阈值 (0.0-1.0)
+  # 数值越低，判定越宽松；数值越高，判定越严格
   similarity_threshold: 0.30
   
-  # 啟用關鍵詞匹配 (提高準確性，優先於語義匹配)
+  # 启用关键词匹配 (提高准确性，优先于语义匹配)
   enable_keyword_matching: true
   
-  # 啟用動態閾值 (根據答案長度和複雜度自動調整閾值)
+  # 启用动态阈值 (根据答案长度和复杂度自动调整阈值)
   enable_dynamic_threshold: true
   
-  # 是否啟用備用文字匹配（當API失敗時）
+  # 是否启用备用文字匹配（当API失败时）
   enable_fallback_matching: true
   
-  # 備用匹配的最小詞長度
+  # 备用匹配的最小词长度
   min_word_length: 2
 
-# 測試配置
+# 测试配置
 test:
-  # 默認測試題數
+  # 默认测试题数
   default_question_count: 10
   
-  # 最大測試題數
+  # 最大测试题数
   max_question_count: 100
   
-  # 是否顯示詳細日誌
+  # 是否显示详细日志
   verbose_logging: true
 
 # UI 配置
 ui:
-  # 窗口默認大小
+  # 窗口默认大小
   window_width: 800
   window_height: 600
   
-  # 字體配置
+  # 字体配置
   font_family: "Arial"
   font_size: 12
 
-# 日誌配置
+# 日志配置
 logging:
-  # 日誌等級: DEBUG, INFO, WARNING, ERROR
+  # 日志等级: DEBUG, INFO, WARNING, ERROR
   level: "INFO"
   
-  # 是否保存日誌到文件
+  # 是否保存日志到文件
   save_to_file: true
   
-  # 日誌文件路径
+  # 日志文件路径
   log_file: "logs/vocabmaster.log" 

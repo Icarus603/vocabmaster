@@ -1,74 +1,74 @@
 #!/usr/bin/env python3
 """
-VocabMaster 性能報告工具
-生成詳細的性能分析報告
+VocabMaster 性能报告工具
+生成详细的性能分析报告
 """
 
-import sys
-import os
 import argparse
+import os
+import sys
 from datetime import datetime
 
-# 添加項目根目錄到Python路徑
+# 添加项目根目录到Python路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 def main():
-    parser = argparse.ArgumentParser(description='VocabMaster 性能報告工具')
+    parser = argparse.ArgumentParser(description='VocabMaster 性能报告工具')
     parser.add_argument('--output', '-o', default=None,
-                       help='輸出文件路徑（默認：輸出到終端）')
+                       help='输出文件路径（默认：输出到终端）')
     parser.add_argument('--format', choices=['text', 'json'], default='text',
-                       help='輸出格式（默認：text）')
+                       help='输出格式（默认：text）')
     parser.add_argument('--api-hours', type=int, default=24,
-                       help='API性能統計時間範圍（小時，默認：24）')
+                       help='API性能统计时间范围（小时，默认：24）')
     parser.add_argument('--test-days', type=int, default=7,
-                       help='測試性能統計時間範圍（天，默認：7）')
+                       help='测试性能统计时间范围（天，默认：7）')
     
     args = parser.parse_args()
     
     try:
-        from utils.performance_monitor import get_performance_monitor
         from utils.ielts import IeltsTest
-        
-        # 獲取性能監控器
+        from utils.performance_monitor import get_performance_monitor
+
+        # 获取性能监控器
         monitor = get_performance_monitor()
         
         if args.format == 'text':
-            # 生成文本報告
+            # 生成文本报告
             report = monitor.generate_performance_report()
             
-            # 添加詳細統計
+            # 添加详细统计
             api_summary = monitor.get_api_performance_summary(args.api_hours)
             test_summary = monitor.get_test_performance_summary(args.test_days)
             
-            report += "\n\n📈 詳細統計\n"
+            report += "\n\n📈 详细统计\n"
             report += "=" * 50 + "\n"
             
-            report += f"\n🔗 API 詳細統計 (最近{args.api_hours}小時):\n"
+            report += f"\n🔗 API 详细统计 (最近{args.api_hours}小时):\n"
             for key, value in api_summary.items():
                 report += f"  {key}: {value}\n"
             
-            report += f"\n📝 測試詳細統計 (最近{args.test_days}天):\n"
+            report += f"\n📝 测试详细统计 (最近{args.test_days}天):\n"
             for key, value in test_summary.items():
                 report += f"  {key}: {value}\n"
             
-            # 添加緩存信息
+            # 添加缓存信息
             if hasattr(monitor, '_global_monitor'):
                 try:
                     ielts = IeltsTest()
                     cache_info = ielts.get_cache_info()
                     
-                    report += "\n💾 緩存詳細信息:\n"
+                    report += "\n💾 缓存详细信息:\n"
                     for key, value in cache_info.items():
                         report += f"  {key}: {value}\n"
                 except:
                     pass
             
-            report += f"\n📅 報告生成時間: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+            report += f"\n📅 报告生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
             
         elif args.format == 'json':
             import json
-            
-            # 生成JSON報告
+
+            # 生成JSON报告
             data = {
                 'generated_at': datetime.now().isoformat(),
                 'api_performance': monitor.get_api_performance_summary(args.api_hours),
@@ -84,22 +84,22 @@ def main():
             
             report = json.dumps(data, indent=2, ensure_ascii=False)
         
-        # 輸出報告
+        # 输出报告
         if args.output:
             with open(args.output, 'w', encoding='utf-8') as f:
                 f.write(report)
-            print(f"✅ 報告已保存到: {args.output}")
+            print(f"✅ 报告已保存到: {args.output}")
         else:
             print(report)
         
         return True
         
     except ImportError as e:
-        print(f"❌ 模塊導入失敗: {e}")
-        print("請確保在Poetry環境中運行: poetry run python performance_report.py")
+        print(f"❌ 模块导入失败: {e}")
+        print("请确保在Poetry环境中运行: poetry run python performance_report.py")
         return False
     except Exception as e:
-        print(f"❌ 生成報告時出錯: {e}")
+        print(f"❌ 生成报告时出错: {e}")
         import traceback
         traceback.print_exc()
         return False
