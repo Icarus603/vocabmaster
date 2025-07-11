@@ -172,7 +172,182 @@ class LearningStatsManager:
                 )
             ''')
             
+            # 创建性能优化索引
+            self._create_indexes(cursor)
+            
             conn.commit()
+    
+    def _create_indexes(self, cursor):
+        """创建数据库索引以优化查询性能"""
+        try:
+            # test_sessions表索引
+            # 按测试类型查询的索引
+            cursor.execute('''
+                CREATE INDEX IF NOT EXISTS idx_test_sessions_test_type 
+                ON test_sessions(test_type)
+            ''')
+            
+            # 按时间范围查询的索引
+            cursor.execute('''
+                CREATE INDEX IF NOT EXISTS idx_test_sessions_start_time 
+                ON test_sessions(start_time)
+            ''')
+            
+            # 复合索引：测试类型 + 开始时间（用于按类型和时间过滤）
+            cursor.execute('''
+                CREATE INDEX IF NOT EXISTS idx_test_sessions_type_time 
+                ON test_sessions(test_type, start_time)
+            ''')
+            
+            # 分数查询索引
+            cursor.execute('''
+                CREATE INDEX IF NOT EXISTS idx_test_sessions_score 
+                ON test_sessions(score_percentage)
+            ''')
+            
+            # word_statistics表索引
+            # 按掌握程度查询的索引
+            cursor.execute('''
+                CREATE INDEX IF NOT EXISTS idx_word_stats_mastery 
+                ON word_statistics(mastery_level)
+            ''')
+            
+            # 按最后见过时间查询的索引（用于复习计划）
+            cursor.execute('''
+                CREATE INDEX IF NOT EXISTS idx_word_stats_last_seen 
+                ON word_statistics(last_seen)
+            ''')
+            
+            # 按正确率查询的索引（困难词汇筛选）
+            cursor.execute('''
+                CREATE INDEX IF NOT EXISTS idx_word_stats_accuracy 
+                ON word_statistics(correct_attempts, total_attempts)
+            ''')
+            
+            # 按总尝试次数查询的索引
+            cursor.execute('''
+                CREATE INDEX IF NOT EXISTS idx_word_stats_attempts 
+                ON word_statistics(total_attempts)
+            ''')
+            
+            # daily_stats表索引
+            # 日期索引（最重要的查询条件）
+            cursor.execute('''
+                CREATE INDEX IF NOT EXISTS idx_daily_stats_date 
+                ON daily_stats(date)
+            ''')
+            
+            # 按平均分数查询的索引
+            cursor.execute('''
+                CREATE INDEX IF NOT EXISTS idx_daily_stats_avg_score 
+                ON daily_stats(avg_score)
+            ''')
+            
+            # 复合索引：日期 + 总会话数（用于活跃度分析）
+            cursor.execute('''
+                CREATE INDEX IF NOT EXISTS idx_daily_stats_date_sessions 
+                ON daily_stats(date, total_sessions)
+            ''')
+            
+            logger.info("数据库索引创建完成")
+            
+        except sqlite3.Error as e:
+            logger.warning(f"创建数据库索引时出现警告: {e}")
+            # 不抛出异常，索引创建失败不应影响应用启动
+    
+    def get_database_info(self) -> Dict[str, Any]:
+        """获取数据库信息和性能统计"""
+        try:
+            with self._get_db_connection() as conn:
+                cursor = conn.cursor()
+                
+                # 获取表信息
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                tables = [row[0] for row in cursor.fetchall()]
+                
+                # 获取索引信息
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='index'")
+                indexes = [row[0] for row in cursor.fetchall()]
+                
+                # 获取各表的记录数
+                table_counts = {}
+                for table in tables:
+                    cursor.execute(f"SELECT COUNT(*) FROM {table}")
+                    table_counts[table] = cursor.fetchone()[0]
+                
+                # 获取数据库文件大小
+                db_size = os.path.getsize(self.db_path) if os.path.exists(self.db_path) else 0
+                
+                return {
+                    'database_path': self.db_path,
+                    'database_size_mb': db_size / (1024 * 1024),
+                    'tables': tables,
+                    'indexes': indexes,
+                    'table_counts': table_counts,
+                    'cache_size': len(self._word_stats_cache),
+                    'cache_dirty': self._cache_dirty
+                }
+                
+        except Exception as e:
+            logger.error(f"获取数据库信息失败: {e}")
+            return {}
+    
+    def analyze_query_performance(self, query: str, params: Tuple = ()) -> Dict[str, Any]:
+        """分析查询性能（仅用于调试）"""
+        try:
+            with self._get_db_connection() as conn:
+                cursor = conn.cursor()
+                
+                # 获取查询执行计划
+                explain_query = f"EXPLAIN QUERY PLAN {query}"
+                cursor.execute(explain_query, params)
+                query_plan = cursor.fetchall()
+                
+                # 测量执行时间
+                start_time = time.time()
+                cursor.execute(query, params)
+                results = cursor.fetchall()
+                execution_time = time.time() - start_time
+                
+                return {
+                    'query': query,
+                    'execution_time_ms': execution_time * 1000,
+                    'result_count': len(results),
+                    'query_plan': query_plan,
+                    'uses_index': any('USING INDEX' in str(step) for step in query_plan)
+                }
+                
+        except Exception as e:
+            logger.error(f"查询性能分析失败: {e}")
+            return {}
+    
+    def optimize_database(self) -> Dict[str, Any]:
+        """数据库优化操作"""
+        optimization_results = {}
+        
+        try:
+            with self._get_db_connection() as conn:
+                cursor = conn.cursor()
+                
+                # 分析表统计信息
+                cursor.execute("ANALYZE")
+                optimization_results['analyze'] = "完成"
+                
+                # 清理数据库碎片
+                cursor.execute("VACUUM")
+                optimization_results['vacuum'] = "完成"
+                
+                # 更新SQLite内部统计
+                cursor.execute("PRAGMA optimize")
+                optimization_results['optimize'] = "完成"
+                
+                logger.info("数据库优化操作完成")
+                
+        except Exception as e:
+            logger.error(f"数据库优化失败: {e}")
+            optimization_results['error'] = str(e)
+        
+        return optimization_results
     
     @contextmanager
     def _get_db_connection(self):

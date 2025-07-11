@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import (QApplication, QButtonGroup, QComboBox, QDialog,
                              QMainWindow, QMessageBox, QProgressBar,
                              QPushButton, QRadioButton, QScrollArea, QSlider,
                              QSpinBox, QStackedWidget, QTextEdit, QVBoxLayout,
-                             QWidget)
+                             QWidget, QGridLayout)
 
 from utils import BECTest as BecTest
 from utils import DIYTest, TermsTest
@@ -363,19 +363,19 @@ class MainWindow(QMainWindow):
                 border-radius: 3px;
             }
             QSlider::handle:horizontal {
-                background: #3b82f6;
-                border: 2px solid #3b82f6;
+                background: #2C84DB;
+                border: 2px solid #2C84DB;
                 width: 20px;
                 height: 20px;
                 border-radius: 10px;
                 margin: -8px 0;
             }
             QSlider::handle:horizontal:hover {
-                background: #2563eb;
-                border-color: #2563eb;
+                background: #1E6BC6;
+                border-color: #1E6BC6;
             }
             QSlider::sub-page:horizontal {
-                background: #3b82f6;
+                background: #2C84DB;
                 border-radius: 3px;
             }
         """)
@@ -384,7 +384,7 @@ class MainWindow(QMainWindow):
         value_label = QLabel(f"{default_val}{suffix}")
         value_label.setStyleSheet("""
             QLabel {
-                background-color: #3b82f6;
+                background-color: #2C84DB;
                 color: white;
                 padding: 8px 16px;
                 border-radius: 8px;
@@ -439,7 +439,9 @@ class MainWindow(QMainWindow):
         bec_btn = self.create_enhanced_button("🎯 BEC高级词汇测试", 'primary')
         ielts_btn = self.create_enhanced_button("🌟 IELTS 雅思英译中 (语义)", 'primary')
         terms_btn = self.create_enhanced_button("📚 《理解当代中国》英汉互译", 'primary')
-        diy_btn = self.create_enhanced_button("🛠️ DIY自定义词汇测试", 'secondary')
+        diy_btn = self.create_enhanced_button("🛠️ DIY自定义词汇测试", 'accent')
+        
+
         
         # 底部按钮
         settings_btn = self.create_enhanced_button("⚙️ 设置", 'ghost')
@@ -451,6 +453,8 @@ class MainWindow(QMainWindow):
             btn.setMinimumSize(360, 56)
             btn.setFont(QFont("Times New Roman", 14, QFont.Weight.Bold))
         
+
+        
         # 设置底部按钮样式
         for btn in [settings_btn, stats_btn, exit_btn]:
             btn.setMinimumSize(110, 40)
@@ -461,6 +465,9 @@ class MainWindow(QMainWindow):
         ielts_btn.clicked.connect(lambda: self.select_test("ielts"))
         terms_btn.clicked.connect(lambda: self.handle_terms_click())
         diy_btn.clicked.connect(lambda: self.handle_diy_click())
+        
+
+        
         settings_btn.clicked.connect(self.show_settings)
         stats_btn.clicked.connect(self.show_learning_stats)
         exit_btn.clicked.connect(self.close)
@@ -477,7 +484,9 @@ class MainWindow(QMainWindow):
         layout.addWidget(terms_btn)
         layout.addSpacing(10)
         layout.addWidget(diy_btn)
-        layout.addSpacing(30)
+        layout.addSpacing(20)
+        
+
         
         # 底部按钮布局
         bottom_layout = QHBoxLayout()
@@ -825,10 +834,10 @@ class MainWindow(QMainWindow):
                 border-radius: 6px;
                 font-size: 14px;
                 background-color: #ffffff;
-                color: #334155;
+                color: #121212;
             }
             QLineEdit:focus {
-                border-color: #3b82f6;
+                border-color: #2C84DB;
                 outline: none;
             }
         """)
@@ -957,12 +966,12 @@ class MainWindow(QMainWindow):
         question_layout.addWidget(self.question_count_slider)
         
         # 开始测试按钮
-        start_btn = QPushButton("开始测试")
+        start_btn = self.create_enhanced_button("开始测试", 'primary')
         start_btn.setMinimumSize(300, 50)
         start_btn.setFont(QFont("Times New Roman", 12))
         
         # 返回按钮
-        back_btn = QPushButton("返回")
+        back_btn = self.create_enhanced_button("返回", 'outline')
         back_btn.setMinimumSize(300, 50)
         back_btn.setFont(QFont("Times New Roman", 12))
         
@@ -1022,16 +1031,15 @@ class MainWindow(QMainWindow):
         self.answer_input.setMinimumHeight(40)
         
         # 提交按钮
-        self.submit_btn = QPushButton("提交答案")
+        self.submit_btn = self.create_enhanced_button("提交答案", 'primary')
         self.submit_btn.setMinimumSize(200, 50)
         self.submit_btn.setFont(QFont("Times New Roman", 12))
         
         # 下一题按钮
-        self.next_btn = QPushButton("下一题")
+        self.next_btn = self.create_enhanced_button("下一题", 'secondary')
         self.next_btn.setMinimumSize(200, 50)
         self.next_btn.setFont(QFont("Times New Roman", 12))
         self.next_btn.setVisible(False)  # 初始时隐藏
-        self.next_btn.setStyleSheet("background-color: #4CAF50; color: white;")  # 绿色按钮
         
         # 为提交答案和下一题按钮添加Enter键快捷键
         self.enter_shortcut = QShortcut(QKeySequence(Qt.Key.Key_Return), page)
@@ -1090,11 +1098,11 @@ class MainWindow(QMainWindow):
         self.wrong_answers_text.setMinimumHeight(200)
         
         # 按钮
-        self.review_btn = QPushButton("复习错题")
+        self.review_btn = self.create_enhanced_button("复习错题", 'secondary')
         self.review_btn.setMinimumSize(200, 50)
         self.review_btn.setFont(QFont("Times New Roman", 12))
         
-        self.back_to_menu_btn = QPushButton("返回主菜单")
+        self.back_to_menu_btn = self.create_enhanced_button("返回主菜单", 'outline')
         self.back_to_menu_btn.setMinimumSize(200, 50)
         self.back_to_menu_btn.setFont(QFont("Times New Roman", 12))
         
@@ -1896,9 +1904,8 @@ class MainWindow(QMainWindow):
         example2_code.setFixedHeight(150) # 固定高度
 
         # 关闭按钮
-        close_btn = QPushButton("关闭")
+        close_btn = self.create_enhanced_button("关闭", 'outline')
         close_btn.setFont(QFont("Times New Roman", 12))
-        # close_btn.setStyleSheet("background-color: #4a4a4a; color: white; padding: 8px 16px;")
         close_btn.setMinimumHeight(40)
         close_btn.clicked.connect(examples_dialog.accept)
         
@@ -1970,6 +1977,9 @@ class MainWindow(QMainWindow):
         # 否则触发提交答案
         else:
             self.check_answer()
+
+
+
 
 def main():
     """主函数"""

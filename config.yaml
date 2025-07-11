@@ -12,13 +12,13 @@ semantic:
   enable_fallback_matching: true
   enable_keyword_matching: true
   min_word_length: 2
-  similarity_threshold: 0.55
+  similarity_threshold: 0.4
 test:
   default_question_count: 10
   max_question_count: 100
   verbose_logging: true
 ui:
   font_family: Times New Roman
-  font_size: 16
+  font_size: 12
   window_height: 600
   window_width: 800

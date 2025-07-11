@@ -6,6 +6,9 @@ import logging
 import os
 import random
 import time
+from collections import deque
+from threading import Thread, Event, Lock
+from typing import List, Dict, Optional, Tuple
 
 import numpy as np
 import requests
@@ -16,6 +19,7 @@ from .config import config
 from .enhanced_cache import get_enhanced_cache
 from .performance_monitor import get_performance_monitor
 from .resource_path import resource_path
+from .embedding_provider import get_embedding_manager, EmbeddingRequest
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +45,23 @@ class IeltsTest(TestBase):
         self.current_question_index_in_session = 0
         self.embedding_cache = get_enhanced_cache()  # 初始化增强缓存系统
         self.performance_monitor = get_performance_monitor()  # 初始化性能监控
+        self.embedding_manager = get_embedding_manager()  # 初始化embedding管理器
+        
+        # 批处理相关
+        self.batch_queue = deque()  # 待批处理的请求队列
+        self.batch_responses = {}   # 批处理响应存储 {request_id: response}
+        self.batch_lock = Lock()    # 批处理线程锁
+        self.batch_event = Event()  # 批处理事件信号
+        self.batch_thread = None    # 批处理线程
+        self.batch_enabled = True   # 是否启用批处理
+        self.batch_size = 10        # 批处理大小
+        self.batch_timeout = 2.0    # 批处理超时时间（秒）
+        self._stop_batch_thread = False
+        
         # self.load_vocabulary() # Vocabulary will be loaded on demand or when preparing a session
+        
+        # 启用智能预加载（在有词汇表时自动启动）
+        self._enable_smart_preloading_on_vocab_load = True
 
     def load_vocabulary(self):
         """Loads vocabulary from ielts_vocab.json as a list of dicts with 'word' and 'meanings'."""
@@ -73,6 +93,11 @@ class IeltsTest(TestBase):
             logger.info(f"Loaded {len(self.vocabulary)} IELTS words.")
             # 检查是否需要预热缓存
             self._check_and_preload_cache()
+            
+            # 启用智能预测性缓存
+            if self._enable_smart_preloading_on_vocab_load:
+                self.enable_predictive_caching(True)
+                logger.info("已启用IELTS智能预测性缓存")
 
     def prepare_test_session(self, num_questions: int):
         """Prepares a new test session with a specified number of random word objects."""
@@ -91,6 +116,10 @@ class IeltsTest(TestBase):
         self.selected_words_for_session = random.sample(self.vocabulary, actual_num_questions)
         self.current_question_index_in_session = 0
         logger.info(f"Prepared IELTS test session with {len(self.selected_words_for_session)} words.")
+        
+        # 智能预加载：后台预加载测试会话中的词汇embeddings
+        self._preload_session_words()
+        
         return len(self.selected_words_for_session)
 
     def get_next_ielts_question(self) -> dict | None:
@@ -102,6 +131,187 @@ class IeltsTest(TestBase):
 
     def get_current_session_question_count(self) -> int:
         return len(self.selected_words_for_session)
+    
+    def start_batch_processing(self) -> None:
+        """启动批处理线程"""
+        if self.batch_thread and self.batch_thread.is_alive():
+            return
+        
+        self._stop_batch_thread = False
+        self.batch_thread = Thread(target=self._batch_processing_worker, daemon=True)
+        self.batch_thread.start()
+        logger.info("批处理线程已启动")
+    
+    def stop_batch_processing(self) -> None:
+        """停止批处理线程"""
+        self._stop_batch_thread = True
+        self.batch_event.set()  # 唤醒等待中的线程
+        if self.batch_thread and self.batch_thread.is_alive():
+            self.batch_thread.join(timeout=5.0)
+        logger.info("批处理线程已停止")
+    
+    def _batch_processing_worker(self) -> None:
+        """批处理工作线程"""
+        while not self._stop_batch_thread:
+            try:
+                # 等待批处理信号或超时
+                self.batch_event.wait(timeout=self.batch_timeout)
+                self.batch_event.clear()
+                
+                if self._stop_batch_thread:
+                    break
+                
+                # 收集批处理请求
+                batch_requests = []
+                with self.batch_lock:
+                    while len(batch_requests) < self.batch_size and self.batch_queue:
+                        batch_requests.append(self.batch_queue.popleft())
+                
+                if batch_requests:
+                    self._process_batch_requests(batch_requests)
+                    
+            except Exception as e:
+                logger.error(f"批处理线程出错: {e}")
+    
+    def _process_batch_requests(self, requests: List[Dict]) -> None:
+        """处理一批embedding请求"""
+        if not requests:
+            return
+        
+        # 准备批量API请求
+        texts = [req['text'] for req in requests]
+        request_ids = [req['request_id'] for req in requests]
+        
+        logger.info(f"处理批量embedding请求: {len(texts)} 个文本")
+        
+        try:
+            # 调用批量API
+            embeddings = self._call_batch_embedding_api(texts)
+            
+            if embeddings and len(embeddings) == len(texts):
+                # 将结果存储到响应字典中
+                with self.batch_lock:
+                    for i, request_id in enumerate(request_ids):
+                        self.batch_responses[request_id] = embeddings[i]
+                        
+                # 批量缓存embeddings
+                for i, text in enumerate(texts):
+                    if embeddings[i] is not None:
+                        self.embedding_cache.put(text, embeddings[i], config.model_name, 
+                                               source="batch", prediction_score=0.2)
+                
+                logger.info(f"批量处理完成: {len(embeddings)} 个embedding")
+            else:
+                logger.error(f"批量API返回结果数量不匹配: 期望{len(texts)}, 实际{len(embeddings) if embeddings else 0}")
+                # 标记所有请求为失败
+                with self.batch_lock:
+                    for request_id in request_ids:
+                        self.batch_responses[request_id] = None
+                        
+        except Exception as e:
+            logger.error(f"批量处理失败: {e}")
+            # 标记所有请求为失败
+            with self.batch_lock:
+                for request_id in request_ids:
+                    self.batch_responses[request_id] = None
+    
+    def _call_batch_embedding_api(self, texts: List[str]) -> Optional[List[np.ndarray]]:
+        """使用embedding manager调用批量embedding API"""
+        if not texts:
+            return []
+        
+        api_start_time = time.time()
+        
+        try:
+            # 使用embedding manager获取批量embeddings
+            response = self.embedding_manager.get_embeddings(
+                text=texts,  # 传入文本列表进行批量处理
+                provider_name=None,  # 使用默认provider
+                model=config.model_name
+            )
+            
+            api_duration = time.time() - api_start_time
+            
+            if response.embeddings and len(response.embeddings) == len(texts):
+                # 记录批量API调用性能
+                avg_duration = api_duration / len(texts)
+                for _ in texts:
+                    self.performance_monitor.record_api_call(
+                        endpoint=f"embedding_batch_{response.provider.lower()}",
+                        duration=avg_duration,
+                        success=True,
+                        cache_hit=False
+                    )
+                
+                logger.info(f"批量API调用成功: {len(response.embeddings)} 个embedding via {response.provider}, 耗时 {api_duration:.2f}s")
+                return response.embeddings
+            else:
+                logger.error(f"批量API响应格式错误: 期望{len(texts)}个embedding, 实际{len(response.embeddings) if response.embeddings else 0}个")
+                return None
+                
+        except Exception as e:
+            api_duration = time.time() - api_start_time
+            logger.error(f"批量API调用失败: {e}")
+            
+            # 记录失败的API调用
+            for _ in texts:
+                self.performance_monitor.record_api_call(
+                    endpoint="embedding_batch_error",
+                    duration=api_duration / len(texts),
+                    success=False,
+                    cache_hit=False
+                )
+            return None
+    
+    def get_embedding_batch(self, text: str, timeout: float = 10.0) -> Optional[np.ndarray]:
+        """使用批处理获取embedding"""
+        if not self.batch_enabled:
+            return self.get_embedding(text, "en")  # 回退到单个请求
+        
+        # 首先检查缓存
+        cached_embedding = self.embedding_cache.get(text, config.model_name)
+        if cached_embedding is not None:
+            logger.debug(f"批处理缓存命中: '{text[:30]}...'")
+            return cached_embedding
+        
+        # 启动批处理线程（如果未启动）
+        if not self.batch_thread or not self.batch_thread.is_alive():
+            self.start_batch_processing()
+        
+        # 生成请求ID
+        request_id = f"{time.time()}_{hash(text)}"
+        
+        # 添加到批处理队列
+        batch_request = {
+            'request_id': request_id,
+            'text': text,
+            'timestamp': time.time()
+        }
+        
+        with self.batch_lock:
+            self.batch_queue.append(batch_request)
+            # 如果队列达到批处理大小，立即触发处理
+            if len(self.batch_queue) >= self.batch_size:
+                self.batch_event.set()
+        
+        # 等待结果
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            with self.batch_lock:
+                if request_id in self.batch_responses:
+                    result = self.batch_responses.pop(request_id)
+                    return result
+            time.sleep(0.01)  # 短暂等待
+        
+        logger.warning(f"批处理超时: '{text[:30]}...'")
+        # 超时后从队列中移除请求
+        with self.batch_lock:
+            self.batch_queue = deque([req for req in self.batch_queue 
+                                    if req['request_id'] != request_id])
+            self.batch_responses.pop(request_id, None)
+        
+        # 回退到单个请求
+        return self.get_embedding(text, "en")
 
     def get_embedding(self, text: str, lang_type: str):
         """
@@ -121,79 +331,53 @@ class IeltsTest(TestBase):
             )
             return cached_embedding
         
-        # 缓存中没有，调用API
-        api_key = config.api_key
-        if not api_key:
-            logger.error("SiliconFlow API 密钥未在 config.yaml 中配置. IELTS 语义测试功能无法使用.")
-            return None
-
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
-        }
-        payload = {
-            "model": config.model_name,
-            "input": text,
-            "encoding_format": "float"  # As per documentation
-        }
-
+        # 缓存中没有，使用embedding manager调用API
         logger.info(f"--- 调用 Embedding API (缓存未命中) ---")
-        logger.info(f"URL: {config.embedding_url}")
-        logger.info(f"Model: {config.model_name}")
-        logger.info(f"Input text: '{text[:50]}...'") # Print first 50 chars of input
+        logger.info(f"Input text: '{text[:50]}...'")
 
         # 记录API调用开始时间
         api_start_time = time.time()
         
         try:
-            response = requests.post(config.embedding_url, json=payload, headers=headers, timeout=config.api_timeout)
-            response.raise_for_status()  # Raises an HTTPError for bad responses (4XX or 5XX)
-            api_response = response.json()
+            # 使用embedding manager获取embedding
+            response = self.embedding_manager.get_embeddings(
+                text=text,
+                provider_name=None,  # 使用默认provider
+                model=config.model_name
+            )
             
-            # According to the documentation, the embedding is in response_json['data'][0]['embedding']
-            if api_response and 'data' in api_response and isinstance(api_response['data'], list) and len(api_response['data']) > 0:
-                embedding_data = api_response['data'][0]
-                if 'embedding' in embedding_data and isinstance(embedding_data['embedding'], list):
-                    embedding_vector = np.array(embedding_data['embedding']).astype(np.float32)
-                    if embedding_vector.ndim == 1 and embedding_vector.shape[0] > 0:
-                        api_duration = time.time() - api_start_time
-                        logger.info(f"Successfully retrieved embedding for '{text[:50]}...' (dimension: {embedding_vector.shape[0]})")
-                        
-                        # 记录API调用性能
-                        self.performance_monitor.record_api_call(
-                            endpoint="embedding", 
-                            duration=api_duration, 
-                            success=True, 
-                            cache_hit=False
-                        )
-                        
-                        # 将新获取的embedding存入缓存
-                        self.embedding_cache.put(text, embedding_vector, config.model_name)
-                        return embedding_vector
-                    else:
-                        logger.error(f"Error: Unexpected embedding vector format for '{text[:50]}...'. Vector shape: {embedding_vector.shape}")
-                        return None
-                else:
-                    logger.error(f"Error: 'embedding' field not found or not a list in API response data for '{text[:50]}...'. Response data[0]: {embedding_data}")
-                    return None
+            api_duration = time.time() - api_start_time
+            
+            if response.embeddings and len(response.embeddings) > 0:
+                embedding_vector = response.embeddings[0]
+                logger.info(f"Successfully retrieved embedding for '{text[:50]}...' (dimension: {embedding_vector.shape[0]}) via {response.provider}")
+                
+                # 记录API调用性能
+                self.performance_monitor.record_api_call(
+                    endpoint=f"embedding_{response.provider.lower()}", 
+                    duration=api_duration, 
+                    success=True, 
+                    cache_hit=False
+                )
+                
+                # 将新获取的embedding存入缓存
+                self.embedding_cache.put(text, embedding_vector, response.model)
+                return embedding_vector
             else:
-                logger.error(f"Error: Unexpected API response structure for '{text[:50]}...'. Response: {api_response}")
+                logger.error(f"Empty embedding response for '{text[:50]}...'")
                 return None
 
-        except requests.exceptions.Timeout:
-            logger.error(f"API request timed out for '{text[:50]}...'")
-            return None
-        except requests.exceptions.HTTPError as http_err:
-            logger.error(f"API request failed with HTTPError for '{text[:50]}...': {http_err}. Response: {response.text}", exc_info=True)
-            return None
-        except requests.exceptions.RequestException as req_err:
-            logger.error(f"API request failed for '{text[:50]}...': {req_err}", exc_info=True)
-            return None
-        except json.JSONDecodeError:
-            logger.error(f"Failed to decode JSON response from API for '{text[:50]}...'. Response text: {response.text if 'response' in locals() else 'N/A'}", exc_info=True)
-            return None
         except Exception as e:
-            logger.error(f"An unexpected error occurred while getting embedding for '{text[:50]}...': {e}", exc_info=True)
+            api_duration = time.time() - api_start_time
+            logger.error(f"Embedding API调用失败 for '{text[:50]}...': {e}")
+            
+            # 记录失败的API调用
+            self.performance_monitor.record_api_call(
+                endpoint="embedding_error", 
+                duration=api_duration, 
+                success=False, 
+                cache_hit=False
+            )
             return None
 
     def check_answer_with_api(self, standard_chinese_meanings: list, user_chinese_definition: str) -> bool:
@@ -694,6 +878,8 @@ class IeltsTest(TestBase):
                 is_correct = self.check_answer_with_api(meanings, user_input.strip())
                 # 记录答題結果
                 self.performance_monitor.record_question_answered(is_correct)
+                # 记录词汇使用模式到预测缓存
+                self.record_test_word_usage(english_word, is_correct)
                 if is_correct:
                     correct_answers += 1
                 else:
@@ -791,6 +977,8 @@ class IeltsTest(TestBase):
                 print("提示：答案不能为空，计为错误。")
             else:
                 is_correct = self.check_answer_with_api(meanings, user_chinese)
+                # 记录词汇使用模式到预测缓存
+                self.record_test_word_usage(eng_word, is_correct)
             if is_correct:
                 # CLI user feedback - print is appropriate
                 print("回答正确！")
@@ -827,3 +1015,123 @@ class IeltsTest(TestBase):
                     print(f"  您的答案: {res.user_answer}")
                     print(f"  判定标准: {res.expected_answer}")
         print("="*50)
+    
+    def record_test_word_usage(self, word: str, success: bool, difficulty: float = 0.5) -> None:
+        """记录测试中的词汇使用情况到预测缓存"""
+        self.embedding_cache.record_word_usage(
+            text=word,
+            test_type="ielts",
+            success=success,
+            difficulty=difficulty
+        )
+    
+    def enable_predictive_caching(self, enable: bool = True) -> None:
+        """启用或禁用预测性缓存"""
+        if enable:
+            # 启动预测性预加载
+            vocabulary_source = lambda: [(item['word'], 0.5) for item in self.vocabulary]
+            self.embedding_cache.start_predictive_preloading(
+                vocabulary_source=vocabulary_source,
+                max_words=100,
+                test_type="ielts"
+            )
+            logger.info("IELTS预测性缓存已启用")
+        else:
+            self.embedding_cache.stop_predictive_preloading()
+            logger.info("IELTS预测性缓存已禁用")
+    
+    def get_batch_stats(self) -> Dict:
+        """获取批处理统计信息"""
+        with self.batch_lock:
+            return {
+                "batch_enabled": self.batch_enabled,
+                "batch_size": self.batch_size,
+                "batch_timeout": self.batch_timeout,
+                "queue_length": len(self.batch_queue),
+                "pending_responses": len(self.batch_responses),
+                "thread_active": self.batch_thread and self.batch_thread.is_alive()
+            }
+    
+    def _preload_session_words(self) -> None:
+        """智能预加载当前测试会话的词汇embeddings"""
+        if not self.selected_words_for_session:
+            return
+        
+        def background_preload():
+            """后台预加载函数"""
+            preload_count = 0
+            cache_hit_count = 0
+            
+            try:
+                # 准备预加载列表（英文词汇 + 中文释义）
+                words_to_preload = []
+                
+                for word_obj in self.selected_words_for_session:
+                    word = word_obj.get('word', '')
+                    meanings = word_obj.get('meanings', [])
+                    
+                    if word:
+                        words_to_preload.append(word)
+                    
+                    # 添加前3个释义（最重要的）
+                    for meaning in meanings[:3]:
+                        if meaning:
+                            words_to_preload.append(meaning)
+                
+                logger.info(f"开始后台预加载 {len(words_to_preload)} 个词汇/释义的embeddings")
+                
+                # 使用批处理预加载
+                if self.batch_enabled and len(words_to_preload) > 3:
+                    batch_words = []
+                    for word in words_to_preload:
+                        # 检查缓存
+                        if self.embedding_cache.get(word, config.model_name) is None:
+                            batch_words.append(word)
+                        else:
+                            cache_hit_count += 1
+                    
+                    # 分批处理
+                    batch_size = min(self.batch_size, 8)  # 限制预加载批次大小
+                    for i in range(0, len(batch_words), batch_size):
+                        batch = batch_words[i:i + batch_size]
+                        if batch:
+                            # 启动批处理（非阻塞）
+                            for word in batch:
+                                embedding = self.get_embedding_batch(word, timeout=5.0)
+                                if embedding is not None:
+                                    preload_count += 1
+                            
+                            # 短暂休息避免过度负载
+                            time.sleep(0.2)
+                else:
+                    # 单个预加载（回退模式）
+                    for word in words_to_preload:
+                        if self.embedding_cache.get(word, config.model_name) is None:
+                            embedding = self.get_embedding(word, "auto")
+                            if embedding is not None:
+                                preload_count += 1
+                        else:
+                            cache_hit_count += 1
+                
+                logger.info(f"会话词汇预加载完成: 新增 {preload_count} 个, 缓存命中 {cache_hit_count} 个")
+                
+            except Exception as e:
+                logger.error(f"后台预加载失败: {e}")
+        
+        # 启动后台预加载线程
+        preload_thread = Thread(target=background_preload, daemon=True)
+        preload_thread.start()
+        logger.debug("已启动测试会话词汇后台预加载")
+    
+    def __del__(self):
+        """析构函数，清理资源"""
+        try:
+            # 停止批处理线程
+            if hasattr(self, '_stop_batch_thread'):
+                self.stop_batch_processing()
+            
+            # 停止预测性预加载
+            if hasattr(self, 'embedding_cache'):
+                self.embedding_cache.stop_predictive_preloading()
+        except:
+            pass  # 忽略析构时的错误

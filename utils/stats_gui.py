@@ -41,10 +41,13 @@ class ModernStatCard(QFrame):
         """设置UI"""
         self.setStyleSheet(f"""
             ModernStatCard {{
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                    stop:0 {self.primary_color}, stop:1 {self.secondary_color});
+                background-color: #FFF;
                 border-radius: 16px;
-                border: none;
+                border: 1px solid #E0DDD8;
+            }}
+            ModernStatCard:hover {{
+                background-color: #F4F1ED;
+                border-color: {self.primary_color};
             }}
         """)
         
@@ -58,12 +61,12 @@ class ModernStatCard(QFrame):
         # 图标
         icon_label = QLabel(icon)
         icon_label.setFont(QFont("Times New Roman", 24))
-        icon_label.setStyleSheet("color: rgba(255, 255, 255, 0.9);")
+        icon_label.setStyleSheet(f"color: {self.primary_color};")
         
         # 标题
         title_label = QLabel(title)
         title_label.setFont(QFont("Times New Roman", 12, QFont.Weight.Medium))
-        title_label.setStyleSheet("color: rgba(255, 255, 255, 0.85);")
+        title_label.setStyleSheet("color: #5D5A55;")
         title_label.setWordWrap(True)
         
         top_layout.addWidget(icon_label)
@@ -73,7 +76,7 @@ class ModernStatCard(QFrame):
         # 数值
         value_label = QLabel(value)
         value_label.setFont(QFont("Times New Roman", 28, QFont.Weight.Bold))
-        value_label.setStyleSheet("color: white; margin: 8px 0;")
+        value_label.setStyleSheet(f"color: {self.primary_color}; margin: 8px 0;")
         value_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         
         layout.addLayout(top_layout)
@@ -83,7 +86,7 @@ class ModernStatCard(QFrame):
         if subtitle:
             subtitle_label = QLabel(subtitle)
             subtitle_label.setFont(QFont("Times New Roman", 10))
-            subtitle_label.setStyleSheet("color: rgba(255, 255, 255, 0.7);")
+            subtitle_label.setStyleSheet("color: #8B8681;")
             subtitle_label.setWordWrap(True)
             layout.addWidget(subtitle_label)
         
@@ -210,12 +213,12 @@ class ModernLearningStatsDialog(QDialog):
         # 设置现代化样式
         self.setStyleSheet("""
             QDialog {
-                background-color: #FAFBFC;
+                background-color: #FAF9F5;
                 border-radius: 12px;
             }
             QTabWidget::pane {
                 border: none;
-                background-color: white;
+                background-color: #FFF;
                 border-radius: 8px;
             }
             QTabBar::tab {
@@ -228,9 +231,9 @@ class ModernLearningStatsDialog(QDialog):
                 font-weight: 500;
             }
             QTabBar::tab:selected {
-                background-color: white;
-                color: #1A73E8;
-                border-bottom: 2px solid #1A73E8;
+                background-color: #FFF;
+                color: #2C84DB;
+                border-bottom: 2px solid #2C84DB;
             }
             QTabBar::tab:hover:!selected {
                 background-color: #F1F3F4;
@@ -262,18 +265,18 @@ class ModernLearningStatsDialog(QDialog):
         self.refresh_btn = QPushButton("🔄 刷新")
         self.refresh_btn.setStyleSheet("""
             QPushButton {
-                background-color: #1A73E8;
-                color: white;
+                background-color: #2C84DB;
+                color: #FFF;
                 border: none;
                 padding: 8px 16px;
                 border-radius: 6px;
                 font-weight: 500;
             }
             QPushButton:hover {
-                background-color: #4285F4;
+                background-color: #5A9DE3;
             }
             QPushButton:pressed {
-                background-color: #1557B0;
+                background-color: #1E6BC6;
             }
         """)
         self.refresh_btn.clicked.connect(self.refresh_stats)
@@ -307,18 +310,18 @@ class ModernLearningStatsDialog(QDialog):
         self.export_btn = QPushButton("📤 导出数据")
         self.export_btn.setStyleSheet("""
             QPushButton {
-                background-color: #34A853;
-                color: white;
+                background-color: #D97757;
+                color: #FFF;
                 border: none;
                 padding: 10px 20px;
                 border-radius: 6px;
                 font-weight: 500;
             }
             QPushButton:hover {
-                background-color: #4CAF50;
+                background-color: #E68A6A;
             }
             QPushButton:pressed {
-                background-color: #2D7D32;
+                background-color: #C56544;
             }
         """)
         self.export_btn.clicked.connect(self.export_data)
@@ -326,18 +329,18 @@ class ModernLearningStatsDialog(QDialog):
         self.close_btn = QPushButton("关闭")
         self.close_btn.setStyleSheet("""
             QPushButton {
-                background-color: #EA4335;
-                color: white;
+                background-color: #121212;
+                color: #FFF;
                 border: none;
                 padding: 10px 20px;
                 border-radius: 6px;
                 font-weight: 500;
             }
             QPushButton:hover {
-                background-color: #F44336;
+                background-color: #2A2A2A;
             }
             QPushButton:pressed {
-                background-color: #D33B2C;
+                background-color: #0A0A0A;
             }
         """)
         self.close_btn.clicked.connect(self.accept)
@@ -351,6 +354,7 @@ class ModernLearningStatsDialog(QDialog):
     def setup_overview_tab(self):
         """设置现代化总览标签页"""
         tab = QWidget()
+        tab.setStyleSheet("background-color: #FAF9F5;")
         layout = QVBoxLayout(tab)
         layout.setContentsMargins(40, 20, 40, 20)
         layout.setSpacing(24)
@@ -370,17 +374,19 @@ class ModernLearningStatsDialog(QDialog):
         self.cards_scroll.setStyleSheet("""
             QScrollArea {
                 border: none;
-                background-color: transparent;
+                background-color: #FAF9F5;
             }
         """)
         
         # 创建居中的卡片容器
         self.cards_container = QWidget()
+        self.cards_container.setStyleSheet("background-color: #FAF9F5;")
         container_layout = QVBoxLayout(self.cards_container)
         container_layout.setContentsMargins(0, 0, 0, 0)
         
         # 创建卡片网格，并居中对齐
         self.cards_widget = QWidget()
+        self.cards_widget.setStyleSheet("background-color: #FAF9F5;")
         self.cards_layout = QGridLayout(self.cards_widget)
         self.cards_layout.setSpacing(20)
         self.cards_layout.setContentsMargins(0, 0, 0, 0)
@@ -520,14 +526,14 @@ class ModernLearningStatsDialog(QDialog):
         
         overall_stats = self.stats_data.get('overall_stats', {})
         
-        # 创建统计卡片
+        # 创建统计卡片 - 使用更鲜艳的颜色
         cards_data = [
-            ("总测试次数", str(overall_stats.get('total_sessions', 0)), "全部测试会话", "#4285F4", "#34A853", "🎯"),
-            ("总题目数", str(overall_stats.get('total_questions', 0)), "累计练习题目", "#EA4335", "#FF6D01", "📝"),
-            ("总体准确率", f"{overall_stats.get('overall_accuracy', 0):.1f}%", "平均正确率", "#34A853", "#0F9D58", "✅"),
-            ("平均分数", f"{overall_stats.get('average_score', 0):.1f}", "测试平均得分", "#FF6D01", "#F4B400", "⭐"),
-            ("学习时长", f"{overall_stats.get('total_time_hours', 0):.1f}h", "累计学习时间", "#9C27B0", "#673AB7", "⏰"),
-            ("练习单词", str(overall_stats.get('unique_words_practiced', 0)), "不重复单词数", "#00BCD4", "#009688", "📚")
+            ("总测试次数", str(overall_stats.get('total_sessions', 0)), "全部测试会话", "#2C84DB", "#4A9AE1", "🎯"),
+            ("总题目数", str(overall_stats.get('total_questions', 0)), "累计练习题目", "#D97757", "#E08B6A", "📝"),
+            ("总体准确率", f"{overall_stats.get('overall_accuracy', 0):.1f}%", "平均正确率", "#2C84DB", "#4A9AE1", "✅"),
+            ("平均分数", f"{overall_stats.get('average_score', 0):.1f}", "测试平均得分", "#D97757", "#E08B6A", "⭐"),
+            ("学习时长", f"{overall_stats.get('total_time_hours', 0):.1f}h", "累计学习时间", "#2C84DB", "#4A9AE1", "⏰"),
+            ("练习单词", str(overall_stats.get('unique_words_practiced', 0)), "不重复单词数", "#D97757", "#E08B6A", "📚")
         ]
         
         # 添加卡片到网格布局

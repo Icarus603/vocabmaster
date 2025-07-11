@@ -221,7 +221,7 @@ class ConfigDialog(QDialog):
         if style == "primary":
             button.setStyleSheet("""
                 QPushButton {
-                    background-color: #3b82f6;
+                    background-color: #2C84DB;
                     color: white;
                     border: none;
                     padding: 12px 24px;
@@ -230,17 +230,17 @@ class ConfigDialog(QDialog):
                     font-size: 14px;
                 }
                 QPushButton:hover {
-                    background-color: #2563eb;
+                    background-color: #5A9DE3;
                 }
                 QPushButton:pressed {
-                    background-color: #1d4ed8;
+                    background-color: #1E6BC6;
                 }
             """)
         elif style == "secondary":
             button.setStyleSheet("""
                 QPushButton {
                     background-color: #f3f4f6;
-                    color: #374151;
+                    color: #121212;
                     border: 2px solid #e5e7eb;
                     padding: 12px 24px;
                     border-radius: 8px;
@@ -250,15 +250,17 @@ class ConfigDialog(QDialog):
                 QPushButton:hover {
                     background-color: #e5e7eb;
                     border-color: #d1d5db;
+                    color: #121212;
                 }
                 QPushButton:pressed {
                     background-color: #d1d5db;
+                    color: #121212;
                 }
             """)
         elif style == "success":
             button.setStyleSheet("""
                 QPushButton {
-                    background-color: #10b981;
+                    background-color: #2C84DB;
                     color: white;
                     border: none;
                     padding: 12px 24px;
@@ -267,7 +269,7 @@ class ConfigDialog(QDialog):
                     font-size: 14px;
                 }
                 QPushButton:hover {
-                    background-color: #059669;
+                    background-color: #5A9DE3;
                 }
             """)
         elif style == "danger":
@@ -294,7 +296,7 @@ class ConfigDialog(QDialog):
         checkbox.setStyleSheet("""
             QCheckBox {
                 font-size: 14px;
-                color: #374151;
+                color: #121212;
                 spacing: 8px;
             }
             QCheckBox::indicator {
@@ -305,11 +307,11 @@ class ConfigDialog(QDialog):
                 background-color: #ffffff;
             }
             QCheckBox::indicator:hover {
-                border-color: #3b82f6;
+                border-color: #2C84DB;
             }
             QCheckBox::indicator:checked {
-                background-color: #3b82f6;
-                border-color: #3b82f6;
+                background-color: #2C84DB;
+                border-color: #2C84DB;
             }
         """)
         return checkbox

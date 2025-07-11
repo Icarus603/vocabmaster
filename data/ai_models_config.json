@@ -1,0 +1,101 @@
+{
+  "models": {
+    "claude-3-sonnet": {
+      "provider": "claude",
+      "model_name": "claude-3-sonnet-20240229",
+      "api_key": "",
+      "api_base": "",
+      "max_tokens": 1000,
+      "temperature": 0.7,
+      "capabilities": [
+        "text_generation",
+        "question_generation",
+        "explanation",
+        "translation",
+        "conversation",
+        "context_analysis"
+      ],
+      "cost_per_1k_tokens": 0.003,
+      "context_window": 200000,
+      "supports_streaming": true,
+      "rate_limit_rpm": 60,
+      "enabled": true
+    },
+    "gpt-4": {
+      "provider": "openai",
+      "model_name": "gpt-4-turbo-preview",
+      "api_key": "",
+      "api_base": "",
+      "max_tokens": 1000,
+      "temperature": 0.7,
+      "capabilities": [
+        "text_generation",
+        "question_generation",
+        "explanation",
+        "translation",
+        "conversation"
+      ],
+      "cost_per_1k_tokens": 0.01,
+      "context_window": 128000,
+      "supports_streaming": true,
+      "rate_limit_rpm": 60,
+      "enabled": true
+    },
+    "gemini-pro": {
+      "provider": "gemini",
+      "model_name": "gemini-1.5-pro",
+      "api_key": "",
+      "api_base": "",
+      "max_tokens": 1000,
+      "temperature": 0.7,
+      "capabilities": [
+        "text_generation",
+        "question_generation",
+        "explanation",
+        "translation"
+      ],
+      "cost_per_1k_tokens": 0.0025,
+      "context_window": 128000,
+      "supports_streaming": false,
+      "rate_limit_rpm": 60,
+      "enabled": true
+    },
+    "grok-beta": {
+      "provider": "grok",
+      "model_name": "grok-beta",
+      "api_key": "",
+      "api_base": "",
+      "max_tokens": 1000,
+      "temperature": 0.7,
+      "capabilities": [
+        "text_generation",
+        "question_generation",
+        "explanation",
+        "conversation"
+      ],
+      "cost_per_1k_tokens": 0.005,
+      "context_window": 131072,
+      "supports_streaming": false,
+      "rate_limit_rpm": 60,
+      "enabled": true
+    },
+    "local-fallback": {
+      "provider": "local",
+      "model_name": "local-fallback",
+      "api_key": "",
+      "api_base": "",
+      "max_tokens": 1000,
+      "temperature": 0.7,
+      "capabilities": [
+        "text_generation"
+      ],
+      "cost_per_1k_tokens": 0.0,
+      "context_window": 2048,
+      "supports_streaming": false,
+      "rate_limit_rpm": 60,
+      "enabled": true
+    }
+  },
+  "default_model": "local-fallback",
+  "usage_statistics": {}
+}

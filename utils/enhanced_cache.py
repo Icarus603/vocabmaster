@@ -9,9 +9,9 @@ import hashlib
 import logging
 import pickle
 import time
-from collections import OrderedDict
-from threading import Lock
-from typing import Optional, Dict, Any, Tuple
+from collections import OrderedDict, Counter, defaultdict
+from threading import Lock, Thread
+from typing import Optional, Dict, Any, Tuple, List, Set
 import numpy as np
 from .resource_path import resource_path
 
@@ -21,16 +21,20 @@ logger = logging.getLogger(__name__)
 class CacheEntry:
     """缓存条目，包含数据和元信息"""
     
-    def __init__(self, data: np.ndarray, timestamp: float = None):
+    def __init__(self, data: np.ndarray, timestamp: float = None, source: str = "user"):
         self.data = data
         self.timestamp = timestamp or time.time()
         self.access_count = 1
         self.last_access = self.timestamp
+        self.source = source  # "user", "predictive", "preload"
+        self.prediction_score = 0.0  # 预测重要性评分
     
-    def update_access(self):
+    def update_access(self, prediction_boost: float = 0.0):
         """更新访问信息"""
         self.access_count += 1
         self.last_access = time.time()
+        # 提升预测评分
+        self.prediction_score = min(1.0, self.prediction_score + prediction_boost)
     
     def is_expired(self, ttl: float) -> bool:
         """检查是否过期"""
@@ -95,6 +99,21 @@ class EnhancedEmbeddingCache:
         
         # 记录未保存的更改数量
         self._unsaved_changes = 0
+        
+        # 预测性缓存相关
+        self._word_usage_patterns = defaultdict(lambda: {
+            "frequency": 0,
+            "last_used": 0,
+            "test_types": set(),
+            "difficulty_score": 0.0,
+            "success_rate": 1.0
+        })
+        self._predictive_queue = set()  # 待预缓存的词汇
+        self._preload_thread = None
+        self._stop_preload = False
+        
+        # 加载使用模式数据
+        self._load_usage_patterns()
     
     def _generate_cache_key(self, text: str, model_name: str = "netease-youdao/bce-embedding-base_v1") -> str:
         """生成缓存键值"""
@@ -162,7 +181,7 @@ class EnhancedEmbeddingCache:
                 
                 # 保存元数据
                 metadata = {
-                    "version": "2.0",
+                    "version": "2.1",
                     "created_time": time.time(),
                     "config": {
                         "max_size": self.max_size,
@@ -170,7 +189,8 @@ class EnhancedEmbeddingCache:
                         "auto_save_interval": self.auto_save_interval
                     },
                     "stats": self._stats,
-                    "performance": self._performance
+                    "performance": self._performance,
+                    "prediction_stats": self.get_prediction_stats()
                 }
                 
                 with open(self.metadata_file, 'w', encoding='utf-8') as f:
@@ -178,6 +198,9 @@ class EnhancedEmbeddingCache:
                 
                 logger.info(f"缓存已保存：{len(self._cache)} 条记录")
                 self._unsaved_changes = 0
+                
+                # 保存使用模式数据
+                self._save_usage_patterns()
         
         except Exception as e:
             logger.error(f"保存缓存失败：{e}")
@@ -247,7 +270,8 @@ class EnhancedEmbeddingCache:
                         return None
                     
                     # 更新访问信息并移动到末尾（LRU）
-                    entry.update_access()
+                    prediction_boost = 0.1 if entry.source == "predictive" else 0.0
+                    entry.update_access(prediction_boost)
                     self._cache.move_to_end(cache_key)
                     
                     self._stats["hits"] += 1
@@ -264,7 +288,8 @@ class EnhancedEmbeddingCache:
             self._performance["total_get_time"] += elapsed
             self._performance["get_calls"] += 1
     
-    def put(self, text: str, embedding: np.ndarray, model_name: str = "netease-youdao/bce-embedding-base_v1") -> None:
+    def put(self, text: str, embedding: np.ndarray, model_name: str = "netease-youdao/bce-embedding-base_v1", 
+            source: str = "user", prediction_score: float = 0.0) -> None:
         """将embedding存入缓存"""
         if embedding is None or embedding.size == 0:
             logger.warning(f"尝试缓存无效的embedding：'{text[:30]}...'")
@@ -284,7 +309,8 @@ class EnhancedEmbeddingCache:
                     self._evict_lru()
                 
                 # 添加新条目
-                entry = CacheEntry(embedding.copy())
+                entry = CacheEntry(embedding.copy(), source=source)
+                entry.prediction_score = prediction_score
                 self._cache[cache_key] = entry
                 self._cache.move_to_end(cache_key)  # 移动到末尾
                 
@@ -371,13 +397,219 @@ class EnhancedEmbeddingCache:
             "avg_entry_size_kb": (total_size / len(self._cache) / 1024) if self._cache else 0
         }
     
+    def _load_usage_patterns(self) -> None:
+        """加载词汇使用模式数据"""
+        pattern_file = os.path.join(self.cache_dir, "usage_patterns.json")
+        try:
+            if os.path.exists(pattern_file):
+                with open(pattern_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    for word, pattern in data.items():
+                        # 转换set类型的字段
+                        pattern["test_types"] = set(pattern.get("test_types", []))
+                        self._word_usage_patterns[word] = pattern
+                logger.info(f"加载词汇使用模式：{len(self._word_usage_patterns)} 个词汇")
+        except Exception as e:
+            logger.warning(f"加载使用模式失败：{e}")
+    
+    def _serialize_usage_patterns(self) -> Dict[str, Any]:
+        """序列化使用模式数据用于保存"""
+        serialized = {}
+        for word, pattern in self._word_usage_patterns.items():
+            # 转换set为list用于JSON序列化
+            pattern_copy = pattern.copy()
+            pattern_copy["test_types"] = list(pattern["test_types"])
+            serialized[word] = pattern_copy
+        return serialized
+    
+    def _save_usage_patterns(self) -> None:
+        """保存词汇使用模式数据"""
+        pattern_file = os.path.join(self.cache_dir, "usage_patterns.json")
+        try:
+            serialized_patterns = self._serialize_usage_patterns()
+            with open(pattern_file, 'w', encoding='utf-8') as f:
+                json.dump(serialized_patterns, f, indent=2, ensure_ascii=False)
+            logger.debug(f"保存使用模式：{len(serialized_patterns)} 个词汇")
+        except Exception as e:
+            logger.error(f"保存使用模式失败：{e}")
+    
+    def record_word_usage(self, text: str, test_type: str = "unknown", 
+                         success: bool = True, difficulty: float = 0.5) -> None:
+        """记录词汇使用情况用于预测分析"""
+        word = text.strip().lower()
+        current_time = time.time()
+        
+        pattern = self._word_usage_patterns[word]
+        pattern["frequency"] += 1
+        pattern["last_used"] = current_time
+        pattern["test_types"].add(test_type)
+        
+        # 更新成功率（使用移动平均）
+        alpha = 0.1  # 学习率
+        pattern["success_rate"] = (1 - alpha) * pattern["success_rate"] + alpha * (1.0 if success else 0.0)
+        
+        # 更新难度评分
+        pattern["difficulty_score"] = (1 - alpha) * pattern["difficulty_score"] + alpha * difficulty
+        
+        logger.debug(f"记录词汇使用：{word} (频率: {pattern['frequency']}, 成功率: {pattern['success_rate']:.2f})")
+    
+    def predict_next_words(self, current_words: List[str], test_type: str = "unknown", 
+                          max_predictions: int = 50) -> List[Tuple[str, float]]:
+        """预测下一批可能需要的词汇"""
+        current_time = time.time()
+        predictions = []
+        
+        for word, pattern in self._word_usage_patterns.items():
+            if word in current_words:
+                continue  # 跳过当前正在测试的词汇
+            
+            # 计算预测分数
+            score = 0.0
+            
+            # 频率权重（越常用分数越高）
+            frequency_score = min(1.0, pattern["frequency"] / 10.0)
+            score += frequency_score * 0.3
+            
+            # 时间权重（最近使用的分数更高）
+            time_diff = current_time - pattern["last_used"]
+            if time_diff > 0:
+                # 1天内使用过的权重最高
+                time_score = max(0.0, 1.0 - time_diff / (24 * 3600))
+            else:
+                time_score = 1.0
+            score += time_score * 0.2
+            
+            # 测试类型权重（同类型测试的词汇更可能被使用）
+            type_score = 1.0 if test_type in pattern["test_types"] else 0.5
+            score += type_score * 0.2
+            
+            # 难度权重（困难的词汇更可能重复测试）
+            difficulty_score = pattern["difficulty_score"]
+            score += difficulty_score * 0.15
+            
+            # 成功率权重（成功率低的词汇更需要练习）
+            success_penalty = 1.0 - pattern["success_rate"]
+            score += success_penalty * 0.15
+            
+            predictions.append((word, score))
+        
+        # 按分数排序并返回前N个
+        predictions.sort(key=lambda x: x[1], reverse=True)
+        return predictions[:max_predictions]
+    
+    def start_predictive_preloading(self, vocabulary_source: callable = None, 
+                                   max_words: int = 100, test_type: str = "unknown") -> None:
+        """启动预测性预加载"""
+        if self._preload_thread and self._preload_thread.is_alive():
+            logger.warning("预加载线程已在运行")
+            return
+        
+        self._stop_preload = False
+        self._preload_thread = Thread(
+            target=self._background_preload,
+            args=(vocabulary_source, max_words, test_type),
+            daemon=True
+        )
+        self._preload_thread.start()
+        logger.info(f"启动预测性预加载线程 (最大词汇数: {max_words})")
+    
+    def stop_predictive_preloading(self) -> None:
+        """停止预测性预加载"""
+        self._stop_preload = True
+        if self._preload_thread and self._preload_thread.is_alive():
+            self._preload_thread.join(timeout=5.0)
+            logger.info("预测性预加载已停止")
+    
+    def _background_preload(self, vocabulary_source: callable, max_words: int, test_type: str) -> None:
+        """后台预加载线程"""
+        try:
+            if not vocabulary_source:
+                logger.warning("未提供词汇来源，跳过预加载")
+                return
+            
+            # 获取词汇列表
+            all_words = vocabulary_source()
+            if not all_words:
+                logger.warning("词汇来源返回空列表")
+                return
+            
+            # 预测需要预加载的词汇
+            current_words = [word for word, _ in all_words[:20]]  # 当前测试的前20个词
+            predictions = self.predict_next_words(current_words, test_type, max_words)
+            
+            logger.info(f"预测到 {len(predictions)} 个可能需要的词汇")
+            
+            # 逐个预加载
+            preloaded = 0
+            for word, score in predictions:
+                if self._stop_preload:
+                    break
+                
+                # 检查是否已在缓存中
+                if self.get(word) is not None:
+                    continue
+                
+                try:
+                    # 这里需要调用实际的embedding API
+                    # 为了避免循环依赖，我们将在IELTS模块中实现具体的预加载逻辑
+                    logger.debug(f"排队预加载: {word} (分数: {score:.3f})")
+                    self._predictive_queue.add(word)
+                    preloaded += 1
+                    
+                    # 防止过于频繁的API调用
+                    time.sleep(0.1)
+                    
+                except Exception as e:
+                    logger.error(f"预加载词汇 '{word}' 失败: {e}")
+                    continue
+            
+            logger.info(f"预测性预加载完成，队列中有 {len(self._predictive_queue)} 个词汇待处理")
+            
+        except Exception as e:
+            logger.error(f"预测性预加载线程出错: {e}")
+    
+    def get_predictive_queue(self) -> Set[str]:
+        """获取预测性缓存队列"""
+        return self._predictive_queue.copy()
+    
+    def clear_predictive_queue(self) -> None:
+        """清空预测性缓存队列"""
+        self._predictive_queue.clear()
+    
+    def get_prediction_stats(self) -> Dict[str, Any]:
+        """获取预测统计信息"""
+        predictive_entries = sum(1 for entry in self._cache.values() if entry.source == "predictive")
+        preload_entries = sum(1 for entry in self._cache.values() if entry.source == "preload")
+        
+        # 计算平均预测分数
+        avg_prediction_score = 0.0
+        scored_entries = [entry for entry in self._cache.values() if entry.prediction_score > 0]
+        if scored_entries:
+            avg_prediction_score = sum(entry.prediction_score for entry in scored_entries) / len(scored_entries)
+        
+        return {
+            "tracked_words": len(self._word_usage_patterns),
+            "predictive_entries": predictive_entries,
+            "preload_entries": preload_entries,
+            "queue_size": len(self._predictive_queue),
+            "avg_prediction_score": f"{avg_prediction_score:.3f}",
+            "preload_thread_active": self._preload_thread and self._preload_thread.is_alive()
+        }
+    
     def __del__(self):
         """析构函数，确保保存缓存"""
-        if hasattr(self, '_unsaved_changes') and self._unsaved_changes > 0:
-            try:
+        try:
+            # 停止预加载线程
+            if hasattr(self, '_stop_preload'):
+                self.stop_predictive_preloading()
+            
+            # 保存缓存和使用模式
+            if hasattr(self, '_unsaved_changes') and self._unsaved_changes > 0:
                 self._save_cache()
-            except:
-                pass  # 忽略析构时的错误
+            elif hasattr(self, '_word_usage_patterns'):
+                self._save_usage_patterns()
+        except:
+            pass  # 忽略析构时的错误
 
 
 # 全局缓存实例
