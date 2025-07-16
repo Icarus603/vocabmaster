@@ -1,0 +1,272 @@
+name: Build and Release VocabMaster
+
+on:
+  push:
+    tags:
+      - 'v*'  # 触发条件：推送标签，如 v1.0.0
+  workflow_dispatch:  # 允许手动触发
+    inputs:
+      create_release:
+        description: 'Create a new release'
+        required: true
+        default: 'true'
+        type: boolean
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            executable: VocabMaster
+            artifact_name: VocabMaster-Linux-x64
+          - os: macos-latest
+            platform: darwin
+            executable: VocabMaster.app
+            artifact_name: VocabMaster-macOS
+          - os: windows-latest
+            platform: windows
+            executable: VocabMaster.exe
+            artifact_name: VocabMaster-Windows-x64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install system dependencies (Linux)
+      if: matrix.platform == 'linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libxcb-xinerama0 libxcb-icccm4 libxcb-image0 \
+          libxcb-keysyms1 libxcb-render-util0 libxcb-xkb1 \
+          libxkbcommon-x11-0 libegl1 libpulse0 \
+          libxcb-cursor0 libxcb-xfixes0 libxcb-shape0 \
+          libxcb-randr0 libxcb-render0 libxcb-sync1 \
+          libxcb-shm0 libxcb-glx0 libxcb-dri2-0 \
+          libgl1-mesa-glx libgl1-mesa-dri \
+          xvfb
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: latest
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Cache Poetry dependencies
+      uses: actions/cache@v4
+      with:
+        path: .venv
+        key: poetry-${{ runner.os }}-${{ hashFiles('poetry.lock') }}
+        restore-keys: |
+          poetry-${{ runner.os }}-
+
+    - name: Install dependencies
+      run: |
+        poetry install --with dev --no-interaction
+
+    - name: Display Python environment info
+      run: |
+        poetry run python --version
+        poetry run python -c "import sys; print(f'Python path: {sys.executable}')"
+        poetry run pip list
+
+    - name: Run build script (Linux)
+      if: matrix.platform == 'linux'
+      run: |
+        chmod +x build_cross_platform.sh
+        export DISPLAY=:99.0
+        Xvfb :99 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &
+        sleep 3
+        ./build_cross_platform.sh
+      env:
+        QT_QPA_PLATFORM: offscreen
+        CI: true
+
+    - name: Run build script (macOS)
+      if: matrix.platform == 'darwin'
+      run: |
+        chmod +x build_cross_platform.sh
+        ./build_cross_platform.sh
+      env:
+        CI: true
+
+    - name: Run build script (Windows)
+      if: matrix.platform == 'windows'
+      run: |
+        bash build_cross_platform.sh
+      env:
+        CI: true
+
+    - name: Create artifact structure (Linux)
+      if: matrix.platform == 'linux'
+      run: |
+        mkdir -p artifacts
+        cp -r dist/VocabMaster artifacts/
+        cd artifacts
+        tar -czf VocabMaster-Linux-x64.tar.gz VocabMaster/
+        ls -la
+
+    - name: Create artifact structure (macOS)
+      if: matrix.platform == 'darwin'
+      run: |
+        mkdir -p artifacts
+        cp -r dist/VocabMaster.app artifacts/
+        if [ -f "dist/VocabMaster-macOS.dmg" ]; then
+          cp dist/VocabMaster-macOS.dmg artifacts/
+        fi
+        cd artifacts
+        tar -czf VocabMaster-macOS.tar.gz VocabMaster.app/
+        ls -la
+
+    - name: Create artifact structure (Windows)
+      if: matrix.platform == 'windows'
+      run: |
+        mkdir -p artifacts
+        if [ -f "dist/VocabMaster.exe" ]; then
+          cp dist/VocabMaster.exe artifacts/
+        else
+          cp -r dist/VocabMaster artifacts/
+        fi
+        cd artifacts
+        if [ -f "VocabMaster.exe" ]; then
+          zip -r VocabMaster-Windows-x64.zip VocabMaster.exe
+        else
+          zip -r VocabMaster-Windows-x64.zip VocabMaster/
+        fi
+        ls -la
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact_name }}
+        path: artifacts/
+        retention-days: 30
+
+    - name: Test executable (Linux)
+      if: matrix.platform == 'linux'
+      run: |
+        export DISPLAY=:99.0
+        export QT_QPA_PLATFORM=offscreen
+        ./dist/VocabMaster/VocabMaster --version
+        ./dist/VocabMaster/VocabMaster --cli --help
+
+    - name: Test executable (macOS)
+      if: matrix.platform == 'darwin'
+      run: |
+        ./dist/VocabMaster/VocabMaster --version
+        ./dist/VocabMaster/VocabMaster --cli --help
+
+    - name: Test executable (Windows)
+      if: matrix.platform == 'windows'
+      run: |
+        if [ -f "dist/VocabMaster.exe" ]; then
+          ./dist/VocabMaster.exe --version
+          ./dist/VocabMaster.exe --cli --help
+        else
+          ./dist/VocabMaster/VocabMaster.exe --version
+          ./dist/VocabMaster/VocabMaster.exe --cli --help
+        fi
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true')
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts/
+
+    - name: Prepare release assets
+      run: |
+        mkdir -p release-assets
+        
+        # Linux
+        if [ -f "artifacts/VocabMaster-Linux-x64/VocabMaster-Linux-x64.tar.gz" ]; then
+          cp artifacts/VocabMaster-Linux-x64/VocabMaster-Linux-x64.tar.gz release-assets/
+        fi
+        
+        # macOS
+        if [ -f "artifacts/VocabMaster-macOS/VocabMaster-macOS.tar.gz" ]; then
+          cp artifacts/VocabMaster-macOS/VocabMaster-macOS.tar.gz release-assets/
+        fi
+        if [ -f "artifacts/VocabMaster-macOS/VocabMaster-macOS.dmg" ]; then
+          cp artifacts/VocabMaster-macOS/VocabMaster-macOS.dmg release-assets/
+        fi
+        
+        # Windows
+        if [ -f "artifacts/VocabMaster-Windows-x64/VocabMaster-Windows-x64.zip" ]; then
+          cp artifacts/VocabMaster-Windows-x64/VocabMaster-Windows-x64.zip release-assets/
+        fi
+        
+        ls -la release-assets/
+
+    - name: Get tag name
+      id: get_tag
+      run: |
+        if [ "${{ github.event_name }}" == "push" ]; then
+          echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        else
+          echo "TAG_NAME=v$(date +%Y%m%d-%H%M%S)" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.get_tag.outputs.TAG_NAME }}
+        name: VocabMaster ${{ steps.get_tag.outputs.TAG_NAME }}
+        body: |
+          ## VocabMaster ${{ steps.get_tag.outputs.TAG_NAME }}
+          
+          自动构建的跨平台版本，支持以下操作系统：
+          
+          ### 📦 下载说明
+          
+          - **Linux**: `VocabMaster-Linux-x64.tar.gz`
+            - 解压后运行 `VocabMaster/VocabMaster`
+            - 需要安装 PyQt6 相关系统依赖
+          
+          - **macOS**: `VocabMaster-macOS.dmg` 或 `VocabMaster-macOS.tar.gz`
+            - DMG: 双击安装，拖拽到 Applications 文件夹
+            - TAR.GZ: 解压后运行 `VocabMaster.app`
+            - 可能需要在"系统偏好设置 > 安全性与隐私"中允许运行
+          
+          - **Windows**: `VocabMaster-Windows-x64.zip`
+            - 解压后运行 `VocabMaster.exe`
+            - 可能需要允许 Windows Defender 运行
+          
+          ### 🚀 功能特性
+          
+          - 支持 IELTS、BEC、Terms 等词汇测试
+          - 智能缓存系统，提升性能
+          - 多种学习模式和统计功能
+          - 完整的GUI和命令行界面
+          
+          ### 📋 版本信息
+          
+          - Python 3.11
+          - PyQt6 GUI框架
+          - 完整的依赖打包，无需额外安装
+          
+          ---
+          
+          🤖 此版本通过 GitHub Actions 自动构建生成
+        files: release-assets/*
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

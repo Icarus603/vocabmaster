@@ -99,7 +99,7 @@ else
 fi
 
  # 定义PyInstaller参数
-PYINSTALLER_CMD="poetry run pyinstaller app.py --name VocabMaster --noconfirm --clean"
+PYINSTALLER_CMD="poetry run python -m PyInstaller app.py --name VocabMaster --noconfirm --clean"
 PYINSTALLER_CMD+=" --additional-hooks-dir=hooks"
 
 # 添加 Qt plugins 平台支持
@@ -107,14 +107,20 @@ QT_PLUGIN_PATH="$(poetry run python -c 'import PyQt6.QtCore as qc; print(qc.QLib
 
 if [ -z "$QT_PLUGIN_PATH" ] && [ -n "$CI" ]; then
     # 在CI环境下无法通过QLibraryInfo获得路径，尝试用find方式寻找PyQt6插件路径
+    echo "CI环境检测到，正在查找PyQt6插件路径..."
     # 先嘗试在poetry环境中查找
     POETRY_VENV=$(poetry env info --path 2>/dev/null)
     if [ -n "$POETRY_VENV" ]; then
+        echo "Poetry虚拟环境路径: $POETRY_VENV"
         QT_PLUGIN_PATH=$(find "$POETRY_VENV" -type d -path "*PyQt6/Qt6/plugins" 2>/dev/null | head -n 1)
     fi
     # 如果還找不到，嘗试在當前目錄查找
     if [ -z "$QT_PLUGIN_PATH" ]; then
         QT_PLUGIN_PATH=$(find . -type d -path "*PyQt6/Qt6/plugins" 2>/dev/null | head -n 1)
+    fi
+    # 最后尝试在系统Python包中查找
+    if [ -z "$QT_PLUGIN_PATH" ]; then
+        QT_PLUGIN_PATH=$(poetry run python -c "import sys; import os; [print(os.path.join(path, 'PyQt6', 'Qt6', 'plugins')) for path in sys.path if os.path.exists(os.path.join(path, 'PyQt6', 'Qt6', 'plugins'))]" 2>/dev/null | head -n 1)
     fi
 fi
 
@@ -127,18 +133,8 @@ fi
 
 # 添加对PyQt6的收集，这是最关键的
 PYINSTALLER_CMD+=" --collect-all PyQt6"
-PYINSTALLER_CMD+=" --collect-submodules PyQt6"
-PYINSTALLER_CMD+=" --collect-data PyQt6"
-PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6"
-PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6Widgets"
-PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6Gui"
-PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6Core"
-PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6PrintSupport"
-PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6Network"
-PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6OpenGL"
-PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6Svg"
-PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6Qml"
-PYINSTALLER_CMD+=" --collect-data PyQt6.Qt6Quick"
+PYINSTALLER_CMD+=" --collect-all scipy"
+PYINSTALLER_CMD+=" --collect-all sklearn"
 
 
 # 根据操作系统添加特定参数
@@ -185,10 +181,15 @@ PYINSTALLER_CMD+=" --hidden-import=PyQt6.QtWidgets"
 PYINSTALLER_CMD+=" --hidden-import=PyQt6.QtNetwork"
 PYINSTALLER_CMD+=" --hidden-import=PyQt6.QtPrintSupport"
 
-# 科学计算和数据处理库
+# 科学计算和数据处理库 - 修复scipy模块导入问题
+PYINSTALLER_CMD+=" --hidden-import=scipy._lib.array_api_compat.numpy.fft"
+PYINSTALLER_CMD+=" --hidden-import=scipy._lib.array_api_compat.numpy"
+PYINSTALLER_CMD+=" --hidden-import=scipy._lib.array_api_compat"
+PYINSTALLER_CMD+=" --hidden-import=scipy.sparse"
+PYINSTALLER_CMD+=" --hidden-import=scipy.sparse.linalg"
+PYINSTALLER_CMD+=" --hidden-import=sklearn.metrics.pairwise"
 PYINSTALLER_CMD+=" --hidden-import=sklearn"
 PYINSTALLER_CMD+=" --hidden-import=requests"
-PYINSTALLER_CMD+=" --hidden-import=pandas"
 
 # 新增模块的隐藏导入
 PYINSTALLER_CMD+=" --hidden-import=utils.enhanced_cache"
@@ -200,6 +201,11 @@ PYINSTALLER_CMD+=" --hidden-import=utils.config_gui"
 PYINSTALLER_CMD+=" --hidden-import=utils.config_wizard"
 PYINSTALLER_CMD+=" --hidden-import=utils.ui_styles"
 PYINSTALLER_CMD+=" --hidden-import=utils.ielts_embedding_cache"
+PYINSTALLER_CMD+=" --hidden-import=utils.config"
+PYINSTALLER_CMD+=" --hidden-import=utils.ielts"
+PYINSTALLER_CMD+=" --hidden-import=utils.base"
+PYINSTALLER_CMD+=" --hidden-import=utils.resource_path"
+PYINSTALLER_CMD+=" --hidden-import=utils.diy"
 
 # Python标准库模块（确保包含）
 PYINSTALLER_CMD+=" --hidden-import=sqlite3"

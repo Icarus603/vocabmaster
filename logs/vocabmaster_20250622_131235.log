@@ -1,8 +1,0 @@
-2025-06-22 13:12:35,710 - VocabMaster - INFO - 启动VocabMaster
-2025-06-22 13:12:35,712 - VocabMaster - INFO - 使用GUI模式
-2025-06-22 13:12:36,199 - gui - INFO - 初始化GUI界面
-2025-06-22 13:12:36,297 - gui - INFO - 启动主窗口
-2025-06-22 13:12:36,298 - utils.learning_stats - INFO - 载入了 21 个单词的统计数据
-2025-06-22 13:12:36,299 - gui - INFO - 学习统计管理器初始化成功
-2025-06-22 13:12:36,344 - utils.enhanced_cache - INFO - 载入缓存：1057 条有效记录
-2025-06-22 13:12:37,991 - utils.learning_stats - INFO - 载入了 21 个单词的统计数据
