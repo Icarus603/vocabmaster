@@ -21,7 +21,7 @@ jobs:
             platform: linux
             executable: VocabMaster
             artifact_name: VocabMaster-Linux-x64
-          - os: macos-latest
+          - os: macos-12
             platform: darwin
             executable: VocabMaster.app
             artifact_name: VocabMaster-macOS
@@ -99,6 +99,7 @@ jobs:
         ./build_cross_platform.sh
       env:
         CI: true
+        MACOSX_DEPLOYMENT_TARGET: '10.14'
 
     - name: Run build script (Windows)
       if: matrix.platform == 'windows'
@@ -120,12 +121,52 @@ jobs:
       if: matrix.platform == 'darwin'
       run: |
         mkdir -p artifacts
+        
+        # Copy the app bundle
         cp -r dist/VocabMaster.app artifacts/
+        
+        # Copy DMG if it exists
         if [ -f "dist/VocabMaster-macOS.dmg" ]; then
           cp dist/VocabMaster-macOS.dmg artifacts/
         fi
+        
+        # Create a tar.gz for GitHub Actions artifacts
         cd artifacts
         tar -czf VocabMaster-macOS.tar.gz VocabMaster.app/
+        
+        # Create a user-friendly info file
+        cat > README-macOS.txt << 'EOF'
+        VocabMaster for macOS - Installation Instructions
+        
+        IMPORTANT: This app is not signed with an Apple Developer certificate.
+        
+        Installation Method 1 (Recommended - DMG):
+        1. Download VocabMaster-macOS.dmg
+        2. Double-click to mount the disk image
+        3. Drag VocabMaster.app to Applications folder
+        4. Right-click on VocabMaster.app in Applications
+        5. Select "Open" from context menu
+        6. Click "Open" when macOS warns about unidentified developer
+        
+        Installation Method 2 (Manual):
+        1. Download and extract VocabMaster-macOS.tar.gz
+        2. Move VocabMaster.app to Applications folder
+        3. Open Terminal and run:
+           sudo xattr -rd com.apple.quarantine /Applications/VocabMaster.app
+        4. Double-click VocabMaster.app to run
+        
+        Alternative Command Line (if GUI doesn't work):
+        Run from Terminal: /Applications/VocabMaster.app/Contents/MacOS/VocabMaster --cli
+        
+        If you still get "app is damaged" errors:
+        1. Open Terminal
+        2. Run: sudo spctl --master-disable
+        3. Go to System Preferences > Security & Privacy > General
+        4. Select "Anywhere" under "Allow apps downloaded from"
+        5. Try opening the app again
+        6. Re-enable security: sudo spctl --master-enable
+        EOF
+        
         ls -la
 
     - name: Create artifact structure (Windows)

@@ -80,9 +80,24 @@ VocabMaster 是一个用于词汇测试和记忆的应用程序，专为英语�
   - 首次运行可能需要在Windows Defender中允许运行
 
 - **macOS**:
-  - **DMG版本**: 双击安装，拖拽到Applications文件夹
-  - **TAR.GZ版本**: 解压后双击 `VocabMaster.app`
-  - 可能需要在"系统偏好设置 > 安全性与隐私"中允许运行
+  - **重要**: 此应用未经Apple开发者证书签名，首次运行需要特殊步骤
+  
+  **方法1 (推荐 - DMG安装)**:
+  1. 下载 `VocabMaster-macOS.dmg`
+  2. 双击挂载磁盘映像
+  3. 将 VocabMaster.app 拖拽到 Applications 文件夹
+  4. 在 Applications 中右键点击 VocabMaster.app
+  5. 选择"打开"，然后在警告对话框中点击"打开"
+  
+  **方法2 (手动安装)**:
+  1. 下载并解压 `VocabMaster-macOS.tar.gz`
+  2. 将 VocabMaster.app 移动到 Applications 文件夹
+  3. 打开终端执行: `sudo xattr -rd com.apple.quarantine /Applications/VocabMaster.app`
+  4. 双击 VocabMaster.app 运行
+  
+  **如果仍显示"应用已损坏"**:
+  - 命令行运行: `/Applications/VocabMaster.app/Contents/MacOS/VocabMaster --cli`
+  - 或临时禁用Gatekeeper: `sudo spctl --master-disable` (使用后记得重新启用)
 
 - **Linux**:
   - 解压tar.gz文件：`tar -xzf VocabMaster-Linux-x64.tar.gz`

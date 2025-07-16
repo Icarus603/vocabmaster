@@ -261,12 +261,39 @@ if [ ${BUILD_STATUS} -eq 0 ]; then
             # 使用plutil或手動方式更新Info.plist
             if command -v plutil >/dev/null 2>&1; then
                 # 使用plutil更新plist文件
+                echo "更新基本版本信息..."
                 plutil -replace CFBundleShortVersionString -string "1.0.0" "$PLIST_PATH"
                 plutil -replace CFBundleVersion -string "1.0.0" "$PLIST_PATH"
                 plutil -replace LSMinimumSystemVersion -string "10.14" "$PLIST_PATH"
                 
+                # 添加bundle識別信息
+                echo "更新bundle識別信息..."
+                plutil -replace CFBundleIdentifier -string "com.icarus603.vocabmaster" "$PLIST_PATH" 2>/dev/null || true
+                plutil -replace CFBundleName -string "VocabMaster" "$PLIST_PATH" 2>/dev/null || true
+                plutil -replace CFBundleDisplayName -string "VocabMaster" "$PLIST_PATH" 2>/dev/null || true
+                
+                # 添加應用程序類型和類別
+                echo "設置應用程序屬性..."
+                plutil -replace CFBundlePackageType -string "APPL" "$PLIST_PATH" 2>/dev/null || true
+                plutil -replace LSApplicationCategoryType -string "public.app-category.education" "$PLIST_PATH" 2>/dev/null || true
+                
                 # 添加網絡權限
-                plutil -insert NSAppTransportSecurity -xml '<dict><key>NSAllowsArbitraryLoads</key><true/></dict>' "$PLIST_PATH" 2>/dev/null || echo "NSAppTransportSecurity already exists or failed to add"
+                echo "配置網絡權限..."
+                plutil -insert NSAppTransportSecurity -xml '<dict><key>NSAllowsArbitraryLoads</key><true/></dict>' "$PLIST_PATH" 2>/dev/null || echo "NSAppTransportSecurity already exists"
+                
+                # 添加文件訪問權限
+                echo "配置文件訪問權限..."
+                plutil -insert NSDocumentsFolderUsageDescription -string "VocabMaster需要訪問文檔文件夾以導入自定義詞彙表" "$PLIST_PATH" 2>/dev/null || true
+                plutil -insert NSDesktopFolderUsageDescription -string "VocabMaster需要訪問桌面以導入詞彙表文件" "$PLIST_PATH" 2>/dev/null || true
+                
+                # 添加高DPI支持
+                echo "配置顯示支持..."
+                plutil -replace NSHighResolutionCapable -bool true "$PLIST_PATH" 2>/dev/null || true
+                plutil -replace NSSupportsAutomaticGraphicsSwitching -bool true "$PLIST_PATH" 2>/dev/null || true
+                
+                # 添加Python運行時支持
+                echo "配置Python運行時..."
+                plutil -replace NSAppleEventsUsageDescription -string "VocabMaster使用Python運行時提供詞彙測試功能" "$PLIST_PATH" 2>/dev/null || true
                 
                 echo "✅ Info.plist 更新完成"
             else
@@ -279,10 +306,31 @@ if [ ${BUILD_STATUS} -eq 0 ]; then
         # 設置正確的權限
         chmod +x "dist/VocabMaster.app/Contents/MacOS/VocabMaster"
         
-        # 嘗試ad-hoc代碼簽名（如果可能）
+        # 嘗試改進的代碼簽名（如果可能）
         if command -v codesign >/dev/null 2>&1; then
-            echo "正在進行ad-hoc代碼簽名..."
-            codesign --force --deep --sign - "dist/VocabMaster.app" || echo "代碼簽名失敗，但應用程序仍可運行"
+            echo "正在進行代碼簽名..."
+            
+            # 首先簽名所有動態庫和可執行文件
+            find "dist/VocabMaster.app" -type f \( -name "*.dylib" -o -name "*.so" \) -exec codesign --force --sign - {} \; 2>/dev/null || true
+            
+            # 簽名主要可執行文件
+            codesign --force --sign - "dist/VocabMaster.app/Contents/MacOS/VocabMaster" 2>/dev/null || true
+            
+            # 使用entitlements簽名整個app bundle
+            if [ -f "VocabMaster.entitlements" ]; then
+                echo "使用entitlements文件進行簽名..."
+                codesign --force --deep --sign - --entitlements "VocabMaster.entitlements" "dist/VocabMaster.app" || echo "⚠️ entitlements簽名失敗，嘗試基本簽名"
+            fi
+            
+            # 如果entitlements簽名失敗，嘗試基本簽名
+            codesign --force --deep --sign - "dist/VocabMaster.app" || echo "⚠️ 代碼簽名失敗"
+            
+            # 驗證簽名
+            if codesign --verify --deep --strict "dist/VocabMaster.app" 2>/dev/null; then
+                echo "✅ 代碼簽名驗證成功"
+            else
+                echo "⚠️ 代碼簽名驗證失敗，但應用程序仍可運行"
+            fi
         else
             echo "未找到codesign工具，跳過代碼簽名"
         fi
@@ -294,6 +342,12 @@ if [ ${BUILD_STATUS} -eq 0 ]; then
             echo "❌ 警告：主要可執行文件不存在"
         fi
         
+        # 移除quarantine屬性 (在CI環境中)
+        if [ -n "$CI" ]; then
+            echo "移除CI構建的quarantine屬性..."
+            xattr -cr "dist/VocabMaster.app" 2>/dev/null || true
+        fi
+        
         # 創建.dmg安裝包
         echo "正在創建macOS .dmg安裝包..."
         
@@ -303,6 +357,9 @@ if [ ${BUILD_STATUS} -eq 0 ]; then
         
         # 複製.app到臨時目錄
         cp -R "dist/VocabMaster.app" "$DMG_DIR/"
+        
+        # 移除DMG內容的quarantine屬性
+        xattr -cr "$DMG_DIR/VocabMaster.app" 2>/dev/null || true
         
         # 創建Applications文件夾的符號鏈接
         ln -sf /Applications "$DMG_DIR/Applications"
