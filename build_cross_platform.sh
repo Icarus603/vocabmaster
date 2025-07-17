@@ -248,7 +248,7 @@ if [ ${BUILD_STATUS} -eq 0 ]; then
     if [ "${OS_TYPE}" == "darwin" ]; then
         echo "macOS 可執行文件位于: dist/VocabMaster"
         
-        # 簡單macOS後處理 - 僅處理simple executable
+        # macOS後處理 - 創建DMG包
         if [ -f "dist/VocabMaster" ]; then
             echo "✅ 可執行文件創建成功"
             chmod +x "dist/VocabMaster"
@@ -258,7 +258,63 @@ if [ ${BUILD_STATUS} -eq 0 ]; then
                 xattr -c "dist/VocabMaster" 2>/dev/null || true
             fi
             
-            echo "✅ macOS可執行文件準備完成"
+            # 創建DMG包
+            echo "正在創建DMG包..."
+            mkdir -p "dist/VocabMaster.app/Contents/MacOS"
+            mkdir -p "dist/VocabMaster.app/Contents/Resources"
+            
+            # 移動可執行文件到app bundle
+            mv "dist/VocabMaster" "dist/VocabMaster.app/Contents/MacOS/"
+            
+            # 創建Info.plist
+            cat > "dist/VocabMaster.app/Contents/Info.plist" << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDisplayName</key>
+    <string>VocabMaster</string>
+    <key>CFBundleExecutable</key>
+    <string>VocabMaster</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.icarus.vocabmaster</string>
+    <key>CFBundleName</key>
+    <string>VocabMaster</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>10.13</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+</dict>
+</plist>
+EOF
+            
+            # 復制圖標文件（如果存在）
+            if [ -f "assets/icon.icns" ]; then
+                cp "assets/icon.icns" "dist/VocabMaster.app/Contents/Resources/"
+            fi
+            
+            # 創建DMG
+            DMG_NAME="VocabMaster-macOS.dmg"
+            if command -v hdiutil >/dev/null 2>&1; then
+                echo "使用hdiutil創建DMG..."
+                hdiutil create -srcfolder "dist/VocabMaster.app" -volname "VocabMaster" -format UDZO "dist/${DMG_NAME}"
+                
+                if [ -f "dist/${DMG_NAME}" ]; then
+                    echo "✅ DMG包創建成功: dist/${DMG_NAME}"
+                else
+                    echo "❌ DMG包創建失敗"
+                fi
+            else
+                echo "❌ hdiutil不可用，跳過DMG創建"
+            fi
+            
+            echo "✅ macOS構建完成"
         else
             echo "❌ 可執行文件不存在"
         fi
