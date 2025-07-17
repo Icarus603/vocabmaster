@@ -69,16 +69,16 @@ jobs:
         run: |
           echo "檢查macOS構建產物："
           ls -la dist/ || echo "dist目錄不存在"
-          echo "查找.dmg文件："
-          find dist/ -name "*.dmg" || echo "未找到.dmg文件"
-          echo "查找.app文件："
-          find dist/ -name "*.app" || echo "未找到.app文件"
+          echo "查找VocabMaster可執行文件："
+          find dist/ -name "VocabMaster" || echo "未找到VocabMaster文件"
+          echo "檢查可執行文件權限："
+          ls -la dist/VocabMaster || echo "VocabMaster文件不存在"
 
       - name: Upload macOS artifact
         uses: actions/upload-artifact@v4
         with:
           name: VocabMaster-macOS
-          path: dist/VocabMaster-macOS.dmg
+          path: dist/VocabMaster
           if-no-files-found: error
 
   build-windows:
