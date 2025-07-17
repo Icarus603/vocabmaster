@@ -1,0 +1,121 @@
+# -*- mode: python ; coding: utf-8 -*-
+
+import sys
+import os
+from pathlib import Path
+
+# Get the PyQt6 installation path
+import PyQt6.QtCore
+qt_plugins_path = PyQt6.QtCore.QLibraryInfo.path(PyQt6.QtCore.QLibraryInfo.LibraryPath.PluginsPath)
+
+block_cipher = None
+
+a = Analysis(
+    ['app.py'],
+    pathex=[],
+    binaries=[],
+    datas=[
+        ('assets', 'assets'),
+        ('vocab', 'vocab'),
+        ('config.yaml.template', '.'),
+        ('preload_cache.py', '.'),
+        ('performance_report.py', '.'),
+        ('qt.conf', '.'),
+        # Add Qt plugins properly - only minimal required plugins
+        (str(qt_plugins_path + '/platforms/libqcocoa.dylib'), 'PyQt6/Qt6/plugins/platforms/'),
+        (str(qt_plugins_path + '/imageformats/libqico.dylib'), 'PyQt6/Qt6/plugins/imageformats/'),
+        (str(qt_plugins_path + '/imageformats/libqjpeg.dylib'), 'PyQt6/Qt6/plugins/imageformats/'),
+        (str(qt_plugins_path + '/imageformats/libqgif.dylib'), 'PyQt6/Qt6/plugins/imageformats/'),
+    ],
+    hiddenimports=[
+        'PyQt6.sip',
+        'PyQt6.QtCore',
+        'PyQt6.QtGui',
+        'PyQt6.QtWidgets',
+        'PyQt6.QtNetwork',
+        'PyQt6.QtPrintSupport',
+        'scipy._lib.array_api_compat.numpy.fft',
+        'scipy._lib.array_api_compat.numpy',
+        'scipy._lib.array_api_compat',
+        'scipy.sparse',
+        'scipy.sparse.linalg',
+        'sklearn.metrics.pairwise',
+        'sklearn',
+        'requests',
+        'utils.enhanced_cache',
+        'utils.cache_manager',
+        'utils.performance_monitor',
+        'utils.learning_stats',
+        'utils.stats_gui',
+        'utils.config_gui',
+        'utils.config_wizard',
+        'utils.ui_styles',
+        'utils.ielts_embedding_cache',
+        'utils.config',
+        'utils.ielts',
+        'utils.base',
+        'utils.resource_path',
+        'utils.diy',
+        'sqlite3',
+        'pickle',
+        'threading',
+        'collections',
+        'dataclasses',
+        'contextlib',
+        'hashlib',
+        'json',
+        'time',
+        'datetime',
+    ],
+    hookspath=['hooks'],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=[
+        'PyQt6.QtPositioning',
+        'PyQt6.QtLocation',
+        'PyQt6.QtSensors',
+        'PyQt6.QtBluetooth',
+        'PyQt6.QtNfc',
+        'PyQt6.QtWebEngine',
+        'PyQt6.QtWebEngineCore',
+        'PyQt6.QtWebEngineWidgets',
+        'PyQt6.Qt3DCore',
+        'PyQt6.Qt3DInput',
+        'PyQt6.Qt3DLogic',
+        'PyQt6.Qt3DRender',
+        'PyQt6.Qt3DAnimation',
+        'PyQt6.Qt3DExtras',
+        'PyQt6.QtQuick3D',
+        'PyQt6.QtMultimedia',
+        'PyQt6.QtMultimediaWidgets',
+    ],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
+    noarchive=False,
+)
+
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    [],
+    name='VocabMaster',
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    runtime_tmpdir=None,
+    console=False,
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+    icon='assets/icon.icns',
+)
