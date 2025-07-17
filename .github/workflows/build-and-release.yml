@@ -23,7 +23,7 @@ jobs:
             artifact_name: VocabMaster-Linux-x64
           - os: macos-12
             platform: darwin
-            executable: VocabMaster.app
+            executable: VocabMaster
             artifact_name: VocabMaster-macOS
           - os: windows-latest
             platform: windows
@@ -122,52 +122,44 @@ jobs:
       run: |
         mkdir -p artifacts
         
-        # Copy the app bundle
-        cp -r dist/VocabMaster.app artifacts/
-        
-        # Copy DMG if it exists
-        if [ -f "dist/VocabMaster-macOS.dmg" ]; then
-          cp dist/VocabMaster-macOS.dmg artifacts/
-        fi
+        # Copy the simple executable
+        cp dist/VocabMaster artifacts/
+        chmod +x artifacts/VocabMaster
         
         # Create a tar.gz for GitHub Actions artifacts
         cd artifacts
-        tar -czf VocabMaster-macOS.tar.gz VocabMaster.app/
+        tar -czf VocabMaster-macOS.tar.gz VocabMaster
+        cd ..
         
         # Create a user-friendly info file
-        cat > README-macOS.txt << 'EOF'
-        VocabMaster for macOS - Installation Instructions
+        cat > artifacts/README-macOS.txt << 'EOF'
+        VocabMaster for macOS - Simple Executable
         
-        IMPORTANT: This app is not signed with an Apple Developer certificate.
+        ✅ This is a simple command-line executable that should work without complex security workarounds.
         
-        Installation Method 1 (Recommended - DMG):
-        1. Download VocabMaster-macOS.dmg
-        2. Double-click to mount the disk image
-        3. Drag VocabMaster.app to Applications folder
-        4. Right-click on VocabMaster.app in Applications
-        5. Select "Open" from context menu
-        6. Click "Open" when macOS warns about unidentified developer
-        
-        Installation Method 2 (Manual):
+        🚀 INSTALLATION:
         1. Download and extract VocabMaster-macOS.tar.gz
-        2. Move VocabMaster.app to Applications folder
-        3. Open Terminal and run:
-           sudo xattr -rd com.apple.quarantine /Applications/VocabMaster.app
-        4. Double-click VocabMaster.app to run
+        2. Open Terminal and navigate to the extracted folder
+        3. Run: chmod +x VocabMaster
+        4. Run: ./VocabMaster
         
-        Alternative Command Line (if GUI doesn't work):
-        Run from Terminal: /Applications/VocabMaster.app/Contents/MacOS/VocabMaster --cli
+        💻 USAGE:
+        - GUI mode: ./VocabMaster
+        - CLI mode: ./VocabMaster --cli
+        - Help: ./VocabMaster --help
         
-        If you still get "app is damaged" errors:
-        1. Open Terminal
-        2. Run: sudo spctl --master-disable
-        3. Go to System Preferences > Security & Privacy > General
-        4. Select "Anywhere" under "Allow apps downloaded from"
-        5. Try opening the app again
-        6. Re-enable security: sudo spctl --master-enable
+        📁 OPTIONAL - Add to PATH:
+        1. Move VocabMaster to /usr/local/bin/: sudo mv VocabMaster /usr/local/bin/
+        2. Now you can run 'VocabMaster' from anywhere in Terminal
+        
+        🔧 If you get permission errors:
+        sudo xattr -c VocabMaster
+        chmod +x VocabMaster
+        
+        This simple executable approach avoids most macOS security issues!
         EOF
         
-        ls -la
+        ls -la artifacts/
 
     - name: Create artifact structure (Windows)
       if: matrix.platform == 'windows'
@@ -204,8 +196,9 @@ jobs:
     - name: Test executable (macOS)
       if: matrix.platform == 'darwin'
       run: |
-        ./dist/VocabMaster/VocabMaster --version
-        ./dist/VocabMaster/VocabMaster --cli --help
+        chmod +x dist/VocabMaster
+        ./dist/VocabMaster --version
+        ./dist/VocabMaster --cli --help
 
     - name: Test executable (Windows)
       if: matrix.platform == 'windows'
@@ -245,8 +238,8 @@ jobs:
         if [ -f "artifacts/VocabMaster-macOS/VocabMaster-macOS.tar.gz" ]; then
           cp artifacts/VocabMaster-macOS/VocabMaster-macOS.tar.gz release-assets/
         fi
-        if [ -f "artifacts/VocabMaster-macOS/VocabMaster-macOS.dmg" ]; then
-          cp artifacts/VocabMaster-macOS/VocabMaster-macOS.dmg release-assets/
+        if [ -f "artifacts/VocabMaster-macOS/README-macOS.txt" ]; then
+          cp artifacts/VocabMaster-macOS/README-macOS.txt release-assets/
         fi
         
         # Windows
@@ -281,10 +274,10 @@ jobs:
             - 解压后运行 `VocabMaster/VocabMaster`
             - 需要安装 PyQt6 相关系统依赖
           
-          - **macOS**: `VocabMaster-macOS.dmg` 或 `VocabMaster-macOS.tar.gz`
-            - DMG: 双击安装，拖拽到 Applications 文件夹
-            - TAR.GZ: 解压后运行 `VocabMaster.app`
-            - 可能需要在"系统偏好设置 > 安全性与隐私"中允许运行
+          - **macOS**: `VocabMaster-macOS.tar.gz`
+            - 解压后运行 `./VocabMaster` (简单可执行文件)
+            - 无需复杂的安全设置，直接运行
+            - 详细说明请参考 `README-macOS.txt`
           
           - **Windows**: `VocabMaster-Windows-x64.zip`
             - 解压后运行 `VocabMaster.exe`

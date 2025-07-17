@@ -139,11 +139,9 @@ PYINSTALLER_CMD+=" --collect-all sklearn"
 
 # 根据操作系统添加特定参数
 if [ "${OS_TYPE}" == "darwin" ]; then
-    PYINSTALLER_CMD+=" --windowed"
+    # 为了避免macOS安全问题，创建简单的可执行文件而不是app bundle
+    PYINSTALLER_CMD+=" --onefile"
     PYINSTALLER_CMD+=" --icon=assets/icon.icns"
-    
-    # macOS特定選項
-    PYINSTALLER_CMD+=" --osx-bundle-identifier=com.icarus603.vocabmaster"
     
     # 修复Qt权限系统崩溃问题
     PYINSTALLER_CMD+=" --exclude-module=PyQt6.QtPositioning"
@@ -248,149 +246,21 @@ if [ ${BUILD_STATUS} -eq 0 ]; then
     ls -la dist/ || echo "無法列出dist/目錄內容"
     
     if [ "${OS_TYPE}" == "darwin" ]; then
-        echo "macOS .app 包位于: dist/VocabMaster.app"
+        echo "macOS 可執行文件位于: dist/VocabMaster"
         
-        # macOS後處理
-        echo "正在進行macOS應用程序後處理..."
-        
-        # 修改Info.plist文件
-        PLIST_PATH="dist/VocabMaster.app/Contents/Info.plist"
-        if [ -f "$PLIST_PATH" ]; then
-            echo "正在更新Info.plist..."
+        # 簡單macOS後處理 - 僅處理simple executable
+        if [ -f "dist/VocabMaster" ]; then
+            echo "✅ 可執行文件創建成功"
+            chmod +x "dist/VocabMaster"
             
-            # 使用plutil或手動方式更新Info.plist
-            if command -v plutil >/dev/null 2>&1; then
-                # 使用plutil更新plist文件
-                echo "更新基本版本信息..."
-                plutil -replace CFBundleShortVersionString -string "1.0.0" "$PLIST_PATH"
-                plutil -replace CFBundleVersion -string "1.0.0" "$PLIST_PATH"
-                plutil -replace LSMinimumSystemVersion -string "10.14" "$PLIST_PATH"
-                
-                # 添加bundle識別信息
-                echo "更新bundle識別信息..."
-                plutil -replace CFBundleIdentifier -string "com.icarus603.vocabmaster" "$PLIST_PATH" 2>/dev/null || true
-                plutil -replace CFBundleName -string "VocabMaster" "$PLIST_PATH" 2>/dev/null || true
-                plutil -replace CFBundleDisplayName -string "VocabMaster" "$PLIST_PATH" 2>/dev/null || true
-                
-                # 添加應用程序類型和類別
-                echo "設置應用程序屬性..."
-                plutil -replace CFBundlePackageType -string "APPL" "$PLIST_PATH" 2>/dev/null || true
-                plutil -replace LSApplicationCategoryType -string "public.app-category.education" "$PLIST_PATH" 2>/dev/null || true
-                
-                # 添加網絡權限
-                echo "配置網絡權限..."
-                plutil -insert NSAppTransportSecurity -xml '<dict><key>NSAllowsArbitraryLoads</key><true/></dict>' "$PLIST_PATH" 2>/dev/null || echo "NSAppTransportSecurity already exists"
-                
-                # 添加文件訪問權限
-                echo "配置文件訪問權限..."
-                plutil -insert NSDocumentsFolderUsageDescription -string "VocabMaster需要訪問文檔文件夾以導入自定義詞彙表" "$PLIST_PATH" 2>/dev/null || true
-                plutil -insert NSDesktopFolderUsageDescription -string "VocabMaster需要訪問桌面以導入詞彙表文件" "$PLIST_PATH" 2>/dev/null || true
-                
-                # 添加高DPI支持
-                echo "配置顯示支持..."
-                plutil -replace NSHighResolutionCapable -bool true "$PLIST_PATH" 2>/dev/null || true
-                plutil -replace NSSupportsAutomaticGraphicsSwitching -bool true "$PLIST_PATH" 2>/dev/null || true
-                
-                # 添加Python運行時支持
-                echo "配置Python運行時..."
-                plutil -replace NSAppleEventsUsageDescription -string "VocabMaster使用Python運行時提供詞彙測試功能" "$PLIST_PATH" 2>/dev/null || true
-                
-                echo "✅ Info.plist 更新完成"
-            else
-                echo "警告：未找到plutil工具，跳過Info.plist更新"
-            fi
-        else
-            echo "❌ 警告：Info.plist 文件不存在"
-        fi
-        
-        # 設置正確的權限
-        chmod +x "dist/VocabMaster.app/Contents/MacOS/VocabMaster"
-        
-        # 嘗試改進的代碼簽名（如果可能）
-        if command -v codesign >/dev/null 2>&1; then
-            echo "正在進行代碼簽名..."
-            
-            # 首先簽名所有動態庫和可執行文件
-            find "dist/VocabMaster.app" -type f \( -name "*.dylib" -o -name "*.so" \) -exec codesign --force --sign - {} \; 2>/dev/null || true
-            
-            # 簽名主要可執行文件
-            codesign --force --sign - "dist/VocabMaster.app/Contents/MacOS/VocabMaster" 2>/dev/null || true
-            
-            # 使用entitlements簽名整個app bundle
-            if [ -f "VocabMaster.entitlements" ]; then
-                echo "使用entitlements文件進行簽名..."
-                codesign --force --deep --sign - --entitlements "VocabMaster.entitlements" "dist/VocabMaster.app" || echo "⚠️ entitlements簽名失敗，嘗試基本簽名"
+            # CI環境移除quarantine屬性
+            if [ -n "$CI" ]; then
+                xattr -c "dist/VocabMaster" 2>/dev/null || true
             fi
             
-            # 如果entitlements簽名失敗，嘗試基本簽名
-            codesign --force --deep --sign - "dist/VocabMaster.app" || echo "⚠️ 代碼簽名失敗"
-            
-            # 驗證簽名
-            if codesign --verify --deep --strict "dist/VocabMaster.app" 2>/dev/null; then
-                echo "✅ 代碼簽名驗證成功"
-            else
-                echo "⚠️ 代碼簽名驗證失敗，但應用程序仍可運行"
-            fi
+            echo "✅ macOS可執行文件準備完成"
         else
-            echo "未找到codesign工具，跳過代碼簽名"
-        fi
-        
-        # 驗證應用程序結構
-        if [ -f "dist/VocabMaster.app/Contents/MacOS/VocabMaster" ]; then
-            echo "✅ 主要可執行文件存在"
-        else
-            echo "❌ 警告：主要可執行文件不存在"
-        fi
-        
-        # 移除quarantine屬性 (在CI環境中)
-        if [ -n "$CI" ]; then
-            echo "移除CI構建的quarantine屬性..."
-            xattr -cr "dist/VocabMaster.app" 2>/dev/null || true
-        fi
-        
-        # 創建.dmg安裝包
-        echo "正在創建macOS .dmg安裝包..."
-        
-        # 創建臨時目錄用於dmg內容
-        DMG_DIR="dist/dmg_temp"
-        mkdir -p "$DMG_DIR"
-        
-        # 複製.app到臨時目錄
-        cp -R "dist/VocabMaster.app" "$DMG_DIR/"
-        
-        # 移除DMG內容的quarantine屬性
-        xattr -cr "$DMG_DIR/VocabMaster.app" 2>/dev/null || true
-        
-        # 創建Applications文件夾的符號鏈接
-        ln -sf /Applications "$DMG_DIR/Applications"
-        
-        # 如果有背景圖片，可以添加
-        if [ -f "assets/dmg_background.png" ]; then
-            mkdir -p "$DMG_DIR/.background"
-            cp "assets/dmg_background.png" "$DMG_DIR/.background/"
-        fi
-        
-        # 創建.dmg文件
-        DMG_NAME="VocabMaster-macOS.dmg"
-        echo "創建 $DMG_NAME..."
-        
-        # 如果文件已存在，先刪除
-        rm -f "dist/$DMG_NAME"
-        
-        # 使用hdiutil創建dmg
-        hdiutil create -volname "VocabMaster" \
-                      -srcfolder "$DMG_DIR" \
-                      -ov -format UDZO \
-                      "dist/$DMG_NAME"
-        
-        if [ $? -eq 0 ]; then
-            echo "✅ 成功創建 $DMG_NAME"
-            ls -la "dist/$DMG_NAME"
-            
-            # 清理臨時目錄
-            rm -rf "$DMG_DIR"
-        else
-            echo "❌ 創建.dmg文件失敗"
+            echo "❌ 可執行文件不存在"
         fi
     elif [ "${OS_TYPE}" == "windows" ]; then
         echo "Windows 可执行文件位于: dist/VocabMaster.exe"
