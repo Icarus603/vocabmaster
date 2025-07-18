@@ -9,7 +9,7 @@ on:
       create_release:
         description: 'Create a new release'
         required: true
-        default: 'true'
+        default: true
         type: boolean
 
 jobs:
